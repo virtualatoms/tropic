@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "roppy-api"
 description = "API server for roppy."
-readme = "../README.md"
+readme = "/README.md"
 keywords = ["polymerisation", "database"]
 license = { text = "MIT" }
 authors = [{ name = "Alex Ganose", email = "alexganose@gmail.com" }]
@@ -29,15 +29,17 @@ dependencies = [
     "beanie",
     "fastapi",
     "fastapi-paginate",
-    "fastap-filter",
+    "fastapi-filter",
+    "uvicorn"
 ]
 
+[project.optional-dependencies]
 strict = [
     "pydantic==2.6.2",
 ]
 
 [project.scripts]
-atm = "atomate2.cli:cli"
+roppy-api = "roppy.api.api:main"
 
 [project.urls]
 homepage = "https://virtualatoms.github.io/roppy/"

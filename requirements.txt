@@ -1,8 +1,8 @@
 dash
 dash-bootstrap-components
+rdkit
 motor
 beanie
-rdkit
 fastapi
 fastapi-paginate
 fastapi-filter
