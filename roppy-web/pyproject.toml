@@ -3,8 +3,8 @@ requires = ["setuptools >= 42", "versioningit ~= 1.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "roppy-core"
-description = "Core documents for roppy."
+name = "roppy-web"
+description = "Roppy website."
 readme = "../README.md"
 keywords = ["polymerisation", "database"]
 license = { text = "MIT" }
