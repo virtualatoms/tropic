@@ -1,6 +1,8 @@
 dash
 dash-bootstrap-components
-motor 
+motor
 beanie
 rdkit
 fastapi
+fastapi-paginate
+fastapi-filter
