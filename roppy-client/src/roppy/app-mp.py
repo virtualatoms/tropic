@@ -1,5 +1,6 @@
 from dash import Dash, html, dcc, dash_table, Input, Output, State, callback, no_update
 import dash_bootstrap_components as dbc
+import dash_mp_components as dmc
 from beanie import init_beanie
 import motor.motor_asyncio
 from documents import MonomerSummary
@@ -10,12 +11,15 @@ from rdkit.Chem import Draw
 import io
 import numpy as np
 import dash_bio as dashbio
+import layouts
 
 
 app = Dash(
     __name__,
     external_stylesheets=[
-        dbc.themes.FLATLY,
+        "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css",
+        "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css",
+        # dbc.themes.LUX,
         # "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css",
     ],
 )
@@ -38,51 +42,63 @@ def smiles_to_image(smiles, size=(150, 150)):
 
 app.layout = html.Div(
     [
-        dbc.Modal(
+        # dbc.Modal(
+        #     [
+        #         dbc.ModalHeader("Draw Molecule"),
+        #         html.Div(
+        #             [
+        #                 dashbio.Jsme(
+        #                     id="jsme",
+        #                     smiles="",
+        #                 ),
+        #             ],
+        #             className="mx-auto py-4",
+        #         ),
+        #         dbc.ModalFooter(
+        #             [
+        #                 dbc.Button("Cancel", id="close-drawer", className="ml-auto"),
+        #                 dbc.Button("Apply", id="apply-drawn-molecule", color="primary"),
+        #             ]
+        #         ),
+        #     ],
+        #     id="molecule-drawer-modal",
+        #     # active=True
+        #     size="lg",
+        # ),
+        layouts.ModalCard(
             [
-                dbc.ModalHeader("Draw Molecule"),
-                html.Div(
-                    [
-                        dashbio.Jsme(
-                            id="jsme",
-                            smiles="",
-                        ),
-                    ],
-                    className="mx-auto py-4",
-                ),
-                dbc.ModalFooter(
-                    [
-                        dbc.Button("Cancel", id="close-drawer", className="ml-auto"),
-                        dbc.Button("Apply", id="apply-drawn-molecule", color="primary"),
-                    ]
+                dashbio.Jsme(
+                    id="jsme",
+                    smiles="",
                 ),
             ],
+            title="Draw Molecule",
             id="molecule-drawer-modal",
-            size="lg",
+            # active=True,
         ),
-        html.Center([html.H1("RopPy", className="mt-4")]),
+        html.Center([layouts.H1("RopPy", className="title")]),
         html.Div(
             [
                 dbc.Row(
                     [
                         dbc.Col(
                             [
-                                dbc.Input(
+                                layouts.Input(
                                     id="smiles-input",
                                     type="text",
                                     placeholder="Enter SMILES notation",
-                                    className="mb-3",
+                                    # className="mb-3",
                                 ),
                             ],
                             width=5,
                         ),
                         dbc.Col(
                             [
-                                dbc.Button(
+                                layouts.Button(
                                     "Draw",
                                     id="draw-button",
-                                    color="primary",
-                                    className="mb-3",
+                                    # color="primary",
+                                    # className="mb-3",
                                 ),
                                 html.Div(
                                     id="molecule-drawer-output",
@@ -193,7 +209,7 @@ app.layout = html.Div(
                             ]
                         ),
                     ],
-                    className="mt-4 dbc",
+                    # className="mt-4",
                 )
             ]
         ),
@@ -225,7 +241,7 @@ async def update_table_async(smiles, ring_size_range):
             ]
         }
 
-    query.update(ring_query, limit=20)
+    query.update(ring_query)
 
     results = await MonomerSummary.find(query).to_list()
 
@@ -265,13 +281,13 @@ def update_table(smiles, ring_size_range):
 
 
 @callback(
-    Output("molecule-drawer-modal", "is_open"),
+    Output("molecule-drawer-modal", "active"),
     [
         Input("draw-button", "n_clicks"),
-        Input("close-drawer", "n_clicks"),
-        Input("apply-drawn-molecule", "n_clicks"),
+        Input("molecule-drawer-modal_cancel", "n_clicks"),
+        Input("molecule-drawer-modal_accept", "n_clicks"),
     ],
-    [State("molecule-drawer-modal", "is_open")],
+    State("molecule-drawer-modal", "active"),
     prevent_initial_call=True,
 )
 def toggle_modal(draw_clicks, close_clicks, apply_clicks, is_open):
@@ -282,7 +298,7 @@ def toggle_modal(draw_clicks, close_clicks, apply_clicks, is_open):
 
 @callback(
     Output("smiles-input", "value"),
-    [Input("apply-drawn-molecule", "n_clicks")],
+    [Input("molecule-drawer-modal_accept", "n_clicks")],
     [State("jsme", "eventSmiles")],
     prevent_initial_call=True,
 )
