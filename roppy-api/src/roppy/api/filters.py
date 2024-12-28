@@ -13,8 +13,9 @@ class MonomerSummaryFilter(Filter):
     ring_size__gte: Optional[int] = None
     has_exp: Optional[bool] = None
     has_calc: Optional[bool] = None
+    search: Optional[str] = None
     order_by: list[str] = ["monomer_id"]
 
     class Constants(Filter.Constants):
         model = MonomerSummaryDocument
-        search_model_fields = ["name"]
+        search_model_fields = ["smiles"]
