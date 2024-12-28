@@ -1,6 +1,6 @@
 import dash
 from dash import html
-from roppy.web.header import get_breadcrumbs
+from roppy.web.components.breadcrumbs import get_breadcrumbs
 
 dash.register_page(__name__)
 
