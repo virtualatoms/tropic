@@ -28,9 +28,12 @@ dependencies = [
     "pydantic>=2.0.1",
     "beanie",
     "fastapi",
-    "fastapi-paginate",
+    "fastapi-pagination",
     "fastapi-filter",
-    "uvicorn"
+    "uvicorn",
+    "dash-ag-grid",
+    "dash-mantine-components",
+    "dash-iconify",
 ]
 
 [project.optional-dependencies]

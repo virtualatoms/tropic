@@ -7,9 +7,12 @@ from roppy.api.documents import MonomerSummaryDocument
 from roppy.api.filters import MonomerSummaryFilter
 from roppy.core.models import MonomerSummary
 from fastapi_filter import FilterDepends
+from fastapi_pagination import Page, add_pagination
+from fastapi_pagination.ext.beanie import paginate
 
 
 app = FastAPI(title="Polymerization API")
+add_pagination(app)
 
 DATABASE_URL = "mongodb://localhost:27017"
 DATABASE_NAME = "roppy"
@@ -23,12 +26,12 @@ async def startup_event():
         document_models=[MonomerSummaryDocument],
     )
 
-@app.get("/monomers", response_model=list[MonomerSummary])
+@app.get("/monomers", response_model=Page[MonomerSummary])
 async def get_monomers(monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter)) -> Any:
     query = monomer_filter.filter(MonomerSummaryDocument.find({}))
     query = monomer_filter.sort(query)
     query = query.find(fetch_links=False)
-    return await query.project(MonomerSummary).to_list()
+    return await paginate(query.project(MonomerSummary))
 
 
 @app.get("/monomers/{monomer_id}", response_model=MonomerSummary)
