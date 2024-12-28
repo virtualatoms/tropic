@@ -15,7 +15,8 @@ class PolymerisationSummaryDocument(Document, PolymerisationSummary):
 
 class MonomerSummaryDocument(Document, MonomerSummary):
     polymerisations: list[Link[PolymerisationSummary]] = Field(
-        default_factory=list, description="Links to polymerization data involving the monomer"
+        default_factory=list,
+        description="Links to polymerization data involving the monomer",
     )
 
     class Settings:

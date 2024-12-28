@@ -808,6 +808,7 @@ class Modal(html.Div):
             **kwargs,
         )
 
+
 class ModalCard(html.Div):
     def __init__(
         self,
@@ -826,20 +827,26 @@ class ModalCard(html.Div):
                 html.Div(
                     children=[
                         html.Header(
-                            [html.P(title, className="modal-card-title"),
-                            html.Button(className="delete")],
+                            [
+                                html.P(title, className="modal-card-title"),
+                                html.Button(className="delete"),
+                            ],
                             className="modal-card-head",
                         ),
-                        html.Section(
-                            children=children, className="modal-card-body"
-                        ),
+                        html.Section(children=children, className="modal-card-body"),
                         html.Footer(
                             html.Div(
                                 [
-                                    html.Button("Accept", className="button is-success", id=f"{id}_accept"),
-                                    html.Button("Cancel", className="button", id=f"{id}_cancel"),
+                                    html.Button(
+                                        "Accept",
+                                        className="button is-success",
+                                        id=f"{id}_accept",
+                                    ),
+                                    html.Button(
+                                        "Cancel", className="button", id=f"{id}_cancel"
+                                    ),
                                 ],
-                                className="buttons"
+                                className="buttons",
                             ),
                             className="modal-card-foot",
                         ),
@@ -850,6 +857,7 @@ class ModalCard(html.Div):
             id=id,
             **kwargs,
         )
+
 
 class Navbar:
     # TODO: map this to Navbar component automatically?

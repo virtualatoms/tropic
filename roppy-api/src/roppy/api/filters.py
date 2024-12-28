@@ -4,7 +4,7 @@ from typing import Optional
 
 
 class MonomerSummaryFilter(Filter):
-    monomer_id: Optional[str] = None 
+    monomer_id: Optional[str] = None
     monomer_id__in: Optional[list[str]] = None
     smiles: Optional[str] = None
     smiles__in: Optional[list[str]] = None

@@ -134,17 +134,12 @@ class PolymerInfo(BaseModel):
     number_of_units: Union[int, Literal["many"]] = Field(
         ..., description="Number of repeating units in the polymer"
     )
-    polyinfo_id: str = Field(
-        ..., description="ID in PolyInfo database"
-    )
-    polygenome_id: list[str] = Field(
-        ..., description="ID in polygenome database"
-    )
+    polyinfo_id: str = Field(..., description="ID in PolyInfo database")
+    polygenome_id: list[str] = Field(..., description="ID in polygenome database")
+
 
 class ExperimentalData(BaseModel):
-    state: str = Field(
-        ..., description="State of the polymerization reaction"
-    )
+    state: str = Field(..., description="State of the polymerization reaction")
     solvent_conc: Optional[float] = Field(
         None, description="Solvent concentration in mol/L"
     )
@@ -154,18 +149,12 @@ class ExperimentalData(BaseModel):
     delta_s: float = Field(
         ..., description="Change in entropy (ΔS) for the polymerization reaction"
     )
-    critical_temperature: float = Field(
-        float, description="Critical temperature in K"
-    )
+    critical_temperature: float = Field(float, description="Critical temperature in K")
     equilibrium_temperature: float = Field(
         float, description="Equilibrium temperature in K"
     )
-    doi: str = Field(
-        ..., description="Digital Object Identifier for the source"
-    )
-    polymerisation_id: str = Field(
-        ..., description="ID for the polymerisation"
-    )
+    doi: str = Field(..., description="Digital Object Identifier for the source")
+    polymerisation_id: str = Field(..., description="ID for the polymerisation")
     initiator_smiles: Optional[str] = Field(
         None, description="SMILES notation representing the initiator"
     )
@@ -173,40 +162,32 @@ class ExperimentalData(BaseModel):
         None, description="Number of repeating units in the polymer"
     )
 
+
 class ComputationalData(BaseModel):
-    state: str = Field(
-        ..., description="State of the polymerization reaction"
-    )
+    state: str = Field(..., description="State of the polymerization reaction")
     solvent_model: Optional[str] = Field(
         None, description="Method used to model the solvent"
     )
-    solvent_model: Optional[str] = Field(
-        None, description="Solvent used"
-    )
+    solvent_model: Optional[str] = Field(None, description="Solvent used")
     delta_h: float = Field(
         ..., description="Change in enthalpy (ΔH) for the polymerization reaction"
     )
     delta_s: float = Field(
         ..., description="Change in entropy (ΔS) for the polymerization reaction"
     )
-    critical_temperature: float = Field(
-        float, description="Critical temperature in K"
-    )
+    critical_temperature: float = Field(float, description="Critical temperature in K")
     equilibrium_temperature: float = Field(
         float, description="Equilibrium temperature in K"
     )
-    doi: str = Field(
-        ..., description="Digital Object Identifier for the source"
-    )
-    polymerisation_id: str = Field(
-        ..., description="ID for the polymerisation"
-    )
+    doi: str = Field(..., description="Digital Object Identifier for the source")
+    polymerisation_id: str = Field(..., description="ID for the polymerisation")
     initiator_smiles: Optional[str] = Field(
         None, description="SMILES notation representing the initiator"
     )
     number_of_units: Optional[int] = Field(
         None, description="Number of repeating units in the polymer"
     )
+
 
 class PolymerisationSummary(BaseModel):
     reaction_smiles: str = Field(
@@ -214,14 +195,17 @@ class PolymerisationSummary(BaseModel):
     )
     polymer: PolymerInfo = Field(..., description="Polymer information")
     experimental_data: list[ExperimentalData] = Field(
-        default_factory=list, description="Experimental data for the polymerization reaction"
+        default_factory=list,
+        description="Experimental data for the polymerization reaction",
     )
     computational_data: list[ComputationalData] = Field(
-        default_factory=list, description="Computational data for the polymerization reaction"
+        default_factory=list,
+        description="Computational data for the polymerization reaction",
     )
     polymerisation_summary_id: str = Field(
         ..., description="Unique identifier for the polymerization summary"
     )
+
 
 class MonomerSummary(BaseModel):
     monomer_id: str = Field(..., description="Unique identifier for the monomer")
@@ -235,5 +219,6 @@ class MonomerSummary(BaseModel):
     has_exp: bool = Field(..., description="Whether the monomer has experimental data")
     has_calc: bool = Field(..., description="Whether the monomer has calculated data")
     polymerisations: list[PolymerisationSummary] = Field(
-        default_factory=list, description="Links to polymerization data involving the monomer"
+        default_factory=list,
+        description="Links to polymerization data involving the monomer",
     )

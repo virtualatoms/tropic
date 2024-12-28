@@ -26,8 +26,11 @@ async def startup_event():
         document_models=[MonomerSummaryDocument],
     )
 
+
 @app.get("/monomers", response_model=Page[MonomerSummary])
-async def get_monomers(monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter)) -> Any:
+async def get_monomers(
+    monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter),
+) -> Any:
     query = monomer_filter.filter(MonomerSummaryDocument.find({}))
     query = monomer_filter.sort(query)
     query = query.find(fetch_links=False)
