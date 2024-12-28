@@ -31,7 +31,7 @@ header = dmc.Box(
                                     size="xl",
                                     styles={"root": {"fontWeight": 700}},
                                 ),
-                            ]
+                            ],
                         ),
                         dmc.Group(
                             gap="sm",
@@ -75,7 +75,7 @@ header = dmc.Box(
                                         styles={"root": {"fontWeight": 500}},
                                     ),
                                     href="/api",
-                                )
+                                ),
                             ],
                         ),
                     ],
@@ -102,6 +102,7 @@ app.layout = dmc.MantineProvider(
         )
     ]
 )
+
 
 def main():
     app.run_server(debug=True)

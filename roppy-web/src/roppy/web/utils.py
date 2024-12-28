@@ -2,6 +2,7 @@ import base64
 from rdkit import Chem
 from rdkit.Chem import Draw
 
+
 def smiles_to_image(smiles, size=(150, 100)):
     drawer = Draw.MolDraw2DSVG(*size)
     try:

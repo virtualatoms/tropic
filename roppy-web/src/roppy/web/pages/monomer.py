@@ -53,7 +53,7 @@ def layout(monomer_id=None, **kwargs):
 
     grid = dmc.Grid(
         [
-            dmc.GridCol(monomer_card1, span=3), 
+            dmc.GridCol(monomer_card1, span=3),
             dmc.GridCol(monomer_card2, span=3),
             dmc.GridCol(monomer_card3, span=3),
         ],
