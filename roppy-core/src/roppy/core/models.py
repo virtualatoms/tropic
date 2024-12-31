@@ -130,12 +130,18 @@ class Polymerisation(BaseModel):
     )
 
 
-class PolymerInfo(BaseModel):
-    number_of_units: Union[int, Literal["many"]] = Field(
-        ..., description="Number of repeating units in the polymer"
+class MonomerInfo(BaseModel):
+    inchi: Optional[str] = Field(
+        None, description="IUPAC International Chemical Identifier"
     )
-    polyinfo_id: str = Field(..., description="ID in PolyInfo database")
-    polygenome_id: list[str] = Field(..., description="ID in polygenome database")
+    iupac_name: Optional[str] = Field(None, description="IUPAC name of the monomer")
+    common_name: Optional[str] = Field(None, description="Common name of the monomer")
+    xyz: Optional[str] = Field(None, description="XYZ coordinates for the monomer")
+
+
+class PolymerInfo(BaseModel):
+    polyinfo_id: Optional[str] = Field(None, description="ID in PolyInfo database")
+    polygenome_id: Optional[str] = Field(None, description="ID in polygenome database")
 
 
 class ExperimentalData(BaseModel):
@@ -218,7 +224,25 @@ class MonomerSummary(BaseModel):
     )
     has_exp: bool = Field(..., description="Whether the monomer has experimental data")
     has_calc: bool = Field(..., description="Whether the monomer has calculated data")
-    polymerisations: list[PolymerisationSummary] = Field(
-        default_factory=list,
-        description="Links to polymerization data involving the monomer",
+    monomer_info: MonomerInfo = Field(..., description="Monomer information")
+    polymerisation: PolymerisationSummary = Field(
+        None,
+        description="Polymerization summary involving the monomer",
     )
+    ring_opening: list[PolymerisationSummary] = Field(
+        default_factory=list,
+        description="Ring opening summaries involving the monomer",
+    )
+
+
+class MonomerSummaryBrief(BaseModel):
+    monomer_id: str = Field(..., description="Unique identifier for the monomer")
+    smiles: str = Field(
+        ..., description="SMILES notation representing the monomer structure"
+    )
+    ring_size: int = Field(
+        ...,
+        description="Size of the ring in the monomer structure",
+    )
+    has_exp: bool = Field(..., description="Whether the monomer has experimental data")
+    has_calc: bool = Field(..., description="Whether the monomer has calculated data")

@@ -6,11 +6,10 @@ import dash_ag_grid as dag
 from urllib.parse import quote
 from dash import Input, Output, State, callback, no_update, register_page
 from dash_iconify import DashIconify
-from dash import dcc
 from roppy.web.utils import smiles_to_image
 from roppy.web.components.breadcrumbs import get_breadcrumbs
 
-register_page(__name__, path="/monomers")
+register_page(__name__)
 
 PAGE_SIZE = 5
 
