@@ -1,4 +1,5 @@
 from pydantic import Field
+from typing import Optional
 from beanie import Document, Link
 
 from roppy.core.models import MonomerSummary, PolymerisationSummary, Polymerisation
@@ -14,9 +15,13 @@ class PolymerisationSummaryDocument(Document, PolymerisationSummary):
 
 
 class MonomerSummaryDocument(Document, MonomerSummary):
-    polymerisations: list[Link[PolymerisationSummary]] = Field(
+    polymerisation: Optional[Link[PolymerisationSummaryDocument]] = Field(
+        None,
+        description="Link to polymerization data involving the monomer",
+    )
+    ring_opening: list[Link[PolymerisationSummaryDocument]] = Field(
         default_factory=list,
-        description="Links to polymerization data involving the monomer",
+        description="Link to ring opening data involving the monomer",
     )
 
     class Settings:
