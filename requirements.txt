@@ -1,6 +1,7 @@
 dash
 dash-bootstrap-components
-motor 
+motor
 beanie
 rdkit
 fastapi
+dash_bio
