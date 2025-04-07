@@ -1,6 +1,6 @@
 import dash_mantine_components as dmc
 from dash import dcc
-from roppy.web.utils import smiles_to_image
+from roppy.web.utils import smiles_to_image, reaction_to_image
 from roppy.web.components.table import get_table
 from dash import html
 
@@ -14,9 +14,9 @@ def get_polymer_info_card(polyinfo):
 
 
 def get_polymer_reaction_card(data):
-    reaction_data = smiles_to_image(data["reaction_smiles"], size=(500, 200))
+    reaction_data = reaction_to_image(data["reaction_smiles"], size=(-1, -1))
     reaction_img = dmc.Image(
-        radius="md", h=200, src=f"data:image/svg+xml;base64,{reaction_data}"
+        h=200, src=f"data:image/svg+xml;base64,{reaction_data}"
     )
     return dmc.Card(reaction_img, withBorder=True, shadow="sm", radius="md")
 
@@ -37,7 +37,7 @@ def get_polymerisation_section(data):
     poly = dmc.Stack(
         [
             html.H1(
-                "Polymerisation", id="poly", style={"margin-top": 0, "padding-top": 00}
+                "Polymerisation", id="poly", style={"margin-top": 0, "padding-top": 0}
             ),
             summary,
             html.H2(

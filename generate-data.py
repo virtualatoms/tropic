@@ -4,7 +4,7 @@ from beanie import init_beanie
 import motor.motor_asyncio
 
 poly_data = {
-    "reaction_smiles": "COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C",
+    "reaction_smiles": "COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C.COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C>>COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C",
     "polymer": {
         "polyinfo_id": "polyinfo_123",
         "polygenome_id": "polygenome_456",
@@ -35,7 +35,7 @@ poly_data = {
 }
 
 rop_data = {
-    "reaction_smiles": "COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C",
+    "reaction_smiles": "COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C.COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C>>COC(=O)[C@H]1[C@@H](OC(=O)c2ccccc2)C[C@@H]2CC[C@H]1N2C",
     "polymer": {
         "polyinfo_id": "polyinfo_123",
         "polygenome_id": "polygenome_456",
