@@ -1,6 +1,5 @@
-import dash
 import requests
-from dash import html
+from dash import html, register_page
 import dash_mantine_components as dmc
 from roppy.web.components.breadcrumbs import get_breadcrumbs
 from roppy.web.components.toc import register_toc_callbacks
@@ -9,7 +8,7 @@ from roppy.web.components.monomer import get_monomer_toc, get_monomer_page_summa
 from roppy.web.components.polymerisation import get_polymerisation_section
 
 
-dash.register_page(__name__, path_template="/monomers/<monomer_id>")
+register_page(__name__, path_template="/monomers/<monomer_id>")
 
 register_toc_callbacks()
 register_molview_callbacks()
@@ -30,7 +29,7 @@ def layout(monomer_id="monomer-1", **kwargs):
     page = [monomer_summary]
 
     if data["polymerisation"]:
-        poly_section = get_polymerisation_section(data)
+        poly_section = get_polymerisation_section(data["polymerisation"])
         page.extend([dmc.Divider(mt=60, mb=40), poly_section])
 
     # if data["ring_opening"]:
