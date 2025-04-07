@@ -14,7 +14,10 @@ import dash_bio as dashbio
 
 app = Dash(
     __name__,
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[
+        dbc.themes.LUX,
+        "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
+    ],
 )
 
 
@@ -190,7 +193,7 @@ app.layout = html.Div(
                             ]
                         ),
                     ],
-                    className="mt-4",
+                    className="mt-4 dbc",
                 )
             ]
         ),
@@ -222,7 +225,7 @@ async def update_table_async(smiles, ring_size_range):
             ]
         }
 
-    query.update(ring_query, limit=20)
+    query.update(ring_query)
 
     results = await MonomerSummary.find(query).to_list()
 
