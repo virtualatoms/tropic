@@ -1,7 +1,7 @@
 import dash_mantine_components as dmc
 from dash import dcc
-from roppy.web.utils import smiles_to_image, reaction_to_image
-from roppy.web.components.table import get_table
+from roppy.web.utils import reaction_to_image
+from roppy.web.components.infotable import get_info_table
 from dash import html
 
 
@@ -10,7 +10,7 @@ def get_polymer_info_card(polyinfo):
         ("PolyInfo", dcc.Link(polyinfo["polyinfo_id"], href=f"https://polyinfo.com/{polyinfo['polyinfo_id']}")),
         ("PolyGenome", dcc.Link(polyinfo["polygenome_id"], href=f"https://polygenome.com/{polyinfo['polygenome_id']}")),
     ]
-    return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
+    return dmc.Card([get_info_table(table_data)], withBorder=True, shadow="sm", radius="md")
 
 
 def get_polymer_reaction_card(data):

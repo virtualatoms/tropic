@@ -2,7 +2,7 @@ import dash_mantine_components as dmc
 
 from dash import html
 from roppy.web.utils import smiles_to_image
-from roppy.web.components.table import get_table
+from roppy.web.components.infotable import get_info_table
 from roppy.web.components.molview import get_mol_viewer_card
 from roppy.web.components.toc import create_toc_sidebar
 
@@ -15,8 +15,10 @@ def get_monomer_info_card(data):
         ("InChI", data["monomer_info"]["inchi"]),
         ("IUPAC Name", data["monomer_info"]["iupac_name"]),
         ("Common Name", data["monomer_info"]["common_name"]),
+        ("Molecular Weight", data["molecular_weight"]),
+        ("Ring Size", data["ring_size"]),
     ]
-    return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
+    return dmc.Card([get_info_table(table_data)], withBorder=True, shadow="sm", radius="md")
 
 
 def get_monomer_page_summary(data):

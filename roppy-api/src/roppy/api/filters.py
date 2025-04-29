@@ -11,6 +11,8 @@ class MonomerSummaryFilter(Filter):
     ring_size: Optional[int] = None
     ring_size__lt: Optional[int] = None
     ring_size__gte: Optional[int] = None
+    molecular_weight__lt: Optional[float] = None
+    molecular_weight__gte: Optional[float] = None
     has_exp: Optional[bool] = None
     has_calc: Optional[bool] = None
     search: Optional[str] = None

@@ -13,7 +13,7 @@ from roppy.web.components.searchtable import get_search_table, PAGE_SIZE
 from roppy.web.components.draw import get_draw_molecule   
 
 
-register_page(__name__)
+register_page("monomers")
 
 
 def layout(**kwargs):
@@ -95,18 +95,6 @@ def update_smiles_from_drawing(n_clicks, drawn_smiles):
         return drawn_smiles
     return no_update
     
-@callback(
-    Output("results-table", "getRowsRequest"),
-    Output("results-table", "rowData"),
-    Input("smiles-input", "value"),
-    Input("ring-size-slider", "value"),
-    Input("has-comp", "value"),
-    Input("has-exp", "value"),
-)
-def reset_table(*_):
-    print("resetting")
-    return {"startRow": 1, "endRow": 5, "sortModel": [], "filterModel": {}}, []
-
 
 @callback(
     Output("results-table", "getRowsResponse"),
@@ -167,9 +155,7 @@ def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
             }
         )
 
-    print(results["total"])
     return {"rowData": np.array(table_data), "rowCount": results["total"]}
-
 
 
 # this hack is needed to make AG Grid work properly 

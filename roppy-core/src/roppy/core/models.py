@@ -222,6 +222,9 @@ class MonomerSummary(BaseModel):
         ...,
         description="Size of the ring in the monomer structure",
     )
+    molecular_weight: float = Field(
+        ..., description="Molecular weight of the monomer in g/mol"
+    )
     has_exp: bool = Field(..., description="Whether the monomer has experimental data")
     has_calc: bool = Field(..., description="Whether the monomer has calculated data")
     monomer_info: MonomerInfo = Field(..., description="Monomer information")
@@ -243,6 +246,9 @@ class MonomerSummaryBrief(BaseModel):
     ring_size: int = Field(
         ...,
         description="Size of the ring in the monomer structure",
+    )
+    molecular_weight: float = Field(
+        ..., description="Molecular weight of the monomer in g/mol"
     )
     has_exp: bool = Field(..., description="Whether the monomer has experimental data")
     has_calc: bool = Field(..., description="Whether the monomer has calculated data")

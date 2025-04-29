@@ -1,7 +1,7 @@
 import dash_mantine_components as dmc
 
 
-def get_table(data, header=None):
+def get_info_table(data, header=None):
     row_style = {} if header else {"font-weight": "bold"}
     rows = [
         dmc.TableTr([dmc.TableTd(name, style=row_style), dmc.TableTd(value)])
