@@ -130,20 +130,6 @@ class Polymerisation(BaseModel):
     )
 
 
-class MonomerInfo(BaseModel):
-    inchi: Optional[str] = Field(
-        None, description="IUPAC International Chemical Identifier"
-    )
-    iupac_name: Optional[str] = Field(None, description="IUPAC name of the monomer")
-    common_name: Optional[str] = Field(None, description="Common name of the monomer")
-    xyz: Optional[str] = Field(None, description="XYZ coordinates for the monomer")
-
-
-class PolymerInfo(BaseModel):
-    polyinfo_id: Optional[str] = Field(None, description="ID in PolyInfo database")
-    polygenome_id: Optional[str] = Field(None, description="ID in polygenome database")
-
-
 class ExperimentalData(BaseModel):
     state: str = Field(..., description="State of the polymerization reaction")
     solvent_conc: Optional[float] = Field(
@@ -199,7 +185,8 @@ class PolymerisationSummary(BaseModel):
     reaction_smiles: str = Field(
         ..., description="SMILES notation representing the polymerization reaction"
     )
-    polymer: PolymerInfo = Field(..., description="Polymer information")
+    polyinfo_id: Optional[str] = Field(None, description="ID in PolyInfo database")
+    polygenome_id: Optional[str] = Field(None, description="ID in polygenome database")
     experimental_data: list[ExperimentalData] = Field(
         default_factory=list,
         description="Experimental data for the polymerization reaction",
@@ -222,9 +209,14 @@ class MonomerSummary(BaseModel):
         ...,
         description="Size of the ring in the monomer structure",
     )
+    inchi: Optional[str] = Field(
+        None, description="IUPAC International Chemical Identifier"
+    )
+    iupac_name: Optional[str] = Field(None, description="IUPAC name of the monomer")
+    common_name: Optional[str] = Field(None, description="Common name of the monomer")
+    xyz: Optional[str] = Field(None, description="XYZ coordinates for the monomer")
     has_exp: bool = Field(..., description="Whether the monomer has experimental data")
     has_calc: bool = Field(..., description="Whether the monomer has calculated data")
-    monomer_info: MonomerInfo = Field(..., description="Monomer information")
     polymerisation: PolymerisationSummary = Field(
         None,
         description="Polymerization summary involving the monomer",
