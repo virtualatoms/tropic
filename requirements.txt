@@ -1,9 +1,0 @@
-dash
-dash-bootstrap-components
-rdkit
-motor
-beanie
-fastapi
-fastapi-paginate
-fastapi-filter
-dash_bio
