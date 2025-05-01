@@ -6,3 +6,4 @@ beanie
 fastapi
 fastapi-paginate
 fastapi-filter
+dash_bio

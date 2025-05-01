@@ -40,7 +40,4 @@ async def init():
 if __name__ == "__main__":
     import asyncio
 
-    loop = asyncio.new_event_loop()
-    tasks = [init()]
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+    asyncio.run(init())
