@@ -21,30 +21,116 @@ def validate_solvent(value: Optional[str]) -> Optional[str]:
     )
 
 
-class Conditions(BaseModel):
+class Monomer(BaseModel):
+    monomer_id: int = Field(..., description="Unique identifier for the monomer")
+    smiles: str = Field(
+        ..., description="SMILES notation representing the monomer structure"
+    )
+    inchi: Optional[str] = Field(
+        None, description="IUPAC International Chemical Identifier"
+    )
+    molecular_weight: Optional[float] = Field(
+        None, description="Molecular weight of the monomer in g/mol"
+    )
+    functional_group: Optional[str] = Field(
+        None, description="Primary functional group involved in polymerization"
+    )
+    ring_size: Optional[int] = Field(
+        None,
+        description="Size of the ring in the monomer structure",
+    )
+    iupac_name: Optional[str] = Field(None, description="IUPAC name of the monomer")
+    common_name: Optional[str] = Field(None, description="Common name of the monomer")
+    xyz: Optional[str] = Field(None, description="XYZ coordinates for the monomer")
+    polymerisations: list[int] = Field(
+        default_factory=list,
+        description="List of polymerization ids involving the monomer (including ring-openings)",
+    )
+
+    # def __init__(self, monomer_id: int, smiles: str, polymerisations: list[int]):
+    #     self.monomer_id = monomer_id
+    #     self.smiles = smiles
+    #     self.polymerisations = polymerisations
+    #
+    #     # TODO: complete rest of initialisation script to generate other fields
+
+
+class Initiator(BaseModel):
+    initiator_id: int = Field(..., description="Unique identifier for the initiator")
+    smiles: str = Field(
+        ..., description="SMILES notation representing the initiator structure"
+    )
+    inchi: Optional[str] = Field(
+        None, description="IUPAC International Chemical Identifier"
+    )
+    molecular_weight: Optional[float] = Field(
+        None, description="Molecular weight of the initiator in g/mol"
+    )
+    functional_group: Optional[str] = Field(
+        None, description="Primary functional group of the initiator"
+    )
+    iupac_name: Optional[str] = Field(None, description="IUPAC name of the initiator")
+    common_name: Optional[str] = Field(None, description="Common name of the initiator")
+    xyz: Optional[str] = Field(None, description="XYZ coordinates for the initiator")
+    polymerisations: list[int] = Field(
+        default_factory=list,
+        description="List of polymerization ids involving the initiator (including ring-openings)",
+    )
+
+    # def __init__(self, initiator_id: int, smiles: str, polymerisations: list[int]):
+    #     self.initiator_id = initiator_id
+    #     self.smiles = smiles
+    #     self.polymerisations = polymerisations
+
+    # TODO: complete rest of initialisation script to generate other fields
+
+
+class Product(BaseModel):
+    number_of_units: float = Field(
+        ..., description="(average) Number of repeating units in the polymer"
+    )
+    repeating_unit: Optional[str] = Field(
+        None, description="SMILES notation or chemical formula of the repeating unit"
+    )
+    molecular_weight: Optional[float] = Field(
+        None, description="Average molecular weight of the polymer in g/mol"
+    )
+    """ 
+    TODO: 
+    Add additional descriptors for product?
+    E.g. dispersity, average molar mass, etc.
+
+    Complete initialisation script to generate other fields
+        """
+
+    # def __init__(self, number_of_units: float):
+    #     self.number_of_units = number_of_units
+
+    # TODO: complete rest of initialisation script to generate other fields
+
+
+class Parameters(BaseModel):
     temperature: Optional[float] = Field(
         None, description="Reaction temperature in Kelvin"
     )
+    pressure: Optional[float] = Field(None, description="Reaction pressure in bar")
     solvent: Optional[Solvent] = Field(
         None, description="Solvent used in the reaction (must be ORCA-compatible)"
     )
     solvent_conc: Optional[float] = Field(
         None, description="Solvent concentration in mol/L"
     )
-    monomer_state: Optional[Literal["gas", "liquid", "solution"]] = Field(
+    monomer_state: Optional[Literal["a", "g", "l", "s", "c"]] = Field(
         None, description="Physical state of the monomer"
     )
-    polymer_state: Optional[Literal["gas", "liquid", "solution"]] = Field(
+    polymer_state: Optional[Literal["a", "g", "l", "s", "c"]] = Field(
         None, description="Physical state of the polymer"
     )
-    pressure: Optional[float] = Field(None, description="Reaction pressure in bar")
-
-    _validate_solvent = field_validator("solvent")(validate_solvent)
-
-
-class Parameters(BaseModel):
     method: Optional[Literal["dft", "ffmd", "aimd", "mlmd", "xtb", "ml"]] = Field(
         None, description="Computational method used for the calculation"
+    )
+    solvent_model: Optional[str] = Field(
+        None, description="Computational solvent model used"
     )
     functional: Optional[str] = Field(
         None, description="DFT functional used (if applicable)"
@@ -53,12 +139,6 @@ class Parameters(BaseModel):
         None, description="Basis set used in quantum calculations"
     )
     dispersion: Optional[str] = Field(None, description="Dispersion correction method")
-    solvent_model: Optional[str] = Field(
-        None, description="Computational solvent model used"
-    )
-    solvent: Optional[Solvent] = Field(
-        None, description="Solvent used in calculations (must be ORCA-compatible)"
-    )
     forcefield: Optional[str] = Field(
         None, description="Force field used for molecular dynamics"
     )
@@ -66,80 +146,35 @@ class Parameters(BaseModel):
     _validate_solvent = field_validator("solvent")(validate_solvent)
 
 
-class Monomer(BaseModel):
-    smiles: str = Field(
-        ..., description="SMILES notation representing the monomer structure"
-    )
-    molecular_weight: Optional[float] = Field(
-        None, description="Molecular weight of the monomer in g/mol"
-    )
-    functional_group: Optional[str] = Field(
-        None, description="Primary functional group involved in polymerization"
-    )
-
-
-class Product(BaseModel):
-    smiles: Optional[str] = Field(
-        None, description="SMILES notation representing the polymer structure"
-    )
-    repeating_unit: Optional[str] = Field(
-        None, description="SMILES notation or chemical formula of the repeating unit"
-    )
-    number_of_units: Optional[Union[int, Literal["many"]]] = Field(
-        None, description="Number of repeating units in the polymer"
-    )
-    molecular_weight: Optional[float] = Field(
-        None, description="Molecular weight of the polymer in g/mol"
-    )
-
-
-class Initiator(BaseModel):
-    smiles: Optional[str] = Field(
-        None, description="SMILES notation representing the initiator structure"
-    )
-    molecular_weight: Optional[float] = Field(
-        None, description="Molecular weight of the initiator in g/mol"
-    )
-    functional_group: Optional[str] = Field(
-        None, description="Primary functional group of the initiator"
-    )
-
-
-class Results(BaseModel):
+class Thermo(BaseModel):
     delta_h: Optional[float] = Field(
         None, description="Change in enthalpy (ΔH) for the polymerization reaction"
     )
     delta_s: Optional[float] = Field(
         None, description="Change in entropy (ΔS) for the polymerization reaction"
     )
-    critical_temperature: Optional[float] = Field(
-        None, description="Critical temperature in K"
-    )
-    equilibrium_temperature: Optional[float] = Field(
-        None, description="Equilibrium temperature in K"
+    ceiling_temperature: Optional[float] = Field(
+        None, description="Ceiling temperature in K"
     )
 
 
 class Polymerisation(BaseModel):
-    monomer: Monomer = Field(..., description="Monomer information")
-    product: Product = Field(..., description="Polymer product information")
-    initiator: Optional[Initiator] = Field(None, description="Initiator information")
-    results: Results = Field(..., description="Thermodynamic data/results")
-    conditions: Optional[Conditions] = Field(None, description="Reaction conditions")
-    parameters: Optional[Parameters] = Field(
-        None, description="Computational parameters"
+    polymerisation_id: int = Field(
+        ..., description="Unique identifier for the polymerization reaction"
     )
-    experimental: Optional[bool] = Field(
-        None, description="Flag indicating if data is experimental"
+    product: Product = Field(..., description="Product of the polymerisation")
+    is_experimental: bool = Field(
+        ..., description="Flag indicating if data is experimental"
     )
+    parameters: Parameters = Field(..., description="Computational parameters")
+    thermo: Thermo = Field(..., description="Thermodynamic data/results")
     comment: Optional[str] = Field(None, description="Additional comments or notes")
     doi: Optional[str] = Field(
         None, description="Digital Object Identifier for the source"
     )
-    link: Optional[str] = Field(None, description="URL to related resource")
-    polymerisation_id: str = Field(
-        ..., description="Unique identifier for the polymerization reaction"
-    )
+    url: Optional[str] = Field(None, description="URL to related resource")
+    monomer_id: int = Field(..., description="Monomer id")
+    initiator_id: Optional[int] = Field(None, description="Initiator id")
 
 
 class PolymerisationData(BaseModel):
@@ -195,27 +230,6 @@ class PolymerisationSummary(BaseModel):
     )
     polymerisation_summary_id: str = Field(
         ..., description="Unique identifier for the polymerization summary"
-    )
-
-
-class MonomerSummary(BaseModel):
-    monomer_id: str = Field(..., description="Unique identifier for the monomer")
-    smiles: str = Field(
-        ..., description="SMILES notation representing the monomer structure"
-    )
-    ring_size: int = Field(
-        ...,
-        description="Size of the ring in the monomer structure",
-    )
-    inchi: str = Field(..., description="IUPAC International Chemical Identifier")
-    iupac_name: Optional[str] = Field(None, description="IUPAC name of the monomer")
-    common_name: Optional[str] = Field(None, description="Common name of the monomer")
-    xyz: Optional[str] = Field(None, description="XYZ coordinates for the monomer")
-    has_exp: bool = Field(..., description="Whether the monomer has experimental data")
-    has_calc: bool = Field(..., description="Whether the monomer has calculated data")
-    polymerisations: list[PolymerisationSummary] = Field(
-        default_factory=list,
-        description="Polymerization summary involving the monomer (including ring-openings)",
     )
 
 
