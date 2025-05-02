@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Union, Literal, Annotated
-from solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
+from roppy.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
 
 Solvent = Annotated[str, Field(description="Solvent name (canonical or alias)")]
 

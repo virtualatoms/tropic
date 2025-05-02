@@ -3,7 +3,7 @@
 # from a list of Polymerisation objects generate a list of MonomerSummary objects
 # which each contain polymermisation summary objects
 
-from models import *
+from roppy.core.models import *
 from typing import Optional, Any
 
 # data format extracted from database
