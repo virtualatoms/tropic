@@ -8,9 +8,14 @@
 
 # Database
  - Remove field for product smiles
+ - Move Monomer.molecular_weight and Monomer.functional_group into MonomerSummary
+ - Rename MonomerSummary to Monomer
  - Merge temperature fields into single ceiling temperature
  - Include fields for average molar mass and dispersity
- - Move Monomer.molecular_weight and Monomer.functional_group into MonomerSummaryA
  - Change Monomer class into monomer_smiles (str)
- - Merge PolymerisationData and PolymerisationSummary into one Polymerisation class
+ - Merge PolymerisationData and PolymerisationSummary into a Polymerisation class
  - Rename Results to Thermo
+
+# To-Learn
+ - Go through Pydantic docs
+ - Go through FastAPI docs
