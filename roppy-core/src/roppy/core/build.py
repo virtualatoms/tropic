@@ -1,148 +1,86 @@
-# Polymerisation summary objects are input through the template given to experimentalists
+"""
+1. Parse input csvs to generate Polymerisation documents
+2. Add Polymerisation objects to the db
+"""
 
-# from a list of Polymerisation objects generate a list of MonomerSummary objects
-# which each contain polymermisation summary objects
+import asyncio
+from beanie import init_beanie
+from csv import DictReader
+from motor.motor_asyncio import AsyncIOMotorClient
+from roppy.core.models import Polymerisation, MonomerSummary
 
-from roppy.core.models import *
-from typing import Optional, Any
+CLIENT_URL = "mongodb://localhost:27017"
 
-# data format extracted from database
-data: list[dict[str, Any]] = [
-    {
-        "monomer_smiles": "CCN(CC)C(=O)[C@@H]1C=C2c3cccc4[nH]cc(c34)C[C@H]2N(C)C1",
-        "initiator_smiles": "CNC(C)Cc1ccc2c(c1)OCO2",
+# WARN: must ensure bijective mapping between smiles strings and chemical structures
+
+
+def format_polymerisation_data(data: dict[str, str]) -> dict[str, dict[str, str]]:
+    return {
+        "monomer": {"smiles": data["monomer_smiles"]},
+        "initiator": {"smiles": data["initiator_smiles"]},
         "product": {
-            "number_of_units": 1.0,
+            "number_of_units": data["product_number_of_units"],
+            "repeating_unit": data["product_repeating_unit"],
         },
-        "is_experimental": True,
         "parameters": {
-            "temperature": None,
-            "pressure": None,
-            "solvent": None,
-            "solvent_conc": None,
-            "monomer_state": None,
-            "polymer_state": None,
-            "method": None,
-            "solvent_model": None,
-            "functional": None,
-            "basis_set": None,
-            "dispersion": None,
-            "forcefield": None,
+            "temperature": data["temperature"],
+            "pressure": data["pressure"],
+            "solvent": data["solvent"],
+            "solvent_conc": data["solvent_conc"],
+            "solvent_model": data["solvent_model"],
+            "monomer_state": data["monomer_state"],
+            "polymer_state": data["polymer_state"],
+            "method": data["comp_method"],
+            "functional": data["comp_functional"],
+            "basis_set": data["comp_basis_set"],
+            "dispersion": data["comp_dispersion"],
+            "forcefield": data["comp_forcefield"],
         },
         "thermo": {
-            "delta_h": None,
-            "delta_s": None,
-            "ceiling_temperature": None,
+            "delta_h": data["delta_h"],
+            "delta_s": data["delta_s"],
+            "ceiling_temperature": data["ceiling_temperature"],
         },
-        "comment": None,
-        "doi": None,
-        "url": None,
+        "metadata": {
+            "comment": data["polymerisation_comment"],
+            "doi": data["polymerisation_doi"],
+            "url": data["polymerisation_link"],
+        },
     }
-]
 
 
-# building hashmaps from database
-def build_from_db(
-    polymerisation_data: list[dict[str, Any]],
-) -> tuple[dict[int, Polymerisation], dict[int, Monomer], dict[int, Initiator]]:
+# TODO: create defined directory for data csvs
+async def parse_polymerisations():
+    with open("data.csv") as fstream:
+        reader = DictReader(fstream)
+        polys = [
+            Polymerisation.model_validate_strings(format_polymerisation_data(data))
+            for data in reader
+        ]
+        await Polymerisation.insert_many(polys)
 
-    monomer_smiles_to_monomer_id: dict[str, int] = dict()
 
-    initiator_smiles_to_initiator_id: dict[str, int] = dict()
+async def find_polymerisations():
 
-    monomer_id_to_poly_id: dict[int, list[int]] = dict()
+    # async for poly in Polymerisation.find({})
+    result = await Polymerisation.find({}).first_or_none()
+    print(result)
 
-    initiator_id_to_poly_id: dict[int, list[int]] = dict()
 
-    # iterate to populate hashmaps
-    for poly_id, data in enumerate(polymerisation_data):
+async def rebuild_db():
 
-        # map monomer smiles to monomer id
-        if data["monomer_smiles"] not in monomer_smiles_to_monomer_id:
-            monomer_smiles_to_monomer_id[data["monomer_smiles"]] = poly_id
+    client = AsyncIOMotorClient(CLIENT_URL)
+    database = client["roppy"]
+    polymerisations = database["polymerisations"]
 
-        # map monomer id to polymerisations
-        monomer_id = monomer_smiles_to_monomer_id[data["monomer_smiles"]]
-        if monomer_id in monomer_id_to_poly_id:
-            monomer_id_to_poly_id[monomer_id].append(poly_id)
-        else:
-            monomer_id_to_poly_id[monomer_id] = [poly_id]
+    await init_beanie(
+        database=database, document_models=[Polymerisation, MonomerSummary]
+    )
 
-        # if polymerisation has an initiator
-        if data["initiator_smiles"]:
-
-            # map initiator smiles to initiator id
-            if data["initiator_smiles"] not in initiator_smiles_to_initiator_id:
-                initiator_smiles_to_initiator_id[data["initiator_smiles"]] = poly_id
-
-            # map initiator id to polymerisations
-            initiator_id = initiator_smiles_to_initiator_id[data["initiator_smiles"]]
-            if initiator_id in initiator_id_to_poly_id:
-                initiator_id_to_poly_id[initiator_id].append(poly_id)
-            else:
-                initiator_id_to_poly_id[initiator_id] = [poly_id]
-
-    print(monomer_smiles_to_monomer_id)
-    print(initiator_smiles_to_initiator_id)
-    print(monomer_id_to_poly_id)
-    print(initiator_id_to_poly_id)
-
-    poly_id_to_poly: dict[int, Polymerisation] = dict()
-
-    monomer_id_to_monomer: dict[int, Monomer] = dict()
-
-    initiator_id_to_initiator: dict[int, Initiator] = dict()
-
-    for poly_id, data in enumerate(polymerisation_data):
-
-        monomer_id = monomer_smiles_to_monomer_id[data["monomer_smiles"]]
-        if data["initiator_smiles"]:
-            initiator_id = initiator_smiles_to_initiator_id[data["initiator_smiles"]]
-        else:
-            initiator_id = None
-
-        poly = Polymerisation(
-            polymerisation_id=poly_id,
-            product=Product(**data["product"]),
-            is_experimental=data["is_experimental"],
-            parameters=Parameters(**data["parameters"]),
-            thermo=Thermo(**data["thermo"]),
-            comment=data["comment"],
-            doi=data["doi"],
-            url=data["url"],
-            monomer_id=monomer_id,
-            initiator_id=initiator_id,
-        )
-
-        poly_id_to_poly[poly_id] = poly
-
-    for monomer_smiles, monomer_id in monomer_smiles_to_monomer_id.items():
-
-        monomer = Monomer(
-            monomer_id=monomer_id,
-            smiles=monomer_smiles,
-            polymerisations=monomer_id_to_poly_id[monomer_id],
-        )
-
-        monomer_id_to_monomer[monomer_id] = monomer
-
-    for initiator_smiles, initiator_id in initiator_smiles_to_initiator_id.items():
-
-        initiator = Initiator(
-            initiator_id=initiator_id,
-            smiles=initiator_smiles,
-            polymerisations=initiator_id_to_poly_id[initiator_id],
-        )
-
-        initiator_id_to_initiator[initiator_id] = initiator
-
-    print(poly_id_to_poly)
-    print(monomer_id_to_monomer)
-    print(initiator_id_to_initiator)
-
-    return poly_id_to_poly, monomer_id_to_monomer, initiator_id_to_initiator
+    await parse_polymerisations()
+    await find_polymerisations()
 
 
 if __name__ == "__main__":
 
-    a, b, c = build_from_db(data)
+    asyncio.run(rebuild_db())
