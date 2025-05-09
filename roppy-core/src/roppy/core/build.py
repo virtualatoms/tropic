@@ -7,7 +7,7 @@ import asyncio
 from beanie import init_beanie
 from csv import DictReader
 from motor.motor_asyncio import AsyncIOMotorClient
-from roppy.core.models import Polymerisation, MonomerSummary
+from roppy.core.models import Polymerisation, Monomer, MonomerSummary
 
 CLIENT_URL = "mongodb://localhost:27017"
 
@@ -50,35 +50,100 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, dict[str, str]
 
 
 # TODO: create defined directory for data csvs
-async def parse_polymerisations():
+async def parse_data() -> None:
+
     with open("data.csv") as fstream:
         reader = DictReader(fstream)
         polys = [
             Polymerisation.model_validate_strings(format_polymerisation_data(data))
             for data in reader
         ]
-        await Polymerisation.insert_many(polys)
+
+    for i, poly in enumerate(polys):
+        poly.display_id = i
+
+    await Polymerisation.insert_many(polys)
+
+
+async def clear_database():
+    await Polymerisation.find_all().delete()
+    await Monomer.find_all().delete()
+    await MonomerSummary.find_all().delete()
+
+
+async def create_monomer_summaries():
+
+    # insert monomers into db
+    for poly in await Polymerisation.find_all().to_list():
+        if not await Monomer.find(
+            Monomer.smiles == poly.monomer.smiles
+        ).first_or_none():
+            await Monomer.insert_one(poly.monomer)
+            await poly.save()
+        else:
+            monomer = await Monomer.find_one(Monomer.smiles == poly.monomer.smiles)
+            if isinstance(monomer, Monomer):
+                poly.monomer = monomer
+            await poly.save()
+
+    for i, monomer in enumerate(await Monomer.find_all().to_list()):
+        monomer_summary = MonomerSummary.model_validate(
+            {
+                "display_id": i,
+                "monomer": monomer,
+                "polymerisations": await Polymerisation.find(
+                    Polymerisation.monomer.smiles == monomer.smiles
+                ).to_list(),
+            }
+        )
+
+        await MonomerSummary.insert_one(monomer_summary)
 
 
 async def find_polymerisations():
 
-    # async for poly in Polymerisation.find({})
-    result = await Polymerisation.find({}).first_or_none()
+    # result = await Polymerisation.find({}).first_or_none()
+    result = await Polymerisation.find_all().to_list()
     print(result)
+    print(len(result))
+
+
+async def find_monomers():
+
+    # result = await Monomer.find({}).first_or_none()
+    result = await Monomer.find_all().to_list()
+    print(result)
+    print(len(result))
+
+
+async def find_monomer_summaries():
+
+    # result = await Monomer.find({}).first_or_none()
+    result = await MonomerSummary.find_all().to_list()
+    print(result[-1])
+    print(len(result))
+    for poly in result[-1].polymerisations:
+        print(poly.thermo.delta_h)
 
 
 async def rebuild_db():
 
     client = AsyncIOMotorClient(CLIENT_URL)
     database = client["roppy"]
-    polymerisations = database["polymerisations"]
+    poly_collection = database["polymerisations"]
+    monomer_collection = database["monomers"]
+    monomer_summary_collection = database["monomer_summaries"]
 
     await init_beanie(
-        database=database, document_models=[Polymerisation, MonomerSummary]
+        database=database, document_models=[Polymerisation, Monomer, MonomerSummary]
     )
 
-    await parse_polymerisations()
-    await find_polymerisations()
+    await clear_database()
+    await parse_data()
+    await create_monomer_summaries()
+    # await find_polymerisations()
+    # await find_monomers()
+    # await find_monomer_summaries()
 
 
 if __name__ == "__main__":
