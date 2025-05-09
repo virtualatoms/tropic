@@ -32,9 +32,12 @@ CompMethod = Annotated[
 Solvent = Annotated[Optional[str], AfterValidator(validate_solvent)]
 
 
-class Monomer(BaseModel):
+class Monomer(Document):
+
     smiles: str = Field(
-        ..., description="SMILES notation representing the monomer structure"
+        # need to perform post-validation normalisation to ensure bijectivity
+        ...,
+        description="SMILES notation representing the monomer structure",
     )
 
     @cached_property
@@ -71,6 +74,9 @@ class Monomer(BaseModel):
     @computed_field(description="XYZ coordinates for the monomer")
     def xyz(self) -> Optional[str]:
         return None
+
+    class Settings:
+        name = "monomers"
 
 
 class Initiator(BaseModel):
@@ -111,7 +117,7 @@ class Parameters(BaseModel):
     pressure: EmptyStringToNone[float] = Field(
         None, description="Pressure of the polymerisation in K"
     )
-    solvent: Solvent = Field(None, description="Solvent medium of the polymerisaiton")
+    solvent: Solvent = Field(None, description="Solvent medium of the polymerisation")
     solvent_conc: EmptyStringToNone[float] = Field(
         None, description="Concentration of the polymerisation solvent"
     )
@@ -167,6 +173,10 @@ class Metadata(BaseModel):
 
 class Polymerisation(Document):
 
+    display_id: Optional[int] = Field(
+        None, description="unique display id for polymerisation"
+    )
+
     monomer: Monomer = Field(..., description="Monomer of the polymerisation")
     initiator: Optional[Initiator] = Field(
         ..., description="Initiator of the polymerisation"
@@ -193,7 +203,7 @@ class Polymerisation(Document):
     def is_experimental(self) -> bool:
         return False
 
-    def model_post_init(self, _):
+    def model_post_init(self, _) -> None:
         if isinstance(self.initiator, Initiator):
             if not self.initiator.smiles:
                 self.initiator = None
@@ -202,18 +212,55 @@ class Polymerisation(Document):
         name = "polymerisations"
 
 
+class DataRow(BaseModel):
+    monomer_state: Optional[str] = Field(..., description="State of the monomer")
+    polymer_state: Optional[str] = Field(..., description="State of the polymer")
+    solvent: Optional[str] = Field(
+        ..., description="Solvent medium of the polymerisation"
+    )
+    solvent_conc: Optional[str] = Field(
+        ..., description="Concentration of the polymerisation solvent"
+    )
+    delta_h: Optional[float] = Field(
+        ..., description="Change in enthalpy (ΔH) for the polymerization reaction"
+    )
+    delta_s: Optional[float] = Field(
+        ..., description="Change in entropy (ΔS) for the polymerization reaction"
+    )
+    ceiling_temperature: Optional[float] = Field(
+        ..., description="Ceiling temperature in K"
+    )
+
+    @cached_property
+    @computed_field(description="Whether the monomer has experimental data")
+    def state_summary(self) -> Optional[str]:
+        if not (self.monomer_state or self.polymer_state):
+            return None
+        if self.monomer_state and self.polymer_state:
+            return f"{self.monomer_state}-{self.polymer_state}"
+        else:
+            if self.monomer_state:
+                return f"{self.monomer_state}-x"
+            else:
+                return f"x-{self.polymer_state}"
+
+
 class MonomerSummary(Document):
-    monomer_summary_id: int = Field(
-        ..., description="Unique identifier for the monomer"
+    display_id: int = Field(
+        ..., description="unique display id for the monomer summary"
     )
-    polymerisation_ids: list[int] = Field(
-        default_factory=list,
-        description="List of polymerization ids involving the monomer (including ring-openings)",
-    )
-    polymerisations: list[Polymerisation] = Field(
-        default_factory=list,
-        description="List of polymerization objects involving the monomer (including ring-openings)",
-    )
+    monomer: Monomer = Field(..., description="corresponding monomer")
+    polymerisations: list[Polymerisation]
+
+    @cached_property
+    @computed_field(description="Whether the monomer has experimental data")
+    def has_experimental(self) -> bool:
+        return False
+
+    @cached_property
+    @computed_field(description="Whether the monomer has computational data")
+    def has_computational(self) -> bool:
+        return False
 
 
 class MonomerSummaryBrief(BaseModel):
