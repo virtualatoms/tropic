@@ -127,26 +127,45 @@ class Initiator(BaseModel):
 
 
 class Product(BaseModel):
-    number_of_units: EmptyStringToNone[float] = (
-        Field(..., description="(average) Number of repeating units in the polymer"),
-    )
     repeating_unit: EmptyStringToNone[str] = (
         Field(
-            ..., description="SMILES notation or chemical formula of the repeating unit"
+            None,
+            description="SMILES notation or chemical formula of the repeating unit",
         ),
     )
+    n_avg_molar_mass: EmptyStringToNone[float] = Field(
+        None, description="arithmetic mean of the molar masses of the polymers"
+    )
+    m_avg_molar_mass: EmptyStringToNone[float] = Field(
+        None, description="measure of the molar mass of the polymer"
+    )
+    dispersity: EmptyStringToNone[float] = Field(
+        None, description="measure of the molar mass distribution of the polymer"
+    )
+    deg_of_poly: EmptyStringToNone[float] = Field(
+        None, description="average number of monomer units per polymer"
+    )
 
-    @cached_property
-    @computed_field(description="Average molecular weight of the polymer in g/mol")
+    @computed_field(description="Molecular weight of the polymer repeat unit in g/mol")
+    @property
     def molecular_weight(self) -> Optional[float]:
-        return None
+        try:
+            return CalcExactMolWt(MolFromSmiles(self.repeating_unit))
+        except:
+            return None
 
-    """ 
-    TODO: 
-    Add additional descriptors for product?
-    E.g. dispersity, average molar mass, etc.
-
-        """
+    # compute dispersity and DP from molar masses if present?
+    def model_post_init(self, _):
+        if self.dispersity is None:
+            if isinstance(self.n_avg_molar_mass, float) and isinstance(
+                self.m_avg_molar_mass, float
+            ):
+                self.dispersity = self.m_avg_molar_mass / self.n_avg_molar_mass
+        if self.deg_of_poly is None:
+            if isinstance(self.n_avg_molar_mass, float) and isinstance(
+                self.molecular_weight, float
+            ):
+                self.deg_of_poly = self.n_avg_molar_mass / self.molecular_weight
 
 
 class Parameters(BaseModel):
@@ -160,11 +179,14 @@ class Parameters(BaseModel):
     solvent_conc: EmptyStringToNone[float] = Field(
         None, description="Concentration of the polymerisation solvent"
     )
-    solvent_model: EmptyStringToNone[str] = Field(
-        None, description="Computational solvent model used (if applicable)"
+    monomer_conc: EmptyStringToNone[float] = Field(
+        None, description="Initial concentration of the monomer"
     )
     monomer_state: State = Field(None, description="State of the monomer")
     polymer_state: State = Field(None, description="State of the polymer")
+    solvent_model: EmptyStringToNone[str] = Field(
+        None, description="Computational solvent model used (if applicable)"
+    )
     method: CompMethod = Field(None, description="Computational method used")
     functional: EmptyStringToNone[str] = Field(
         None, description="DFT functional used (if applicable)"
@@ -210,7 +232,9 @@ class Thermo(BaseModel):
 
     # compute ceiling temperature from H and S if present?
     def model_post_init(self, _):
-        pass
+        if self.ceiling_temperature is None:
+            if isinstance(self.delta_h, float) and isinstance(self.delta_s, float):
+                self.ceiling_temperature = 1000 * self.delta_h / self.delta_s
 
 
 class Metadata(BaseModel):
@@ -292,28 +316,38 @@ class MonomerSummary(Document):
         ..., description="unique display id for the monomer summary"
     )
     monomer: Monomer = Field(..., description="corresponding monomer")
-    polymerisations: list[Polymerisation] = Field(
-        ..., description="list of polymerisations for the corresponding monomer"
+    # polymerisations: list[Polymerisation] = Field(
+    #     ..., description="list of polymerisations for the corresponding monomer"
+    # )
+    exp_polymerisations: list[Polymerisation] = Field(
+        ...,
+        description="list of experimental polymerisations for the corresponding monomer",
+    )
+    comp_polymerisations: list[Polymerisation] = Field(
+        ...,
+        description="list of computational polymerisations for the corresponding monomer",
     )
 
     @computed_field(description="Whether the monomer has experimental data")
     @property
     def has_experimental(self) -> bool:
-        for poly in self.polymerisations:
-            if poly.is_experimental:
-                return True
-        return False
+        # for poly in self.polymerisations:
+        #     if poly.is_experimental:
+        #         return True
+        # return False
+        return not (len(self.exp_polymerisations) == 0)
 
     @computed_field(description="Whether the monomer has computational data")
     @property
     def has_computational(self) -> bool:
-        n_experimental = sum(
-            [1 if poly.is_experimental else 0 for poly in self.polymerisations]
-        )
-        n_poly = len(self.polymerisations)
-        if (n_poly - n_experimental) == 0:
-            return False
-        return True
+        # n_experimental = sum(
+        #     [1 if poly.is_experimental else 0 for poly in self.polymerisations]
+        # )
+        # n_poly = len(self.polymerisations)
+        # if (n_poly - n_experimental) == 0:
+        #     return False
+        # return True
+        return not (len(self.comp_polymerisations) == 0)
 
 
 class MonomerSummaryBrief(BaseModel):

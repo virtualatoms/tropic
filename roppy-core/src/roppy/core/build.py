@@ -7,6 +7,7 @@ from roppy.core.models import Polymerisation, Monomer, MonomerSummary
 CLIENT_URL = "mongodb://localhost:27017"
 
 # WARN: must ensure bijective mapping between smiles strings and chemical structures
+# NOTE: achieved using RdKit Smiles standardisation?
 
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, dict[str, str]]:
@@ -14,17 +15,21 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, dict[str, str]
         "monomer": {"smiles": data["monomer_smiles"]},
         "initiator": {"smiles": data["initiator_smiles"]},
         "product": {
-            "number_of_units": data["product_number_of_units"],
-            "repeating_unit": data["product_repeating_unit"],
+            "repeating_unit": data["polymer_repeating_unit"],
+            "dispersity": data["polymer_dispersity"],
+            "deg_of_poly": data["polymer_degree_of_polymerisation"],
+            "n_avg_molar_mass": data["polymer_number_average_molar_mass"],
+            "m_avg_molar_mass": data["polymer_mass_average_molar_mass"],
         },
         "parameters": {
             "temperature": data["temperature"],
             "pressure": data["pressure"],
             "solvent": data["solvent"],
             "solvent_conc": data["solvent_conc"],
-            "solvent_model": data["solvent_model"],
+            "monomer_conc": data["monomer_conc"],
             "monomer_state": data["monomer_state"],
             "polymer_state": data["polymer_state"],
+            "solvent_model": data["solvent_model"],
             "method": data["comp_method"],
             "functional": data["comp_functional"],
             "basis_set": data["comp_basis_set"],
@@ -52,7 +57,7 @@ async def clear_database():
 
 async def parse_data() -> None:
 
-    with open("data.csv") as fstream:
+    with open("./data/data.csv") as fstream:
         polys = [
             Polymerisation.model_validate_strings(format_polymerisation_data(data))
             for data in DictReader(fstream)
@@ -79,13 +84,20 @@ async def create_monomer_summaries():
 
     # insert monomer summaries into db as collection
     for i, monomer in enumerate(await Monomer.find_all().to_list()):
+        polymerisations = await Polymerisation.find(
+            Polymerisation.monomer.smiles == monomer.smiles
+        ).to_list()
         monomer_summary = MonomerSummary.model_validate(
             {
                 "display_id": i,
                 "monomer": monomer,
-                "polymerisations": await Polymerisation.find(
-                    Polymerisation.monomer.smiles == monomer.smiles
-                ).to_list(),
+                # "polymerisations": polymerisations,
+                "exp_polymerisations": [
+                    poly for poly in polymerisations if poly.is_experimental
+                ],
+                "comp_polymerisations": [
+                    poly for poly in polymerisations if not poly.is_experimental
+                ],
             }
         )
 
@@ -114,8 +126,6 @@ async def find_monomer_summaries():
     result = await MonomerSummary.find_all().to_list()
     print(len(result))
     print(result[-1])
-    for summary in result:
-        print(summary.polymerisations[0].monomer.functional_group)
 
 
 async def rebuild_db():
