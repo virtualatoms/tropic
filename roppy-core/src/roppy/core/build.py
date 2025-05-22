@@ -2,6 +2,7 @@ import asyncio
 from beanie import init_beanie
 from csv import DictReader
 from motor.motor_asyncio import AsyncIOMotorClient
+from typing import Any
 from roppy.core.models import Polymerisation, Monomer, MonomerSummary
 
 CLIENT_URL = "mongodb://localhost:27017"
@@ -10,18 +11,19 @@ CLIENT_URL = "mongodb://localhost:27017"
 # NOTE: achieved using RdKit Smiles standardisation?
 
 
-def format_polymerisation_data(data: dict[str, str]) -> dict[str, dict[str, str]]:
+def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
     return {
+        "type": data["polymerisation_type"],
         "monomer": {"smiles": data["monomer_smiles"]},
         "initiator": {"smiles": data["initiator_smiles"]},
         "product": {
-            "repeating_unit": data["polymer_repeating_unit"],
-            "dispersity": data["polymer_dispersity"],
-            "deg_of_poly": data["polymer_degree_of_polymerisation"],
-            "n_avg_molar_mass": data["polymer_number_average_molar_mass"],
-            "m_avg_molar_mass": data["polymer_mass_average_molar_mass"],
+            "dispersity": data["dispersity"],
+            "deg_of_poly": data["degree_of_polymerisation"],
+            "n_avg_molar_mass": data["number_average_molar_mass"],
+            "m_avg_molar_mass": data["mass_average_molar_mass"],
         },
         "parameters": {
+            "is_experimental": data["is_experimental"],
             "temperature": data["temperature"],
             "pressure": data["pressure"],
             "solvent": data["solvent"],
@@ -42,9 +44,10 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, dict[str, str]
             "ceiling_temperature": data["ceiling_temperature"],
         },
         "metadata": {
-            "comment": data["polymerisation_comment"],
-            "doi": data["polymerisation_doi"],
-            "url": data["polymerisation_link"],
+            "year": data["year"],
+            "comment": data["comment"],
+            "doi": data["doi"],
+            "url": data["url"],
         },
     }
 
@@ -64,7 +67,7 @@ async def parse_data() -> None:
         ]
 
     for i, poly in enumerate(polys):
-        poly.display_id = i
+        poly.polymerisation_id = i
 
     await Polymerisation.insert_many(polys)
 
@@ -89,15 +92,9 @@ async def create_monomer_summaries():
         ).to_list()
         monomer_summary = MonomerSummary.model_validate(
             {
-                "display_id": i,
+                "monomer_id": i,
                 "monomer": monomer,
-                # "polymerisations": polymerisations,
-                "exp_polymerisations": [
-                    poly for poly in polymerisations if poly.is_experimental
-                ],
-                "comp_polymerisations": [
-                    poly for poly in polymerisations if not poly.is_experimental
-                ],
+                "polymerisations": polymerisations,
             }
         )
 
