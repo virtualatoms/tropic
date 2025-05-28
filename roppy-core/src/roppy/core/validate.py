@@ -1,6 +1,6 @@
 from typing import Optional, Annotated, TypeVar
 from pydantic import BeforeValidator, AfterValidator
-from roppy.core.constants import STATES, COMP_METHODS, POLY_TYPES
+from roppy.core.constants import STATES, METHODS, POLY_TYPES
 from roppy.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
 
@@ -25,12 +25,12 @@ EmptyStringToNone = Annotated[
     Optional[TypeVar("T")],
     BeforeValidator(lambda s: s if s else None),
 ]
-Smiles = Annotated[str, AfterValidator(validate_smiles)]
+Smiles = Annotated[Optional[str], AfterValidator(validate_smiles)]
 Solvent = Annotated[Optional[str], BeforeValidator(validate_solvent)]
 PolymerisationType = Annotated[
     Optional[str], BeforeValidator(lambda s: s if s in POLY_TYPES else None)
 ]
 State = Annotated[Optional[str], BeforeValidator(lambda s: s if s in STATES else None)]
-CompMethod = Annotated[
-    Optional[str], BeforeValidator(lambda s: s if s in COMP_METHODS else None)
+Method = Annotated[
+    Optional[str], BeforeValidator(lambda s: s if s in METHODS else None)
 ]
