@@ -2,17 +2,16 @@ from functools import cached_property
 from pydantic import (
     BaseModel,
     Field,
-    AfterValidator,
     computed_field,
 )
-from typing import Optional, Annotated
+from typing import Optional
 from roppy.core.validate import (
     EmptyStringToNone,
     Smiles,
     PolymerisationType,
     Solvent,
     State,
-    CompMethod,
+    Method,
 )
 from roppy.core.efgs import get_dec_fgs
 from beanie import Document, Indexed
@@ -54,17 +53,17 @@ class Molecule(Document):
 
     # TODO: Remaining fields for molecule parent class
     @cached_property
-    @computed_field(description="IUPAC name of the monomer")
+    @computed_field(description="IUPAC name of the molecule")
     def iupac_name(self) -> Optional[str]:
         return None
 
     @cached_property
-    @computed_field(description="Common name of the monomer")
+    @computed_field(description="Common name of the molecule")
     def common_name(self) -> Optional[str]:
         return None
 
     @cached_property
-    @computed_field(description="XYZ coordinates for the monomer")
+    @computed_field(description="XYZ coordinates for the molecule")
     def xyz(self) -> Optional[str]:
         return None
 
@@ -146,7 +145,7 @@ class Parameters(BaseModel):
     solvent_conc: EmptyStringToNone[float] = Field(
         None, description="Concentration of the polymerisation solvent"
     )
-    method: CompMethod = Field(None, description="Computational method used")
+    method: Method = Field(None, description="Computational method used")
     functional: EmptyStringToNone[str] = Field(None, description="DFT functional")
     basis_set: EmptyStringToNone[str] = Field(None, description="Basis set")
     dispersion: EmptyStringToNone[str] = Field(
@@ -176,13 +175,14 @@ class Thermo(BaseModel):
     )
 
     # compute ceiling temperature from H and S if present?
-    def model_post_init(self, _):
-        if self.ceiling_temperature is None:
-            if isinstance(self.delta_h, float) and isinstance(self.delta_s, float):
-                self.ceiling_temperature = 1000 * self.delta_h / self.delta_s
+    # def model_post_init(self, _):
+    #     if self.ceiling_temperature is None:
+    #         if isinstance(self.delta_h, float) and isinstance(self.delta_s, float):
+    #             self.ceiling_temperature = 1000 * self.delta_h / self.delta_s
 
 
 class Metadata(BaseModel):
+    # TODO: change year to be a datetime object?
     year: EmptyStringToNone[str] = (Field(..., description="Year of publication"),)
     comment: EmptyStringToNone[str] = (
         Field(..., description="Additional comments or notes"),
@@ -200,9 +200,7 @@ class Polymerisation(Document):
     )
     type: PolymerisationType = Field(..., description="Type of polymerisation")
     monomer: Monomer = Field(..., description="Monomer of the polymerisation")
-    initiator: Optional[Initiator] = Field(
-        ..., description="Initiator of the polymerisation"
-    )
+    initiator: Initiator = Field(..., description="Initiator of the polymerisation")
     product: Product = Field(..., description="Product of the polymerisation")
     parameters: Parameters = Field(
         ..., description="Experimental/Computational parameters"
@@ -212,36 +210,25 @@ class Polymerisation(Document):
         ..., description="Polymerisation references and metadata"
     )
 
-    @computed_field(
-        description="Smiles notation representing the polymerization reaction"
-    )
-    @property
-    def reaction_smiles(self) -> Optional[str]:
-        return None
-
-    def model_post_init(self, _) -> None:
-        if isinstance(self.initiator, Initiator):
-            if not self.initiator.smiles:
-                self.initiator = None
-
     class Settings:
         name = "polymerisations"
 
 
 class DataRow(BaseModel):
+    type: PolymerisationType = Field(..., description="Type of polymerisation")
     is_experimental: bool = Field(
         ...,
         description="Flag indicating whether the reaction is experimental (True) or computational (False)",
     )
     monomer_state: Optional[str] = Field(..., description="State of the monomer")
     polymer_state: Optional[str] = Field(..., description="State of the polymer")
-    monomer_conc: Optional[str] = Field(
+    monomer_conc: Optional[float] = Field(
         ..., description="Initial concentration of the monomer"
     )
     solvent: Optional[str] = Field(
         ..., description="Solvent that the polymerisation is conducted within"
     )
-    solvent_conc: Optional[str] = Field(
+    solvent_conc: Optional[float] = Field(
         ..., description="Concentration of the polymerisation solvent"
     )
     delta_h: Optional[float] = Field(
@@ -256,27 +243,16 @@ class DataRow(BaseModel):
     year: Optional[str] = Field(..., description="Year of publication")
 
 
-class MonomerSummary(Document):
-    monomer_id: int = Field(
-        ..., description="unique display id for the monomer summary"
-    )
-    monomer: Monomer = Field(..., description="corresponding monomer")
+class MoleculeSummary(Document):
     polymerisations: list[Polymerisation] = Field(
-        ..., description="list of polymerisations for the corresponding monomer"
+        ..., description="list of polymerisations for the corresponding molecule"
     )
-    # exp_polymerisations: list[Polymerisation] = Field(
-    #     ...,
-    #     description="list of experimental polymerisations for the corresponding monomer",
-    # )
-    # comp_polymerisations: list[Polymerisation] = Field(
-    #     ...,
-    #     description="list of computational polymerisations for the corresponding monomer",
-    # )
-    # data: list[DataRow] = Field(
-    #     ..., description="table of data where each row corresponds to a polymerisation"
-    # )
+    data: list[DataRow] = Field(
+        ...,
+        description="table of data where each row corresponds to a polymerisation (for display purposes)",
+    )
 
-    @computed_field(description="Whether the monomer has experimental data")
+    @computed_field(description="Whether the molecule has experimental data")
     @property
     def has_experimental(self) -> bool:
         for poly in self.polymerisations:
@@ -284,8 +260,25 @@ class MonomerSummary(Document):
                 return True
         return False
 
+
+class MonomerSummary(MoleculeSummary):
+    monomer_id: int = Field(
+        ..., description="unique display id for the monomer summary"
+    )
+    monomer: Monomer = Field(..., description="corresponding monomer")
+
     class Settings:
         name = "monomerSummaries"
+
+
+class InitiatorSummary(MoleculeSummary):
+    initiator_id: int = Field(
+        ..., description="unique display id for the initiator summary"
+    )
+    initiator: Initiator = Field(..., description="corresponding initiator")
+
+    class Settings:
+        name = "initiatorSummaries"
 
 
 class MonomerSummaryBrief(BaseModel):
