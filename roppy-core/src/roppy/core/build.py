@@ -1,3 +1,4 @@
+import os
 import asyncio
 from beanie import init_beanie
 from csv import DictReader
@@ -25,6 +26,8 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
         "monomer": {"smiles": data["monomer_smiles"]},
         "initiator": {"smiles": data["initiator_smiles"]},
         "product": {
+            "smiles": data["polymer_smiles"],
+            "length": data["polymer_length"],
             "dispersity": data["dispersity"],
             "deg_of_poly": data["degree_of_polymerisation"],
             "n_avg_molar_mass": data["number_average_molar_mass"],
@@ -52,7 +55,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "ceiling_temperature": data["ceiling_temperature"],
         },
         "metadata": {
-            "year": data["year"],
+            "date": data["date"],
             "comment": data["comment"],
             "doi": data["doi"],
             "url": data["url"],
@@ -70,11 +73,19 @@ async def clear_database():
 
 async def parse_data() -> None:
 
-    with open("./data/data.csv") as fstream:
-        polys = [
-            Polymerisation.model_validate_strings(format_polymerisation_data(data))
-            for data in DictReader(fstream)
-        ]
+    polys = []
+    for input_file in [
+        file
+        for file in os.listdir("./data")
+        if (file.startswith("input") and file.endswith("csv"))
+    ]:
+        with open(f"./data/{input_file}") as fstream:
+            for data in DictReader(fstream):
+                polys.append(
+                    Polymerisation.model_validate_strings(
+                        format_polymerisation_data(data)
+                    )
+                )
 
     for i, poly in enumerate(polys):
         poly.polymerisation_id = i
@@ -116,7 +127,7 @@ async def create_monomer_summaries():
                     "delta_h": poly.thermo.delta_h,
                     "delta_s": poly.thermo.delta_s,
                     "ceiling_temperature": poly.thermo.ceiling_temperature,
-                    "year": poly.metadata.year,
+                    "date": poly.metadata.date,
                 }
             )
             for poly in polymerisations
