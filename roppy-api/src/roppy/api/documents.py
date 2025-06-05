@@ -6,7 +6,7 @@ from roppy.core.models import MonomerSummary, Polymerisation
 class MonomerSummaryDocument(Document, MonomerSummary):
     class Settings:
         name = "monomers_summary"
-        indexes = ["monomer_id", "smiles"]
+        indexes = ["monomer_id", "monomer.smiles"]
 
 
 class PolymerisationDocument(Document, Polymerisation):
