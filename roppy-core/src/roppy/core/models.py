@@ -1,9 +1,4 @@
-from functools import cached_property
-from pydantic import (
-    BaseModel,
-    Field,
-    computed_field,
-)
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 from roppy.core.validate import (
@@ -16,16 +11,14 @@ from roppy.core.validate import (
     get_ring_size,
 )
 from roppy.core.efgs import get_dec_fgs
-from beanie import Document
 from rdkit.Chem import MolFromSmiles
 from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
 from rdkit.Chem.rdinchi import MolToInchi
 
 
-class Molecule(Document):
+class Molecule(BaseModel):
 
     smiles: Smiles = Field(
-        ...,
         description="SMILES notation representing the molecular structure",
     )
 
@@ -67,14 +60,9 @@ class Monomer(Molecule):
         default_factory=lambda data: get_ring_size(data["smiles"])
     )
 
-    class Settings:
-        name = "monomers"
-
 
 class Initiator(Molecule):
-
-    class Settings:
-        name = "initiators"
+    pass
 
 
 class Product(BaseModel):
@@ -102,7 +90,6 @@ class Product(BaseModel):
 
 class Parameters(BaseModel):
     is_experimental: bool = Field(
-        ...,
         description="Flag indicating whether the reaction is experimental (True) or computational (False)",
     )
     temperature: EmptyStringToNone[float] = Field(
@@ -151,112 +138,72 @@ class Thermo(BaseModel):
 
 
 class Metadata(BaseModel):
-    # TODO: change year to be a datetime object?
-    date: EmptyStringToNone[datetime] = Field(..., description="Year of publication")
+    date: EmptyStringToNone[datetime] = Field(description="Date of publication")
     comment: EmptyStringToNone[str] = (
-        Field(..., description="Additional comments or notes"),
+        Field(description="Additional comments or notes"),
     )
     doi: EmptyStringToNone[str] = (
-        Field(..., description="Digital Object Identifier for the source"),
+        Field(description="Digital Object Identifier for the source"),
     )
-    url: EmptyStringToNone[str] = (Field(..., description="URL to related resource"),)
+    url: EmptyStringToNone[str] = (Field(description="URL to related resource"),)
 
 
-class Polymerisation(Document):
+class Polymerisation(BaseModel):
 
-    polymerisation_id: Optional[int] = Field(
+    polymerisation_id: str = Field(
         None, description="unique display id for the polymerisation"
     )
-    type: PolymerisationType = Field(..., description="Type of polymerisation")
-    monomer: Monomer = Field(..., description="Monomer of the polymerisation")
-    initiator: Initiator = Field(..., description="Initiator of the polymerisation")
-    product: Product = Field(..., description="Product of the polymerisation")
+    type: PolymerisationType = Field(description="Type of polymerisation")
+    monomer: Monomer = Field(description="Monomer of the polymerisation")
+    initiator: Initiator = Field(description="Initiator of the polymerisation")
+    product: Product = Field(description="Product of the polymerisation")
     parameters: Parameters = Field(
-        ..., description="Experimental/Computational parameters"
+        description="Experimental/Computational parameters"
     )
     thermo: Thermo = Field(..., description="Thermodynamic data/results")
     metadata: Metadata = Field(
-        ..., description="Polymerisation references and metadata"
+        description="Polymerisation references and metadata"
     )
-
-    class Settings:
-        name = "polymerisations"
-
 
 class DataRow(BaseModel):
-    type: PolymerisationType = Field(..., description="Type of polymerisation")
+    type: PolymerisationType = Field(description="Type of polymerisation")
     is_experimental: bool = Field(
-        ...,
         description="Flag indicating whether the reaction is experimental (True) or computational (False)",
     )
-    monomer_state: Optional[str] = Field(..., description="State of the monomer")
-    polymer_state: Optional[str] = Field(..., description="State of the polymer")
+    monomer_state: Optional[str] = Field(description="State of the monomer")
+    polymer_state: Optional[str] = Field(description="State of the polymer")
     monomer_conc: Optional[float] = Field(
-        ..., description="Initial concentration of the monomer"
+        description="Initial concentration of the monomer"
     )
     solvent: Optional[str] = Field(
-        ..., description="Solvent that the polymerisation is conducted within"
+        description="Solvent that the polymerisation is conducted within"
     )
     solvent_conc: Optional[float] = Field(
-        ..., description="Concentration of the polymerisation solvent"
+        description="Concentration of the polymerisation solvent"
     )
     delta_h: Optional[float] = Field(
-        ..., description="Change in enthalpy (ΔH) for the polymerization reaction"
+        description="Change in enthalpy (ΔH) for the polymerization reaction"
     )
     delta_s: Optional[float] = Field(
-        ..., description="Change in entropy (ΔS) for the polymerization reaction"
+        description="Change in entropy (ΔS) for the polymerization reaction"
     )
     ceiling_temperature: Optional[float] = Field(
-        ..., description="Ceiling temperature in K"
+        description="Ceiling temperature in K"
     )
-    date: Optional[datetime] = Field(..., description="Year of publication")
+    date: Optional[datetime] = Field(description="Year of publication")
 
 
-class MoleculeSummary(Document):
-    polymerisations: list[Polymerisation] = Field(
-        ..., description="list of polymerisations for the corresponding molecule"
+class MonomerSummary(BaseModel):
+    monomer_id: str = Field(
+        description="unique display id for the monomer summary"
     )
+    monomer: Monomer = Field(description="corresponding monomer")
     data: list[DataRow] = Field(
-        ...,
         description="table of data where each row corresponds to a polymerisation (for display purposes)",
     )
     has_experimental: bool = Field(
         description="Whether the molecule has experimental data",
         default_factory=lambda data: any(
-            poly.parameters.is_experimental for poly in data.get("polymerisations", [])
+            poly.is_experimental for poly in data.get("data", [])
         ),
     )
-
-
-
-class MonomerSummary(MoleculeSummary):
-    monomer_id: int = Field(
-        ..., description="unique display id for the monomer summary"
-    )
-    monomer: Monomer = Field(..., description="corresponding monomer")
-
-    class Settings:
-        name = "monomerSummaries"
-
-
-class InitiatorSummary(MoleculeSummary):
-    initiator_id: int = Field(
-        ..., description="unique display id for the initiator summary"
-    )
-    initiator: Initiator = Field(..., description="corresponding initiator")
-
-    class Settings:
-        name = "initiatorSummaries"
-
-
-class MonomerSummaryBrief(BaseModel):
-    monomer_id: str = Field(..., description="Unique identifier for the monomer")
-    smiles: str = Field(
-        ..., description="SMILES notation representing the monomer structure"
-    )
-    ring_size: int = Field(
-        ...,
-        description="Size of the ring in the monomer structure",
-    )
-    has_exp: bool = Field(..., description="Whether the monomer has experimental data")
-    has_calc: bool = Field(..., description="Whether the monomer has calculated data")
