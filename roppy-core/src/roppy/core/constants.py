@@ -11,7 +11,17 @@ STATES = ["g", "l", "s", "c", "a"]
 
 # vant_hof: Van't Hoff Curve
 # DSC: Differential Scanning Calorimetry
-METHODS = ["dft", "ffmd", "aimd", "mlmd", "xtb", "ml", "vant_hoff", "DSC"]
+METHODS = [
+    "dft",
+    "ffmd",
+    "aimd",
+    "mlmd",
+    "xtb",
+    "ml",
+    "vant_hoff",
+    "DSC",
+    "calorimetry",
+]
 
 # TODO: choose accepted values for computational fields
 SOLVENT_MODELS = []

@@ -5,6 +5,7 @@ from pydantic import (
     computed_field,
 )
 from typing import Optional
+from datetime import datetime
 from roppy.core.validate import (
     EmptyStringToNone,
     Smiles,
@@ -96,6 +97,14 @@ class Initiator(Molecule):
 
 
 class Product(BaseModel):
+    smiles: EmptyStringToNone[str] = Field(
+        None,
+        description="Big SMILES notation representing the polymer",
+    )
+    length: EmptyStringToNone[float] = Field(
+        None,
+        description="Number of repeating monomer units in the computational polymer chain/ring",
+    )
     deg_of_poly: EmptyStringToNone[float] = Field(
         None, description="average number of monomer units per polymer"
     )
@@ -108,19 +117,6 @@ class Product(BaseModel):
     m_avg_molar_mass: EmptyStringToNone[float] = Field(
         None, description="measure of the molar mass of the polymer"
     )
-
-    # compute dispersity and DP from molar masses if present?
-    # def model_post_init(self, _):
-    #     if self.dispersity is None:
-    #         if isinstance(self.n_avg_molar_mass, float) and isinstance(
-    #             self.m_avg_molar_mass, float
-    #         ):
-    #             self.dispersity = self.m_avg_molar_mass / self.n_avg_molar_mass
-    #     if self.deg_of_poly is None:
-    #         if isinstance(self.n_avg_molar_mass, float) and isinstance(
-    #             self.molecular_weight, float
-    #         ):
-    #             self.deg_of_poly = self.n_avg_molar_mass / self.molecular_weight
 
 
 class Parameters(BaseModel):
@@ -174,16 +170,10 @@ class Thermo(BaseModel):
         Field(None, description="Ceiling temperature in C"),
     )
 
-    # compute ceiling temperature from H and S if present?
-    # def model_post_init(self, _):
-    #     if self.ceiling_temperature is None:
-    #         if isinstance(self.delta_h, float) and isinstance(self.delta_s, float):
-    #             self.ceiling_temperature = 1000 * self.delta_h / self.delta_s
-
 
 class Metadata(BaseModel):
     # TODO: change year to be a datetime object?
-    year: EmptyStringToNone[str] = (Field(..., description="Year of publication"),)
+    date: EmptyStringToNone[datetime] = Field(..., description="Year of publication")
     comment: EmptyStringToNone[str] = (
         Field(..., description="Additional comments or notes"),
     )
@@ -240,7 +230,7 @@ class DataRow(BaseModel):
     ceiling_temperature: Optional[float] = Field(
         ..., description="Ceiling temperature in K"
     )
-    year: Optional[str] = Field(..., description="Year of publication")
+    date: Optional[datetime] = Field(..., description="Year of publication")
 
 
 class MoleculeSummary(Document):
