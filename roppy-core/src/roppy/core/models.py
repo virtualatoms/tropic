@@ -13,9 +13,10 @@ from roppy.core.validate import (
     Solvent,
     State,
     Method,
+    get_ring_size,
 )
 from roppy.core.efgs import get_dec_fgs
-from beanie import Document, Indexed
+from beanie import Document
 from rdkit.Chem import MolFromSmiles
 from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
 from rdkit.Chem.rdinchi import MolToInchi
@@ -28,63 +29,43 @@ class Molecule(Document):
         description="SMILES notation representing the molecular structure",
     )
 
-    @computed_field(description="Inchi identifier")
-    @property
-    def inchi(self) -> Optional[str]:
-        try:
-            return MolToInchi(MolFromSmiles(self.smiles))[0]
-        except:
-            return None
+    inchi: Optional[str] = Field(
+        description="Inchi identifier for the molecule",
+        default_factory=lambda data: MolToInchi(MolFromSmiles(data["smiles"]))[0],
+    )
 
-    @computed_field(description="Molecular weight of the molecule in g/mol")
-    @property
-    def molecular_weight(self) -> Optional[float]:
-        try:
-            return CalcExactMolWt(MolFromSmiles(self.smiles))
-        except:
-            return None
+    molecular_weight: Optional[float] = Field(
+        description="Molecular weight of the molecule in g/mol",
+        default_factory=lambda data: CalcExactMolWt(MolFromSmiles(data["smiles"]))
+    )
 
-    @computed_field(description="Primary functional group of molecule")
-    @property
-    def functional_groups(self) -> Optional[list[str]]:
-        try:
-            return get_dec_fgs(MolFromSmiles(self.smiles))[2]
-        except:
-            return None
+    functional_groups: Optional[list[str]] = Field(
+        description="Primary functional group of molecule",
+        default_factory=lambda data: get_dec_fgs(MolFromSmiles(data["smiles"]))[2]
+    )
 
-    # TODO: Remaining fields for molecule parent class
-    @cached_property
-    @computed_field(description="IUPAC name of the molecule")
-    def iupac_name(self) -> Optional[str]:
-        return None
+    iupac_name: Optional[str] = Field(
+        description="IUPAC name of the molecule",
+        default=None,
+    )
 
-    @cached_property
-    @computed_field(description="Common name of the molecule")
-    def common_name(self) -> Optional[str]:
-        return None
+    common_name: Optional[str] = Field(
+        description="Common name of the molecule",
+        default=None,
+    )
 
-    @cached_property
-    @computed_field(description="XYZ coordinates for the molecule")
-    def xyz(self) -> Optional[str]:
-        return None
+    xyz: Optional[str] = Field(
+        description="XYZ coordinates for the molecule",
+        default=None,
+    )
 
 
 class Monomer(Molecule):
 
-    @computed_field(description="Size of the ring in the monomer structure")
-    @property
-    def ring_size(self) -> Optional[int]:
-        try:
-            mol = MolFromSmiles(self.smiles)
-            ring_info = mol.GetRingInfo()
-            n_atoms = mol.GetNumAtoms()
-            max_ring_size = max([ring_info.MinAtomRingSize(i) for i in range(n_atoms)])
-            if max_ring_size == 0:
-                return None
-            return max_ring_size
-
-        except:
-            return None
+    ring_size: Optional[int] = Field(
+        description="Size of the ring in the monomer structure",
+        default_factory=lambda data: get_ring_size(data["smiles"])
+    )
 
     class Settings:
         name = "monomers"
@@ -151,12 +132,10 @@ class Parameters(BaseModel):
         None, description="Molecule dynamics force field"
     )
     solvent_model: EmptyStringToNone[str] = Field(None, description="Solvent model")
-
-    @computed_field(description="Formatted summary of monomer-polymer states")
-    @property
-    def state_summary(self) -> str:
-        get_state = lambda s: s if s else "x"
-        return f"{get_state(self.monomer_state)}-{get_state(self.polymer_state)}"
+    state_summary: str = Field(
+        description="Formatted summary of monomer-polymer states",
+        default_factory=lambda data: f"{data['monomer_state'] or 'x'}-{data['polymer_state'] or 'x'}",
+    )
 
 
 class Thermo(BaseModel):
@@ -241,14 +220,13 @@ class MoleculeSummary(Document):
         ...,
         description="table of data where each row corresponds to a polymerisation (for display purposes)",
     )
+    has_experimental: bool = Field(
+        description="Whether the molecule has experimental data",
+        default_factory=lambda data: any(
+            poly.parameters.is_experimental for poly in data.get("polymerisations", [])
+        ),
+    )
 
-    @computed_field(description="Whether the molecule has experimental data")
-    @property
-    def has_experimental(self) -> bool:
-        for poly in self.polymerisations:
-            if poly.parameters.is_experimental:
-                return True
-        return False
 
 
 class MonomerSummary(MoleculeSummary):

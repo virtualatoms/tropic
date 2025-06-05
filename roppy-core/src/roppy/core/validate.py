@@ -3,6 +3,7 @@ from pydantic import BeforeValidator, AfterValidator
 from roppy.core.constants import STATES, METHODS, POLY_TYPES
 from roppy.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
+from rdkit.Chem import MolFromSmiles
 
 
 def validate_solvent(solvent: Optional[str]) -> Optional[str]:
@@ -17,6 +18,20 @@ def validate_solvent(solvent: Optional[str]) -> Optional[str]:
 def validate_smiles(smiles: str) -> Optional[str]:
     try:
         return StandardizeSmiles(smiles)
+    except:
+        return None
+
+
+def get_ring_size(smiles: str) -> Optional[int]:
+    """Calculates the size of the largest ring in a molecule given its SMILES."""
+    try:
+        mol = MolFromSmiles(smiles)
+        ring_info = mol.GetRingInfo()
+        n_atoms = mol.GetNumAtoms()
+        max_ring_size = max([ring_info.MinAtomRingSize(i) for i in range(n_atoms)])
+        if max_ring_size == 0:
+            return None
+        return max_ring_size
     except:
         return None
 
