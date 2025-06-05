@@ -28,9 +28,9 @@ def layout(monomer_id="monomer-1", **kwargs):
 
     page = [monomer_summary]
 
-    if data["polymerisation"]:
-        poly_section = get_polymerisation_section(data["polymerisation"])
-        page.extend([dmc.Divider(mt=60, mb=40), poly_section])
+    # if data["polymerisation"]:
+    #     poly_section = get_polymerisation_section(data["polymerisation"])
+    #     page.extend([dmc.Divider(mt=60, mb=40), poly_section])
 
     # if data["ring_opening"]:
     #     rop_section = get_rop_section(data)

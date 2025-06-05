@@ -1,0 +1,122 @@
+import asyncio
+from beanie import init_beanie
+from csv import DictReader
+from motor.motor_asyncio import AsyncIOMotorClient
+from typing import Any
+from roppy.api.documents import (
+    MonomerSummaryDocument,
+    PolymerisationDocument,
+)
+from roppy.api import DATABASE_NAME, DATABASE_URL
+from roppy.core.models import DataRow
+from collections import defaultdict
+from pathlib import Path
+
+
+def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
+    return {
+        "type": data["polymerisation_type"],
+        "monomer": {"smiles": data["monomer_smiles"]},
+        "initiator": {"smiles": data["initiator_smiles"]},
+        "product": {
+            "smiles": data["polymer_smiles"],
+            "length": data["polymer_length"],
+            "dispersity": data["dispersity"],
+            "deg_of_poly": data["degree_of_polymerisation"],
+            "n_avg_molar_mass": data["number_average_molar_mass"],
+            "m_avg_molar_mass": data["mass_average_molar_mass"],
+        },
+        "parameters": {
+            "is_experimental": data["is_experimental"],
+            "temperature": data["temperature"],
+            "pressure": data["pressure"],
+            "solvent": data["solvent"],
+            "solvent_conc": data["solvent_conc"],
+            "monomer_conc": data["monomer_conc"],
+            "monomer_state": data["monomer_state"],
+            "polymer_state": data["polymer_state"],
+            "solvent_model": data["solvent_model"],
+            "method": data["method"],
+            "functional": data["comp_functional"],
+            "basis_set": data["comp_basis_set"],
+            "dispersion": data["comp_dispersion"],
+            "forcefield": data["comp_forcefield"],
+        },
+        "thermo": {
+            "delta_h": data["delta_h"],
+            "delta_s": data["delta_s"],
+            "ceiling_temperature": data["ceiling_temperature"],
+        },
+        "metadata": {
+            "date": data["date"],
+            "comment": data["comment"],
+            "doi": data["doi"],
+            "url": data["url"],
+        },
+    }
+
+
+async def clear_database():
+    await PolymerisationDocument.find_all().delete()
+    await MonomerSummaryDocument.find_all().delete()
+
+
+async def parse_data() -> None:
+    polys = []
+    for input_file in Path("data").glob("input*.csv"):
+        with open(input_file) as fstream:
+            for data in DictReader(fstream):
+                polys.append(PolymerisationDocument(**format_polymerisation_data(data)))
+
+    for i, poly in enumerate(polys):
+        poly.polymerisation_id = f"poly-{i+1}"
+
+    await PolymerisationDocument.insert_many(polys)
+
+
+async def create_monomer_summaries():
+    summaries = defaultdict(list)
+    monomers = {}
+    polymerisations = await PolymerisationDocument.find_all().to_list()
+    for poly in polymerisations:
+        row = DataRow(
+            type=poly.type,
+            is_experimental=poly.parameters.is_experimental,
+            monomer_state=poly.parameters.monomer_state,
+            polymer_state=poly.parameters.polymer_state,
+            monomer_conc=poly.parameters.monomer_conc,
+            solvent=poly.parameters.solvent,
+            solvent_conc=poly.parameters.solvent_conc,
+            delta_h=poly.thermo.delta_h,
+            delta_s=poly.thermo.delta_s,
+            ceiling_temperature=poly.thermo.ceiling_temperature,
+            date=poly.metadata.date,
+        )
+        summaries[poly.monomer.smiles].append(row)
+        monomers[poly.monomer.smiles] = poly.monomer
+
+    monomer_summaries = []
+    for i, (monomer_smiles, monomer) in enumerate(monomers.items()):
+        monomer_summary = MonomerSummaryDocument(
+            monomer_id=f"monomer-{i+1}",
+            monomer=monomer,
+            data=summaries[monomer_smiles],
+        )
+        monomer_summaries.append(monomer_summary)
+
+    await MonomerSummaryDocument.insert_many(monomer_summaries)
+
+
+async def rebuild_db():
+    client = AsyncIOMotorClient(DATABASE_URL)
+    await init_beanie(
+        database=client[DATABASE_NAME],
+        document_models=[MonomerSummaryDocument, PolymerisationDocument],
+    )
+    await clear_database()
+    await parse_data()
+    await create_monomer_summaries()
+
+
+def main():
+    asyncio.run(rebuild_db())

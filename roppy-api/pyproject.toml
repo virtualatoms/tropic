@@ -31,9 +31,6 @@ dependencies = [
     "fastapi-pagination",
     "fastapi-filter",
     "uvicorn",
-    "dash-ag-grid",
-    "dash-mantine-components",
-    "dash-iconify",
 ]
 
 [project.optional-dependencies]
@@ -43,6 +40,7 @@ strict = [
 
 [project.scripts]
 roppy-api = "roppy.api.api:main"
+roppy-build = "roppy.api.build:main"
 
 [project.urls]
 homepage = "https://virtualatoms.github.io/roppy/"
