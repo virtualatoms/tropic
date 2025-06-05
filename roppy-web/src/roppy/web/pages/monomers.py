@@ -104,7 +104,6 @@ def update_smiles_from_drawing(n_clicks, drawn_smiles):
     Input("has-exp", "value"),
 )
 def reset_table(*_):
-    print("resetting")
     return {"startRow": 1, "endRow": 5, "sortModel": [], "filterModel": {}}, []
 
 
@@ -123,8 +122,8 @@ def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
     query = []
     if smiles:
         query.append(f"search={quote(smiles)}")
-    query.append(f"ring_size__gte={ring_size_range[0]}")
-    query.append(f"ring_size__lte={ring_size_range[1]}")
+    query.append(f"monomer__ring_size__gte={ring_size_range[0]}")
+    query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
 
     if has_comp != "both":
         query.append(f"has_calc={has_comp == 'yes'}")
@@ -149,7 +148,7 @@ def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
     yes_no_mapping = {True: "Yes", False: "No"}
     table_data = []
     for result in results["items"]:
-        img_data = smiles_to_image(result["smiles"])
+        img_data = smiles_to_image(result["monomer"]["smiles"])
         structure_cell = (
             f'<img src="data:image/svg+xml;base64,{img_data}" style="max-width:150px; display: block; margin: auto;">'
             if img_data
@@ -160,14 +159,13 @@ def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
             {
                 "structure": structure_cell,
                 "monomer_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="monomers/{result["monomer_id"]}">{result["monomer_id"]}</a>',
-                "smiles": result["smiles"],
-                "ring_size": result["ring_size"],
+                "smiles": result["monomer"]["smiles"],
+                "ring_size": result["monomer"]["ring_size"],
                 "has_exp": yes_no_mapping[result["has_exp"]],
                 "has_calc": yes_no_mapping[result["has_calc"]],
             }
         )
 
-    print(results["total"])
     return {"rowData": np.array(table_data), "rowCount": results["total"]}
 
 
