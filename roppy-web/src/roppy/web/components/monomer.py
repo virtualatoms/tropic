@@ -11,16 +11,16 @@ HIDDEN = {"height": 0, "width": 0, "overflow": "hidden"}
 
 def get_monomer_info_card(data):
     table_data = [
-        ("SMILES", data["smiles"]),
-        ("InChI", data["monomer_info"]["inchi"]),
-        ("IUPAC Name", data["monomer_info"]["iupac_name"]),
-        ("Common Name", data["monomer_info"]["common_name"]),
+        ("SMILES", data["monomer"]["smiles"]),
+        ("InChI", data["monomer"]["inchi"]),
+        ("IUPAC Name", data["monomer"]["iupac_name"]),
+        ("Common Name", data["monomer"]["common_name"]),
     ]
     return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
 
 
 def get_monomer_page_summary(data):
-    viewer_card = get_mol_viewer_card(data["monomer_info"]["xyz"])
+    viewer_card = get_mol_viewer_card(data["monomer"]["xyz"])
     info_card = get_monomer_info_card(data)
 
     return dmc.Grid(
@@ -52,5 +52,5 @@ def get_monomer_logo(smiles: str, monomer_id: str):
 
 
 def get_monomer_toc(data):
-    header = get_monomer_logo(data["smiles"], data["monomer_id"])
+    header = get_monomer_logo(data["monomer"]["smiles"], data["monomer_id"])
     return create_toc_sidebar(header)

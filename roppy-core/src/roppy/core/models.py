@@ -9,6 +9,7 @@ from roppy.core.validate import (
     State,
     Method,
     get_ring_size,
+    get_xyz
 )
 from roppy.core.efgs import get_dec_fgs
 from rdkit.Chem import MolFromSmiles
@@ -47,11 +48,6 @@ class Molecule(BaseModel):
         default=None,
     )
 
-    xyz: Optional[str] = Field(
-        description="XYZ coordinates for the molecule",
-        default=None,
-    )
-
 
 class Monomer(Molecule):
 
@@ -59,6 +55,12 @@ class Monomer(Molecule):
         description="Size of the ring in the monomer structure",
         default_factory=lambda data: get_ring_size(data["smiles"])
     )
+
+    xyz: Optional[str] = Field(
+        description="XYZ coordinates for the molecule",
+        default_factory=lambda data: get_xyz(data["smiles"])
+    )
+
 
 
 class Initiator(Molecule):
@@ -201,9 +203,15 @@ class MonomerSummary(BaseModel):
     data: list[DataRow] = Field(
         description="table of data where each row corresponds to a polymerisation (for display purposes)",
     )
-    has_experimental: bool = Field(
+    has_exp: bool = Field(
         description="Whether the molecule has experimental data",
         default_factory=lambda data: any(
             poly.is_experimental for poly in data.get("data", [])
-        ),
+        )
+    )
+    has_calc: bool = Field(
+        description="Whether the molecule has calculated data",
+        default_factory=lambda data: any(
+            not poly.is_experimental for poly in data.get("data", [])
+        )
     )

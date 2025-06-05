@@ -3,7 +3,8 @@ from pydantic import BeforeValidator, AfterValidator
 from roppy.core.constants import STATES, METHODS, POLY_TYPES
 from roppy.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
-from rdkit.Chem import MolFromSmiles
+from rdkit.Chem import MolFromSmiles, MolToXYZBlock, AllChem, AddHs
+
 
 
 def validate_solvent(solvent: Optional[str]) -> Optional[str]:
@@ -34,6 +35,16 @@ def get_ring_size(smiles: str) -> Optional[int]:
         return max_ring_size
     except:
         return None
+
+def get_xyz(smiles: str) -> Optional[str]:
+    """Generates XYZ coordinates for a molecule given its SMILES."""
+    mol = MolFromSmiles(smiles)
+    if mol is None:
+        return None
+    mol = AddHs(mol)
+    AllChem.EmbedMolecule(mol)
+    xyz = MolToXYZBlock(mol)
+    return xyz
 
 
 EmptyStringToNone = Annotated[

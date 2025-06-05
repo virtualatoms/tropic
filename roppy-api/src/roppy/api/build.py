@@ -98,7 +98,7 @@ async def create_monomer_summaries():
     monomer_summaries = []
     for i, (monomer_smiles, monomer) in enumerate(monomers.items()):
         monomer_summary = MonomerSummaryDocument(
-            monomer_id=f"monomer-{i}",
+            monomer_id=f"monomer-{i+1}",
             monomer=monomer,
             data=summaries[monomer_smiles],
         )
