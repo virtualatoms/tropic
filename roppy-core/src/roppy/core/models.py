@@ -57,7 +57,7 @@ class Monomer(Molecule):
     )
 
     xyz: Optional[str] = Field(
-        description="XYZ coordinates for the monomer",
+        description="XYZ coordinates for the molecule",
         default_factory=lambda data: get_xyz(data["smiles"]),
     )
 
@@ -67,7 +67,7 @@ class Product(BaseModel):
         None,
         description="Big SMILES notation representing the polymer",
     )
-    length: EmptyStringToNone[float] = Field(
+    repeating_units: EmptyStringToNone[float] = Field(
         None,
         description="Number of repeating monomer units in the computational polymer chain/ring",
     )
@@ -97,14 +97,14 @@ class Parameters(BaseModel):
     )
     monomer_state: State = Field(None, description="State of the monomer")
     polymer_state: State = Field(None, description="State of the polymer")
-    monomer_conc: EmptyStringToNone[float] = Field(
+    initial_monomer_conc: EmptyStringToNone[float] = Field(
         None, description="Initial concentration of the monomer"
+    )
+    bulk_monomer_conc: EmptyStringToNone[float] = Field(
+        None, description="Bulk concentration of the monomer"
     )
     solvent: Solvent = Field(
         None, description="Solvent that the polymerisation is conducted within"
-    )
-    solvent_conc: EmptyStringToNone[float] = Field(
-        None, description="Concentration of the polymerisation solvent"
     )
     method: Method = Field(None, description="Computational method used")
     functional: EmptyStringToNone[str] = Field(None, description="DFT functional")
@@ -147,7 +147,7 @@ class Metadata(BaseModel):
 
 class Polymerisation(BaseModel):
     polymerisation_id: str = Field(
-        None, description="unique display id for the polymerisation"
+        "poly-0", description="unique display id for the polymerisation"
     )
     type: PolymerisationType = Field(description="Type of polymerisation")
     monomer: Monomer = Field(description="Monomer of the polymerisation")
@@ -165,14 +165,14 @@ class DataRow(BaseModel):
     )
     monomer_state: Optional[str] = Field(description="State of the monomer")
     polymer_state: Optional[str] = Field(description="State of the polymer")
-    monomer_conc: Optional[float] = Field(
+    initial_monomer_conc: Optional[float] = Field(
         description="Initial concentration of the monomer"
+    )
+    bulk_monomer_conc: Optional[float] = Field(
+        description="bulk concentration of the monomer"
     )
     solvent: Optional[str] = Field(
         description="Solvent that the polymerisation is conducted within"
-    )
-    solvent_conc: Optional[float] = Field(
-        description="Concentration of the polymerisation solvent"
     )
     delta_h: Optional[float] = Field(
         description="Change in enthalpy (ΔH) for the polymerization reaction"
