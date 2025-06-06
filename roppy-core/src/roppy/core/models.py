@@ -143,6 +143,10 @@ class Metadata(BaseModel):
         Field(description="Digital Object Identifier for the source"),
     )
     url: EmptyStringToNone[str] = (Field(description="URL to related resource"),)
+    formatted_reference: EmptyStringToNone[str] = Field(
+        None,
+        description="Formatted reference string for the publication",
+    )
 
 
 class Polymerisation(BaseModel):
@@ -183,6 +187,7 @@ class DataRow(BaseModel):
     ceiling_temperature: Optional[float] = Field(description="Ceiling temperature in K")
     date: Optional[datetime] = Field(description="Year of publication")
     doi: Optional[str] = Field(description="DOI of publication")
+    formatted_reference: Optional[str] = Field(description="Formatted reference string")
 
 
 class MonomerSummary(BaseModel):

@@ -280,6 +280,7 @@ def get_export_data(data, file_type):
                 "ΔS (kJ/mol·K)",
                 "Ceiling Temperature (K)",
                 "Date",
+                "Reference",
             ]
         )
         for item in data["items"]:
@@ -301,6 +302,7 @@ def get_export_data(data, file_type):
                         row["delta_s"],
                         row["ceiling_temperature"],
                         row["date"],
+                        row["formatted_reference"],
                     ]
                 )
         return output.getvalue()
