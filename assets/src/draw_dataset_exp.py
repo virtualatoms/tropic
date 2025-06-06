@@ -4,13 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from roppy.core.models import (
-    Monomer,
-    Initiator,
-    Polymerisation,
-    MonomerSummary,
-    InitiatorSummary,
-)
+from roppy.api.documents import PolymerisationDocument, MonomerSummaryDocument
+
 from matplotlib.patches import ConnectionPatch
 
 CLIENT_URL = "mongodb://localhost:27017"
@@ -18,7 +13,7 @@ CLIENT_URL = "mongodb://localhost:27017"
 
 async def draw_dataset():
 
-    polys = await Polymerisation.find_all().to_list()
+    polys = await PolymerisationDocument.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
         "is_experimental": [poly.parameters.is_experimental for poly in polys],
@@ -112,11 +107,8 @@ async def draw():
     await init_beanie(
         database=database,
         document_models=[
-            Polymerisation,
-            Monomer,
-            MonomerSummary,
-            Initiator,
-            InitiatorSummary,
+            PolymerisationDocument,
+            MonomerSummaryDocument,
         ],
     )
 
