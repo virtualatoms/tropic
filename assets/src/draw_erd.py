@@ -6,12 +6,12 @@ from roppy.core.models import MonomerSummary, Polymerisation
 if __name__ == "__main__":
 
     # Create Erdantic Models
-    poly_diagram_base = erd.create(Polymerisation, terminal_models=[Polymerisation])
-    poly_diagram = erd.create(Polymerisation)
+    poly_base_diagram = erd.create(Polymerisation, terminal_models=[Polymerisation])
+    poly_attr_diagram = erd.create(Polymerisation)
     monomer_diagram = erd.create(MonomerSummary, terminal_models=[Polymerisation])
 
     # remove id and revision_id
-    diagrams = [poly_diagram_base, monomer_diagram, poly_diagram]
+    diagrams = [poly_base_diagram, monomer_diagram, poly_attr_diagram]
     fields = ["Polymerisation", "Monomer", "Initiator", "MonomerSummary"]
     for diagram in diagrams:
         for field in fields:
@@ -22,8 +22,8 @@ if __name__ == "__main__":
                 pass
 
     # separate polymerisation from its attributes
-    del poly_diagram.models["roppy.core.models.Polymerisation"]
-    poly_diagram.edges.clear()
+    del poly_attr_diagram.models["roppy.core.models.Polymerisation"]
+    poly_attr_diagram.edges.clear()
 
     # tidy up monomerSummary graph
     del monomer_diagram.models["roppy.core.models.Monomer"]
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # TODO:Sorting fields
 
     # Output diagrams
-    poly_diagram_base.draw(
+    poly_base_diagram.draw(
         "assets/Polymerisation_base.svg",
         graph_attr={
             "layout": "dot",
@@ -48,13 +48,12 @@ if __name__ == "__main__":
         },
         node_attr={"fontsize": 8},
     )
-    poly_diagram.draw(
+    poly_attr_diagram.draw(
         "assets/Polymerisation_attr.svg",
         graph_attr={
             "layout": "dot",
             "rankdir": "TB",
             "ratio": 0.5,
-            # "pack": 1,
             "packmode": "node",
             # "dpi": 300,
         },
