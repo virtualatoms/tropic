@@ -22,7 +22,7 @@ async def draw_publications():
         "date": [poly.metadata.date for poly in polys],
     }
 
-    plt.style.use("seaborn-v0_8")
+    plt.style.use("seaborn-v0_8-paper")
 
     df = pd.DataFrame(data)
     df["date"] = pd.to_datetime(df["date"])

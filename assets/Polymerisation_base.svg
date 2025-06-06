@@ -14,39 +14,39 @@
 <g id="node1" class="node">
 <title>roppy.core.models.Polymerisation</title>
 <g id="a_node1"><a xlink:title="roppy.core.models.Polymerisation&#10;&#10;Document Mapping class.&#10;&#10;Fields:&#10;&#10;&#45; `id` &#45; MongoDB document ObjectID &quot;_id&quot; field.&#10;Mapped to the PydanticObjectId class&#10;">
-<polygon fill="none" stroke="black" points="50.75,-144.5 50.75,-160.25 237.5,-160.25 237.5,-144.5 50.75,-144.5"/>
+<polygon fill="none" stroke="black" points="88.62,-144.5 88.62,-160.25 199.62,-160.25 199.62,-144.5 88.62,-144.5"/>
 <text text-anchor="start" x="118.25" y="-150.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-weight="bold" font-size="8.00">Polymerisation</text>
-<polygon fill="none" stroke="black" points="50.75,-128.75 50.75,-144.5 113.75,-144.5 113.75,-128.75 50.75,-128.75"/>
-<text text-anchor="start" x="53.75" y="-133.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">polymerisation_id</text>
-<polygon fill="none" stroke="black" points="113.75,-128.75 113.75,-144.5 237.5,-144.5 237.5,-128.75 113.75,-128.75"/>
-<text text-anchor="start" x="171.5" y="-133.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">int</text>
-<polygon fill="none" stroke="black" points="50.75,-113 50.75,-128.75 113.75,-128.75 113.75,-113 50.75,-113"/>
-<text text-anchor="start" x="75.5" y="-118.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">type</text>
-<polygon fill="none" stroke="black" points="113.75,-113 113.75,-128.75 237.5,-128.75 237.5,-113 113.75,-113"/>
-<text text-anchor="start" x="116.75" y="-118.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Literal[&#39;ROR&#39;, &#39;RER&#39;, &#39;ROP&#39;, &#39;RCE&#39;]</text>
-<polygon fill="none" stroke="black" points="50.75,-97.25 50.75,-113 113.75,-113 113.75,-97.25 50.75,-97.25"/>
-<text text-anchor="start" x="67.25" y="-102.4" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">monomer</text>
-<polygon fill="none" stroke="black" points="113.75,-97.25 113.75,-113 237.5,-113 237.5,-97.25 113.75,-97.25"/>
+<polygon fill="none" stroke="black" points="88.62,-128.75 88.62,-144.5 151.62,-144.5 151.62,-128.75 88.62,-128.75"/>
+<text text-anchor="start" x="91.62" y="-133.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">polymerisation_id</text>
+<polygon fill="none" stroke="black" points="151.62,-128.75 151.62,-144.5 199.62,-144.5 199.62,-128.75 151.62,-128.75"/>
+<text text-anchor="start" x="154.62" y="-133.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Optional[int]</text>
+<polygon fill="none" stroke="black" points="88.62,-113 88.62,-128.75 151.62,-128.75 151.62,-113 88.62,-113"/>
+<text text-anchor="start" x="113.38" y="-118.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">type</text>
+<polygon fill="none" stroke="black" points="151.62,-113 151.62,-128.75 199.62,-128.75 199.62,-113 151.62,-113"/>
+<text text-anchor="start" x="154.62" y="-118.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Optional[str]</text>
+<polygon fill="none" stroke="black" points="88.62,-97.25 88.62,-113 151.62,-113 151.62,-97.25 88.62,-97.25"/>
+<text text-anchor="start" x="105.12" y="-102.4" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">monomer</text>
+<polygon fill="none" stroke="black" points="151.62,-97.25 151.62,-113 199.62,-113 199.62,-97.25 151.62,-97.25"/>
 <text text-anchor="start" x="160.25" y="-102.4" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Monomer</text>
-<polygon fill="none" stroke="black" points="50.75,-81.5 50.75,-97.25 113.75,-97.25 113.75,-81.5 50.75,-81.5"/>
-<text text-anchor="start" x="69.5" y="-86.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">initiator</text>
-<polygon fill="none" stroke="black" points="113.75,-81.5 113.75,-97.25 237.5,-97.25 237.5,-81.5 113.75,-81.5"/>
+<polygon fill="none" stroke="black" points="88.62,-81.5 88.62,-97.25 151.62,-97.25 151.62,-81.5 88.62,-81.5"/>
+<text text-anchor="start" x="107.38" y="-86.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">initiator</text>
+<polygon fill="none" stroke="black" points="151.62,-81.5 151.62,-97.25 199.62,-97.25 199.62,-81.5 151.62,-81.5"/>
 <text text-anchor="start" x="162.5" y="-86.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Initiator</text>
-<polygon fill="none" stroke="black" points="50.75,-65.75 50.75,-81.5 113.75,-81.5 113.75,-65.75 50.75,-65.75"/>
-<text text-anchor="start" x="70.25" y="-70.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">product</text>
-<polygon fill="none" stroke="black" points="113.75,-65.75 113.75,-81.5 237.5,-81.5 237.5,-65.75 113.75,-65.75"/>
+<polygon fill="none" stroke="black" points="88.62,-65.75 88.62,-81.5 151.62,-81.5 151.62,-65.75 88.62,-65.75"/>
+<text text-anchor="start" x="108.12" y="-70.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">product</text>
+<polygon fill="none" stroke="black" points="151.62,-65.75 151.62,-81.5 199.62,-81.5 199.62,-65.75 151.62,-65.75"/>
 <text text-anchor="start" x="163.25" y="-70.9" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Product</text>
-<polygon fill="none" stroke="black" points="50.75,-50 50.75,-65.75 113.75,-65.75 113.75,-50 50.75,-50"/>
-<text text-anchor="start" x="64.25" y="-55.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">parameters</text>
-<polygon fill="none" stroke="black" points="113.75,-50 113.75,-65.75 237.5,-65.75 237.5,-50 113.75,-50"/>
+<polygon fill="none" stroke="black" points="88.62,-50 88.62,-65.75 151.62,-65.75 151.62,-50 88.62,-50"/>
+<text text-anchor="start" x="102.12" y="-55.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">parameters</text>
+<polygon fill="none" stroke="black" points="151.62,-50 151.62,-65.75 199.62,-65.75 199.62,-50 151.62,-50"/>
 <text text-anchor="start" x="157.25" y="-55.15" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Parameters</text>
-<polygon fill="none" stroke="black" points="50.75,-34.25 50.75,-50 113.75,-50 113.75,-34.25 50.75,-34.25"/>
-<text text-anchor="start" x="71" y="-39.4" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">thermo</text>
-<polygon fill="none" stroke="black" points="113.75,-34.25 113.75,-50 237.5,-50 237.5,-34.25 113.75,-34.25"/>
+<polygon fill="none" stroke="black" points="88.62,-34.25 88.62,-50 151.62,-50 151.62,-34.25 88.62,-34.25"/>
+<text text-anchor="start" x="108.88" y="-39.4" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">thermo</text>
+<polygon fill="none" stroke="black" points="151.62,-34.25 151.62,-50 199.62,-50 199.62,-34.25 151.62,-34.25"/>
 <text text-anchor="start" x="162.88" y="-39.4" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Thermo</text>
-<polygon fill="none" stroke="black" points="50.75,-18.5 50.75,-34.25 113.75,-34.25 113.75,-18.5 50.75,-18.5"/>
-<text text-anchor="start" x="67.62" y="-23.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">metadata</text>
-<polygon fill="none" stroke="black" points="113.75,-18.5 113.75,-34.25 237.5,-34.25 237.5,-18.5 113.75,-18.5"/>
+<polygon fill="none" stroke="black" points="88.62,-18.5 88.62,-34.25 151.62,-34.25 151.62,-18.5 88.62,-18.5"/>
+<text text-anchor="start" x="105.5" y="-23.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">metadata</text>
+<polygon fill="none" stroke="black" points="151.62,-18.5 151.62,-34.25 199.62,-34.25 199.62,-18.5 151.62,-18.5"/>
 <text text-anchor="start" x="160.62" y="-23.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="8.00">Metadata</text>
 </a>
 </g>

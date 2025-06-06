@@ -21,13 +21,12 @@ async def draw_dataset():
     polys = await Polymerisation.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
-        "func_group": [poly.monomer.functional_groups for poly in polys],
         "is_experimental": [poly.parameters.is_experimental for poly in polys],
         "type": [poly.type for poly in polys],
     }
     df = pd.DataFrame(data)
 
-    plt.style.use("seaborn-v0_8")
+    plt.style.use("seaborn-v0_8-paper")
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.subplots_adjust(wspace=0)
 
@@ -38,37 +37,41 @@ async def draw_dataset():
     patches, *_ = ax1.pie(
         experimental_count["poly_id"],
         autopct="%1.1f%%",
-        # startangle=0,
         startangle=(180 * experimental_count["poly_id"][1]),
         labels=["comp", "exp"],
-        explode=[0.0, 0.1],
+        explode=[0.1, 0.0],
     )
-    ax1.set_title("distribution of data")
+    ax1.set_title("Experimental vs Computational")
     type_count = (
         df.groupby(["is_experimental", "type"])
         .count()
-        .drop(labels=[False])
+        .drop(labels=[True])
         .reset_index(level=0)
     )
     type_count["poly_id"] = type_count["poly_id"] / type_count["poly_id"].sum()
     bar_bottom = 1
     bar_width = 0.2
-    for i, (height, label) in enumerate(
+    for i, (bar_height, label) in enumerate(
         reversed([*zip(type_count["poly_id"], type_count.index)])
     ):
-        bar_bottom -= height
+        bar_bottom -= bar_height
         bc = ax2.bar(
-            0, height, bar_width, bottom=bar_bottom, label=label, alpha=(0.1 + 0.25 * i)
+            0,
+            bar_height,
+            bar_width,
+            bottom=bar_bottom,
+            label=label,
+            alpha=(0.1 + 0.25 * i),
         )
-        ax2.bar_label(bc, labels=[f"{height:.0%}"], label_type="center")
+        ax2.bar_label(bc, labels=[f"{bar_height:.0%}"], label_type="center")
 
-    ax2.set_title("type of poly")
+    ax2.set_title("Type")
     ax2.legend()
     ax2.axis("off")
     ax2.set_xlim(-2.5 * bar_width, 2.5 * bar_width)
 
-    theta1, theta2 = patches[1].theta1, patches[1].theta2
-    center, r = patches[1].center, patches[1].r
+    theta1, theta2 = patches[0].theta2, patches[0].theta1
+    center, r = patches[0].center, patches[0].r
     bar_height = sum(type_count["poly_id"])
 
     # draw top connecting line
@@ -98,7 +101,7 @@ async def draw_dataset():
     con.set_linewidth(2)
 
     # plt.show()
-    plt.savefig("assets/experimental_dataset.svg")
+    plt.savefig("assets/dataset_comp.svg")
 
 
 async def draw():
