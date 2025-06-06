@@ -4,6 +4,7 @@ from csv import DictReader
 from pathlib import Path
 from typing import Any
 
+import requests_cache
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -11,8 +12,11 @@ from roppy.api import DATABASE_NAME, DATABASE_URL
 from roppy.api.documents import MonomerSummaryDocument, PolymerisationDocument
 from roppy.core.models import DataRow
 
+session = requests_cache.CachedSession("doi_cache")
+
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
+    formatted_reference = get_formatted_reference(data.get("doi"))
     return {
         "type": data["polymerisation_type"],
         "monomer": {"smiles": data["monomer_smiles"]},
@@ -51,8 +55,22 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "comment": data["comment"],
             "doi": data["doi"],
             "url": data["url"],
+            "formatted_reference": formatted_reference,
         },
     }
+
+
+def get_formatted_reference(doi: str) -> str:
+    """Formats the reference using the citation API."""
+    if not doi:
+        return None
+
+    response = session.get(
+        f"https://citation.doi.org/format?doi={doi}&style=royal-society-of-chemistry&lang=en-US"
+    )
+    if response.status_code != 200:
+        return None
+    return response.text.strip()[2:-1]
 
 
 async def clear_database():
@@ -91,6 +109,7 @@ async def create_monomer_summaries():
             ceiling_temperature=poly.thermo.ceiling_temperature,
             date=poly.metadata.date,
             doi=poly.metadata.doi,
+            formatted_reference=poly.metadata.formatted_reference,
         )
         summaries[poly.monomer.smiles].append(row)
         monomers[poly.monomer.smiles] = poly.monomer
