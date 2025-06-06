@@ -1,10 +1,10 @@
 import dash_mantine_components as dmc
-
 from dash import html
-from roppy.web.utils import smiles_to_image
-from roppy.web.components.table import get_table
+
 from roppy.web.components.molview import get_mol_viewer_card
+from roppy.web.components.table import get_table
 from roppy.web.components.toc import create_toc_sidebar
+from roppy.web.utils import smiles_to_image
 
 HIDDEN = {"height": 0, "width": 0, "overflow": "hidden"}
 

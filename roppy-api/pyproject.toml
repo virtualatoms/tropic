@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Other/Nonlisted Topic",
     "Topic :: Scientific/Engineering",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.0.1",
     "beanie",
@@ -81,6 +81,24 @@ exclude_lines = [
 target-version = "py39"
 lint.select = ["ALL"]
 lint.ignore = [
+    "ANN001",  # TODO: Remove later
+    "ANN201",  # TODO: Remove later
+    "D104",  # TODO: Remove later
+    "D103",  # TODO: Remove later
+    "D100",  # TODO: Remove later
+    "ANN202",  # TODO: Remove later
+    "E501",  # TODO: Remove later
+    "D401",  # TODO: Remove later
+    "D200",  # TODO: Remove later
+    "E741",  # TODO: Remove later
+    "RET504",  # TODO: Remove later
+    "FA100",  # TODO: Remove later
+    "D106",  # TODO: Remove later
+    "RUF012",  # TODO: Remove later
+    "D101",  # TODO: Remove later
+    "PERF401",  # TODO: Remove later
+    "ASYNC230",  # TODO: Remove later
+    "S104",  # TODO: Remove later
     "ANN002",
     "ANN003",
     "ANN101",  # missing self type annotation

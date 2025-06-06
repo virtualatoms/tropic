@@ -1,34 +1,46 @@
-import requests
-import numpy as np
-import dash_mantine_components as dmc
 from urllib.parse import quote
-from dash import Input, Output, State, callback, no_update, register_page, html
-from dash import clientside_callback
-from dash_iconify import DashIconify
-from roppy.web.utils import smiles_to_image
-from roppy.web.components.breadcrumbs import get_breadcrumbs
-from roppy.web.components.sidebar import get_search_sidebar
-from roppy.web.components.chart import get_search_chart
-from roppy.web.components.searchtable import get_search_table, PAGE_SIZE
-from roppy.web.components.draw import get_draw_molecule   
 
+import dash_mantine_components as dmc
+import numpy as np
+import requests
+from dash import (
+    Input,
+    Output,
+    State,
+    callback,
+    clientside_callback,
+    html,
+    no_update,
+    register_page,
+)
+from dash_iconify import DashIconify
+
+from roppy.web import SETTINGS
+from roppy.web.components.breadcrumbs import get_breadcrumbs
+from roppy.web.components.chart import get_search_chart
+from roppy.web.components.draw import get_draw_molecule
+from roppy.web.components.searchtable import get_search_table
+from roppy.web.components.sidebar import get_search_sidebar
+from roppy.web.utils import smiles_to_image
 
 register_page(__name__)
 
 
-def layout(**kwargs):
+def layout(**_):
     breadcrumbs = get_breadcrumbs(["Home", "Monomer Search"])
     table = get_search_table()
     chart = get_search_chart()
     side_bar = get_search_sidebar()
     draw_modal = get_draw_molecule()
-    
+
     tabs = dmc.Tabs(
         [
             dmc.TabsList(
                 [
                     dmc.TabsTab(
-                        "Table", value="table", leftSection=DashIconify(icon="tabler:table")
+                        "Table",
+                        value="table",
+                        leftSection=DashIconify(icon="tabler:table"),
                     ),
                     dmc.TabsTab(
                         "Analysis",
@@ -37,14 +49,15 @@ def layout(**kwargs):
                     ),
                 ]
             ),
-            dmc.TabsPanel(table, value="table", pt=20),
-            dmc.TabsPanel(chart, value="analysis", pt=20),
+            dmc.TabsPanel(table, value="table", pt=10),
+            dmc.TabsPanel(chart, value="analysis", pt=10),
         ],
+        id="tabs",
         value="table",
     )
 
     grid = dmc.Grid(
-        [dmc.GridCol(side_bar, span=3, pt=72), dmc.GridCol(tabs, span=9)],
+        [dmc.GridCol(side_bar, span=3, pt=108), dmc.GridCol(tabs, span=9)],
         pt=50,
         gutter="xl",
     )
@@ -57,17 +70,15 @@ def layout(**kwargs):
         pt=50,
     )
 
-    layout = [
+    return [
         breadcrumbs,
         dmc.Center(input_bar),
         grid,
         draw_modal,
-        html.Div(id='table-trigger', **{'data-label': {}}),
+        html.Div(id="table-trigger", **{"data-label": {}}),
     ]
 
-    return layout
-    
-    
+
 @callback(
     Output("molecule-drawer-modal", "opened"),
     [
@@ -83,7 +94,7 @@ def toggle_modal(draw_clicks, close_clicks, apply_clicks, is_open):
         return not is_open
     return is_open
 
-    
+
 @callback(
     Output("smiles-input", "value"),
     [Input("apply-drawn-molecule", "n_clicks")],
@@ -94,7 +105,8 @@ def update_smiles_from_drawing(n_clicks, drawn_smiles):
     if n_clicks and drawn_smiles:
         return drawn_smiles
     return no_update
-    
+
+
 @callback(
     Output("results-table", "getRowsRequest"),
     Output("results-table", "rowData"),
@@ -109,31 +121,24 @@ def reset_table(*_):
 
 @callback(
     Output("results-table", "getRowsResponse"),
+    Input("tabs", "value"),
     Input("smiles-input", "value"),
     Input("ring-size-slider", "value"),
     Input("has-comp", "value"),
     Input("has-exp", "value"),
     Input("results-table", "getRowsRequest"),
 )
-def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
-    # if rows_request is None:
-    #     return no_update
+def update_table(tabs, smiles, ring_size_range, has_comp, has_exp, rows_request):
+    if rows_request is None or tabs != "table":
+        return no_update
 
-    query = []
-    if smiles:
-        query.append(f"search={quote(smiles)}")
-    query.append(f"monomer__ring_size__gte={ring_size_range[0]}")
-    query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
-
-    if has_comp != "both":
-        query.append(f"has_calc={has_comp == 'yes'}")
-
-    if has_exp != "both":
-        query.append(f"has_exp={has_exp == 'yes'}")
+    query = [_build_query(smiles, ring_size_range, has_comp, has_exp)]
 
     # handle pagination
-    page = rows_request["startRow"] // PAGE_SIZE + 1 if rows_request else 1
-    query.append(f"size=5&page={page}")
+    page = (
+        rows_request["startRow"] // SETTINGS.SEARCH_NUM_ROWS + 1 if rows_request else 1
+    )
+    query.append(f"size={SETTINGS.SEARCH_NUM_ROWS}&page={page}")
 
     # handle sort
     if rows_request and rows_request["sortModel"]:
@@ -142,7 +147,7 @@ def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
         query.append(f"order_by={sort_dir}{sort_col}")
 
     query = "&".join(query)
-    response = requests.get(f"http://localhost:8000/monomers?{query}")
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
     results = response.json()
 
     yes_no_mapping = {True: "Yes", False: "No"}
@@ -169,8 +174,99 @@ def update_table(smiles, ring_size_range, has_comp, has_exp, rows_request):
     return {"rowData": np.array(table_data), "rowCount": results["total"]}
 
 
+@callback(
+    Output("analysis-chart", "data"),
+    Input("tabs", "value"),
+    Input("smiles-input", "value"),
+    Input("ring-size-slider", "value"),
+    Input("has-comp", "value"),
+    Input("has-exp", "value"),
+)
+def update_chart(tabs, smiles, ring_size_range, has_comp, has_exp):
+    # TODO: Currently this repeats the API call from the table update.
+    # Ideally, we should refactor to avoid duplicate requests.
+    # currently one difference is that the chart wants all the data, not just the first page
 
-# this hack is needed to make AG Grid work properly 
+    if tabs != "analysis":
+        return no_update
+
+    query = _build_query(smiles, ring_size_range, has_comp, has_exp)
+    query += "&size=1000"
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    results = response.json()
+
+    exp = []
+    comp = []
+    for result in results["items"]:
+        for row in result["data"]:
+            if row["delta_s"] and row["delta_h"]:
+                delta_g = row["delta_h"] - row["delta_s"] * 298.15
+            else:
+                delta_g = None
+
+            if row["is_experimental"]:
+                exp.append(
+                    {
+                        "ring_size": result["monomer"]["ring_size"],
+                        "delta_h": row["delta_h"],
+                        "delta_s": row["delta_s"],
+                        "delta_g": delta_g,
+                        "ceiling_temperature": row["ceiling_temperature"],
+                    }
+                )
+            else:
+                comp.append(
+                    {
+                        "ring_size": result["monomer"]["ring_size"],
+                        "delta_h": row["delta_h"],
+                        "delta_s": row["delta_s"],
+                        "delta_g": delta_g,
+                        "ceiling_temperature": row["ceiling_temperature"],
+                    }
+                )
+
+    return [
+        {"color": "red.5", "name": "Computational", "data": comp},
+        {"color": "blue.5", "name": "Experimental", "data": exp},
+    ]
+
+
+@callback(
+    Output("analysis-chart", "dataKey"),
+    Output("analysis-chart", "yAxisLabel"),
+    Input("chart-select-y", "value"),
+)
+def update_chart_y_axis(selected_y):
+    data_key = {"x": "ring_size", "y": selected_y} if selected_y else no_update
+    y_axis_labels = {
+        "delta_h": r"ΔH / kj/mol",
+        "delta_s": r"ΔS / kj/mol",
+        "delta_g": r"ΔG / kj/mol",
+        "ceiling_temperature": "Ceiling Temperature / K",
+    }
+    y_axis_label = y_axis_labels.get(selected_y, "Value")
+    return data_key, y_axis_label
+
+
+def _build_query(smiles, ring_size_range, has_comp, has_exp):
+    query = []
+    if smiles:
+        query.append(f"search={quote(smiles)}")
+    query.append(f"monomer__ring_size__gte={ring_size_range[0]}")
+
+    if ring_size_range[1] is not None and ring_size_range[1] < 15:
+        query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
+
+    if has_comp != "both":
+        query.append(f"has_calc={has_comp == 'yes'}")
+
+    if has_exp != "both":
+        query.append(f"has_exp={has_exp == 'yes'}")
+
+    return "&".join(query)
+
+
+# this hack is needed to make AG Grid work properly
 
 clientside_callback(
     """async () => {
@@ -178,7 +274,7 @@ clientside_callback(
         gridApi.refreshInfiniteCache();
         return dash_clientside.no_update
     }""",
-    Output('table-trigger', 'data-label'),
+    Output("table-trigger", "data-label"),
     Input("smiles-input", "value"),
     Input("ring-size-slider", "value"),
     Input("has-comp", "value"),

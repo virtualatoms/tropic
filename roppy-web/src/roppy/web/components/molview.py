@@ -1,12 +1,12 @@
 import dash_mantine_components as dmc
 from dash import (
-    html,
-    callback,
+    ClientsideFunction,
     Input,
     Output,
     State,
+    callback,
     clientside_callback,
-    ClientsideFunction,
+    html,
 )
 
 

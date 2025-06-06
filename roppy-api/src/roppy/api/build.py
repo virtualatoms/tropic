@@ -1,16 +1,15 @@
 import asyncio
-from beanie import init_beanie
-from csv import DictReader
-from motor.motor_asyncio import AsyncIOMotorClient
-from typing import Any
-from roppy.api.documents import (
-    MonomerSummaryDocument,
-    PolymerisationDocument,
-)
-from roppy.api import DATABASE_NAME, DATABASE_URL
-from roppy.core.models import DataRow
 from collections import defaultdict
+from csv import DictReader
 from pathlib import Path
+from typing import Any
+
+from beanie import init_beanie
+from motor.motor_asyncio import AsyncIOMotorClient
+
+from roppy.api import DATABASE_NAME, DATABASE_URL
+from roppy.api.documents import MonomerSummaryDocument, PolymerisationDocument
+from roppy.core.models import DataRow
 
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
@@ -69,7 +68,7 @@ async def parse_data() -> None:
                 polys.append(PolymerisationDocument(**format_polymerisation_data(data)))
 
     for i, poly in enumerate(polys):
-        poly.polymerisation_id = f"poly-{i+1}"
+        poly.polymerisation_id = f"poly-{i + 1}"
 
     await PolymerisationDocument.insert_many(polys)
 
@@ -98,7 +97,7 @@ async def create_monomer_summaries():
     monomer_summaries = []
     for i, (monomer_smiles, monomer) in enumerate(monomers.items()):
         monomer_summary = MonomerSummaryDocument(
-            monomer_id=f"monomer-{i+1}",
+            monomer_id=f"monomer-{i + 1}",
             monomer=monomer,
             data=summaries[monomer_smiles],
         )

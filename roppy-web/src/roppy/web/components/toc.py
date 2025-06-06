@@ -1,5 +1,5 @@
-from dash import html, Input, Output, callback
 import dash_mantine_components as dmc
+from dash import Input, Output, callback, html
 from dash_iconify import DashIconify
 
 
@@ -10,7 +10,7 @@ def create_toc_sidebar(header=None):
     if not header:
         header = []
 
-    toc = html.Div(
+    return html.Div(
         [
             header,
             dmc.Group(
@@ -24,8 +24,6 @@ def create_toc_sidebar(header=None):
         ],
         style={"position": "sticky", "top": "1rem"},
     )
-
-    return toc
 
 
 def register_toc_callbacks():
@@ -47,9 +45,11 @@ def register_toc_callbacks():
                 if (
                     isinstance(component_type, str)
                     and component_type.lower() in ["h1", "h2", "h3"]
-                    or getattr(component_type, "__name__", "").lower()
-                    in ["h1", "h2", "h3"]
-                ):
+                ) or getattr(component_type, "__name__", "").lower() in [
+                    "h1",
+                    "h2",
+                    "h3",
+                ]:
                     heading_text = props.get("children", "")
                     heading_id = props.get("id", "")
 

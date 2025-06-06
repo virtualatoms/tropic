@@ -1,9 +1,10 @@
-from fastapi_filter.contrib.beanie import Filter
-from fastapi_filter import FilterDepends, with_prefix
-from roppy.api.documents import MonomerSummaryDocument
-from roppy.core.models import Monomer
 from typing import Optional
 
+from fastapi_filter import FilterDepends, with_prefix
+from fastapi_filter.contrib.beanie import Filter
+
+from roppy.api.documents import MonomerSummaryDocument
+from roppy.core.models import Monomer
 
 
 class MonomerFilter(Filter):
@@ -22,8 +23,11 @@ class MonomerFilter(Filter):
     class Constants(Filter.Constants):
         model = Monomer
 
+
 class MonomerSummaryFilter(Filter):
-    monomer: Optional[MonomerFilter] = FilterDepends(with_prefix("monomer", MonomerFilter))
+    monomer: Optional[MonomerFilter] = FilterDepends(
+        with_prefix("monomer", MonomerFilter)
+    )
     monomer_id: Optional[str] = None
     monomer_id__in: Optional[list[str]] = None
     has_exp: Optional[bool] = None
