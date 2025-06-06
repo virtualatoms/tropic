@@ -147,7 +147,9 @@ def update_table(tabs, smiles, ring_size_range, has_comp, has_exp, rows_request)
         query.append(f"order_by={sort_dir}{sort_col}")
 
     query = "&".join(query)
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+    )
     results = response.json()
 
     yes_no_mapping = {True: "Yes", False: "No"}

@@ -17,7 +17,10 @@ register_molview_callbacks()
 def layout(monomer_id="monomer-1", **_):
     breadcrumbs = get_breadcrumbs(["Home", "Monomer Search", f"{monomer_id}"])
 
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers/{monomer_id}", timeout=2)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/monomers/{monomer_id}",
+        timeout=SETTINGS.REQUEST_TIMEOUT,
+    )
     data = response.json()
 
     if data.get("detail", "") == "Monomer not found":

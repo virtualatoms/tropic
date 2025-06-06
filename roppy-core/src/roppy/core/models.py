@@ -40,13 +40,13 @@ class Molecule(BaseModel):
     )
 
     iupac_name: Optional[str] = Field(
+        None,
         description="IUPAC name of the molecule",
-        default=None,
     )
 
     common_name: Optional[str] = Field(
+        None,
         description="Common name of the molecule",
-        default=None,
     )
 
 

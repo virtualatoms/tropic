@@ -23,4 +23,7 @@ class Settings(BaseSettings):
         10, description="Number of rows to return in the search table."
     )
 
+    REQUEST_TIMEOUT: int = Field(
+        5, description="Number of seconds before API requests timeout."
+    )
     model_config = SettingsConfigDict(env_prefix="roppy_", env_file="~/.roppy.env")
