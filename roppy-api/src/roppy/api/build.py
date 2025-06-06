@@ -98,6 +98,7 @@ async def create_monomer_summaries():
     for poly in polymerisations:
         row = DataRow(
             type=poly.type,
+            polymerisation_id=poly.polymerisation_id,
             is_experimental=poly.parameters.is_experimental,
             monomer_state=poly.parameters.monomer_state,
             polymer_state=poly.parameters.polymer_state,

@@ -164,6 +164,9 @@ class Polymerisation(BaseModel):
 
 class DataRow(BaseModel):
     type: PolymerisationType = Field(description="Type of polymerisation")
+    polymerisation_id: str = Field(
+        description="Unique display id for the polymerisation",
+    )
     is_experimental: bool = Field(
         description="Flag indicating whether the reaction is experimental (True) or computational (False)",
     )
