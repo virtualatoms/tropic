@@ -1,28 +1,37 @@
 import dash_mantine_components as dmc
-from dash import dcc
-from roppy.web.utils import smiles_to_image, reaction_to_image
+from dash import dcc, html
+
 from roppy.web.components.table import get_table
-from dash import html
+from roppy.web.utils import reaction_to_image
 
 
 def get_polymer_info_card(polyinfo):
     table_data = [
-        ("PolyInfo", dcc.Link(polyinfo["polyinfo_id"], href=f"https://polyinfo.com/{polyinfo['polyinfo_id']}")),
-        ("PolyGenome", dcc.Link(polyinfo["polygenome_id"], href=f"https://polygenome.com/{polyinfo['polygenome_id']}")),
+        (
+            "PolyInfo",
+            dcc.Link(
+                polyinfo["polyinfo_id"],
+                href=f"https://polyinfo.com/{polyinfo['polyinfo_id']}",
+            ),
+        ),
+        (
+            "PolyGenome",
+            dcc.Link(
+                polyinfo["polygenome_id"],
+                href=f"https://polygenome.com/{polyinfo['polygenome_id']}",
+            ),
+        ),
     ]
     return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
 
 
 def get_polymer_reaction_card(data):
     reaction_data = reaction_to_image(data["reaction_smiles"], size=(-1, -1))
-    reaction_img = dmc.Image(
-        h=200, src=f"data:image/svg+xml;base64,{reaction_data}"
-    )
+    reaction_img = dmc.Image(h=200, src=f"data:image/svg+xml;base64,{reaction_data}")
     return dmc.Card(reaction_img, withBorder=True, shadow="sm", radius="md")
 
 
 def get_polymerisation_section(data):
-
     poly_info_card = get_polymer_info_card(data["polymer"])
     poly_reaction_card = get_polymer_reaction_card(data)
 

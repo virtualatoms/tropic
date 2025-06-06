@@ -1,17 +1,28 @@
 import dash_ag_grid as dag
+import dash_mantine_components as dmc
+from dash import html
 
-PAGE_SIZE = 5
+from roppy.web import SETTINGS
+
 
 def get_search_table():
-    return dag.AgGrid(
+    table = dag.AgGrid(
         id="results-table",
         defaultColDef={
             "resizable": True,
             "cellStyle": {"align-items": "center", "height": "100%", "display": "flex"},
         },
         columnDefs=[
-            {"headerName": "Structure", "field": "structure", "cellRenderer": "markdown"},
-            {"headerName": "Monomer ID", "field": "monomer_id", "cellRenderer": "markdown"},
+            {
+                "headerName": "Structure",
+                "field": "structure",
+                "cellRenderer": "markdown",
+            },
+            {
+                "headerName": "Monomer ID",
+                "field": "monomer_id",
+                "cellRenderer": "markdown",
+            },
             {"headerName": "SMILES", "field": "smiles"},
             {"headerName": "Ring Size", "field": "ring_size"},
             {"headerName": "Has Exp", "field": "has_exp"},
@@ -27,13 +38,44 @@ def get_search_table():
         rowModelType="infinite",
         dashGridOptions={
             "animateRows": False,
+            "cacheBlockSize": SETTINGS.SEARCH_NUM_ROWS,
             "domLayout": "autoHeight",
             "suppressCellFocus": True,
             "pagination": True,
             "paginationPageSizeSelector": False,
-            "paginationPageSize": PAGE_SIZE,
+            "paginationPageSize": SETTINGS.SEARCH_NUM_ROWS,
             "rowHeight": 100,
         },
         style={"height": None},
         dangerously_allow_code=True,
     )
+    export = dmc.Group(
+        [
+            dmc.Text("Export as:"),
+            dmc.Select(
+                # label="Export format",
+                placeholder="Select one",
+                id="export-data-select",
+                value="csv",
+                data=[
+                    {"value": "csv", "label": "CSV"},
+                    {"value": "json", "label": "JSON"},
+                ],
+                w=120,
+                # mb=10,
+            ),
+            dmc.Button(
+                "Export",
+                id="export-data-button",
+                variant="outline",
+                color="blue",
+                size="sm",
+                styles={"root": {"fontWeight": 500}},
+            ),
+        ],
+        justify="flex-end",
+        # align="top",
+        mb=10,
+    )
+
+    return html.Div([export, table])

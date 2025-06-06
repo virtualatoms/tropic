@@ -1,12 +1,12 @@
+import dash_mantine_components as dmc
 import requests
 from dash import html, register_page
-import dash_mantine_components as dmc
-from roppy.web.components.breadcrumbs import get_breadcrumbs
-from roppy.web.components.toc import register_toc_callbacks
-from roppy.web.components.molview import register_molview_callbacks
-from roppy.web.components.monomer import get_monomer_toc, get_monomer_page_summary
-from roppy.web.components.polymerisation import get_polymerisation_section
 
+from roppy.web import SETTINGS
+from roppy.web.components.breadcrumbs import get_breadcrumbs
+from roppy.web.components.molview import register_molview_callbacks
+from roppy.web.components.monomer import get_monomer_page_summary, get_monomer_toc
+from roppy.web.components.toc import register_toc_callbacks
 
 register_page(__name__, path_template="/monomers/<monomer_id>")
 
@@ -14,10 +14,10 @@ register_toc_callbacks()
 register_molview_callbacks()
 
 
-def layout(monomer_id="monomer-1", **kwargs):
+def layout(monomer_id="monomer-1", **_):
     breadcrumbs = get_breadcrumbs(["Home", "Monomer Search", f"{monomer_id}"])
 
-    response = requests.get(f"http://localhost:8000/monomers/{monomer_id}")
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers/{monomer_id}", timeout=2)
     data = response.json()
 
     if data.get("detail", "") == "Monomer not found":

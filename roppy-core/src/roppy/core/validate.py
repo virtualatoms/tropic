@@ -1,10 +1,11 @@
-from typing import Optional, Annotated, TypeVar
-from pydantic import BeforeValidator, AfterValidator
-from roppy.core.constants import STATES, METHODS, POLY_TYPES
-from roppy.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
-from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
-from rdkit.Chem import MolFromSmiles, MolToXYZBlock, AllChem, AddHs
+from typing import Annotated, Optional, TypeVar
 
+from pydantic import AfterValidator, BeforeValidator
+from rdkit.Chem import AddHs, AllChem, MolFromSmiles, MolToXYZBlock
+from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
+
+from roppy.core.constants import METHODS, POLY_TYPES, STATES
+from roppy.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
 
 
 def validate_solvent(solvent: Optional[str]) -> Optional[str]:
@@ -35,6 +36,7 @@ def get_ring_size(smiles: str) -> Optional[int]:
         return max_ring_size
     except:
         return None
+
 
 def get_xyz(smiles: str) -> Optional[str]:
     """Generates XYZ coordinates for a molecule given its SMILES."""

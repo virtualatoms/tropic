@@ -23,7 +23,7 @@ HEADER = dmc.Box(
                                     width=30,
                                 ),
                                 dmc.Text(
-                                    "ROPdb",
+                                    "TROPIC",
                                     size="xl",
                                     styles={"root": {"fontWeight": 700}},
                                 ),

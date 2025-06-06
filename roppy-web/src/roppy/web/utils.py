@@ -1,6 +1,7 @@
 import base64
+
 from rdkit import Chem
-from rdkit.Chem import Draw, AllChem
+from rdkit.Chem import Draw
 
 
 def smiles_to_image(smiles, size=(150, 100)):
@@ -14,12 +15,11 @@ def smiles_to_image(smiles, size=(150, 100)):
             drawer.DrawMolecule(mol)
             drawer.FinishDrawing()
             svg = drawer.GetDrawingText()
-            svg_base64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
-            return svg_base64
-    except Exception as e:
-        print(f"Error converting SMILES to image: {e}")
+            return base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    except Exception:
         return None
     return None
+
 
 def reaction_to_image(smarts, size=(630, 275)):
     drawer = Draw.MolDraw2DSVG(*size)
@@ -34,9 +34,7 @@ def reaction_to_image(smarts, size=(630, 275)):
             drawer.DrawReaction(rxn)
             drawer.FinishDrawing()
             svg = drawer.GetDrawingText()
-            svg_base64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
-            return svg_base64
-    except Exception as e:
-        print(f"Error converting reaction to image: {e}")
+            return base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    except Exception:
         return None
     return None

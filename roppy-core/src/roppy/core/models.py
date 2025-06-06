@@ -1,24 +1,25 @@
-from pydantic import BaseModel, Field
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, Field
+from rdkit.Chem import MolFromSmiles
+from rdkit.Chem.rdinchi import MolToInchi
+from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
+
+from roppy.core.efgs import get_dec_fgs
 from roppy.core.validate import (
     EmptyStringToNone,
-    Smiles,
+    Method,
     PolymerisationType,
+    Smiles,
     Solvent,
     State,
-    Method,
     get_ring_size,
-    get_xyz
+    get_xyz,
 )
-from roppy.core.efgs import get_dec_fgs
-from rdkit.Chem import MolFromSmiles
-from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
-from rdkit.Chem.rdinchi import MolToInchi
 
 
 class Molecule(BaseModel):
-
     smiles: Smiles = Field(
         description="SMILES notation representing the molecular structure",
     )
@@ -30,12 +31,12 @@ class Molecule(BaseModel):
 
     molecular_weight: Optional[float] = Field(
         description="Molecular weight of the molecule in g/mol",
-        default_factory=lambda data: CalcExactMolWt(MolFromSmiles(data["smiles"]))
+        default_factory=lambda data: CalcExactMolWt(MolFromSmiles(data["smiles"])),
     )
 
     functional_groups: Optional[list[str]] = Field(
         description="Primary functional group of molecule",
-        default_factory=lambda data: get_dec_fgs(MolFromSmiles(data["smiles"]))[2]
+        default_factory=lambda data: get_dec_fgs(MolFromSmiles(data["smiles"]))[2],
     )
 
     iupac_name: Optional[str] = Field(
@@ -50,21 +51,15 @@ class Molecule(BaseModel):
 
 
 class Monomer(Molecule):
-
     ring_size: Optional[int] = Field(
         description="Size of the ring in the monomer structure",
-        default_factory=lambda data: get_ring_size(data["smiles"])
+        default_factory=lambda data: get_ring_size(data["smiles"]),
     )
 
     xyz: Optional[str] = Field(
-        description="XYZ coordinates for the molecule",
-        default_factory=lambda data: get_xyz(data["smiles"])
+        description="XYZ coordinates for the monomer",
+        default_factory=lambda data: get_xyz(data["smiles"]),
     )
-
-
-
-class Initiator(Molecule):
-    pass
 
 
 class Product(BaseModel):
@@ -151,21 +146,17 @@ class Metadata(BaseModel):
 
 
 class Polymerisation(BaseModel):
-
     polymerisation_id: str = Field(
         None, description="unique display id for the polymerisation"
     )
     type: PolymerisationType = Field(description="Type of polymerisation")
     monomer: Monomer = Field(description="Monomer of the polymerisation")
-    initiator: Initiator = Field(description="Initiator of the polymerisation")
+    initiator: Molecule = Field(description="Initiator of the polymerisation")
     product: Product = Field(description="Product of the polymerisation")
-    parameters: Parameters = Field(
-        description="Experimental/Computational parameters"
-    )
+    parameters: Parameters = Field(description="Experimental/Computational parameters")
     thermo: Thermo = Field(..., description="Thermodynamic data/results")
-    metadata: Metadata = Field(
-        description="Polymerisation references and metadata"
-    )
+    metadata: Metadata = Field(description="Polymerisation references and metadata")
+
 
 class DataRow(BaseModel):
     type: PolymerisationType = Field(description="Type of polymerisation")
@@ -189,16 +180,12 @@ class DataRow(BaseModel):
     delta_s: Optional[float] = Field(
         description="Change in entropy (ΔS) for the polymerization reaction"
     )
-    ceiling_temperature: Optional[float] = Field(
-        description="Ceiling temperature in K"
-    )
+    ceiling_temperature: Optional[float] = Field(description="Ceiling temperature in K")
     date: Optional[datetime] = Field(description="Year of publication")
 
 
 class MonomerSummary(BaseModel):
-    monomer_id: str = Field(
-        description="unique display id for the monomer summary"
-    )
+    monomer_id: str = Field(description="unique display id for the monomer summary")
     monomer: Monomer = Field(description="corresponding monomer")
     data: list[DataRow] = Field(
         description="table of data where each row corresponds to a polymerisation (for display purposes)",
@@ -207,11 +194,11 @@ class MonomerSummary(BaseModel):
         description="Whether the molecule has experimental data",
         default_factory=lambda data: any(
             poly.is_experimental for poly in data.get("data", [])
-        )
+        ),
     )
     has_calc: bool = Field(
         description="Whether the molecule has calculated data",
         default_factory=lambda data: any(
             not poly.is_experimental for poly in data.get("data", [])
-        )
+        ),
     )
