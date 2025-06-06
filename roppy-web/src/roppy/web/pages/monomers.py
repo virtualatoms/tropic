@@ -19,6 +19,7 @@ from roppy.web import SETTINGS
 from roppy.web.components.breadcrumbs import get_breadcrumbs
 from roppy.web.components.chart import get_search_chart
 from roppy.web.components.draw import get_draw_molecule
+from roppy.web.components.references import get_reference_table_data, get_references
 from roppy.web.components.searchtable import get_search_table
 from roppy.web.components.sidebar import get_search_sidebar
 from roppy.web.utils import smiles_to_image
@@ -41,6 +42,7 @@ def layout(**_):
     chart = get_search_chart()
     side_bar = get_search_sidebar()
     draw_modal = get_draw_molecule()
+    references = get_references()
 
     tabs = dmc.Tabs(
         [
@@ -56,10 +58,16 @@ def layout(**_):
                         value="analysis",
                         leftSection=DashIconify(icon="tabler:chart-dots"),
                     ),
+                    dmc.TabsTab(
+                        "References",
+                        value="references",
+                        leftSection=DashIconify(icon="tabler:book"),
+                    ),
                 ]
             ),
             dmc.TabsPanel(table, value="table", pt=10),
             dmc.TabsPanel(chart, value="analysis", pt=10),
+            dmc.TabsPanel(references, value="references", pt=10),
         ],
         id="tabs",
         value="table",
@@ -227,6 +235,27 @@ def update_chart(tabs, *filter_args):
         {"color": "red.5", "name": "Computational", "data": comp},
         {"color": "blue.5", "name": "Experimental", "data": exp},
     ]
+
+
+@callback(
+    Output("references-table", "children"), Input("tabs", "value"), *FILTER_INPUTS
+)
+def update_references(tabs, *filter_args):
+    if tabs != "references":
+        return no_update
+
+    query = _build_query(*filter_args)
+    query += "&size=1000"
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    results = response.json()
+
+    refs = {}
+    for result in results["items"]:
+        for row in result["data"]:
+            if row["doi"] not in refs and row["doi"] and row["formatted_reference"]:
+                refs[row["doi"]] = row["formatted_reference"]
+
+    return get_reference_table_data(*zip(*refs.items()))
 
 
 @callback(
