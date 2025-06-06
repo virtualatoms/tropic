@@ -1,6 +1,6 @@
 import dash_ag_grid as dag
 import dash_mantine_components as dmc
-from dash import html
+from dash import dcc, html
 
 from roppy.web import SETTINGS
 
@@ -14,7 +14,7 @@ def get_search_table():
         },
         columnDefs=[
             {
-                "headerName": "Structure",
+                "headerName": "Molecule",
                 "field": "structure",
                 "cellRenderer": "markdown",
             },
@@ -78,4 +78,4 @@ def get_search_table():
         mb=10,
     )
 
-    return html.Div([export, table])
+    return html.Div([export, table, dcc.Download(id="download-data")])

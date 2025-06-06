@@ -25,6 +25,15 @@ from roppy.web.utils import smiles_to_image
 
 register_page(__name__)
 
+FILTERS = (
+    ("smiles-input", "value"),
+    ("ring-size-slider", "value"),
+    ("has-comp", "value"),
+    ("has-exp", "value"),
+)
+FILTER_INPUTS = [Input(k, v) for k, v in FILTERS]
+FILTER_STATES = [State(k, v) for k, v in FILTERS]
+
 
 def layout(**_):
     breadcrumbs = get_breadcrumbs(["Home", "Monomer Search"])
@@ -110,10 +119,7 @@ def update_smiles_from_drawing(n_clicks, drawn_smiles):
 @callback(
     Output("results-table", "getRowsRequest"),
     Output("results-table", "rowData"),
-    Input("smiles-input", "value"),
-    Input("ring-size-slider", "value"),
-    Input("has-comp", "value"),
-    Input("has-exp", "value"),
+    *FILTER_INPUTS,
 )
 def reset_table(*_):
     return {"startRow": 1, "endRow": 5, "sortModel": [], "filterModel": {}}, []
@@ -122,17 +128,14 @@ def reset_table(*_):
 @callback(
     Output("results-table", "getRowsResponse"),
     Input("tabs", "value"),
-    Input("smiles-input", "value"),
-    Input("ring-size-slider", "value"),
-    Input("has-comp", "value"),
-    Input("has-exp", "value"),
     Input("results-table", "getRowsRequest"),
+    *FILTER_INPUTS,
 )
-def update_table(tabs, smiles, ring_size_range, has_comp, has_exp, rows_request):
+def update_table(tabs, rows_request, *filter_args):
     if rows_request is None or tabs != "table":
         return no_update
 
-    query = [_build_query(smiles, ring_size_range, has_comp, has_exp)]
+    query = [_build_query(*filter_args)]
 
     # handle pagination
     page = (
@@ -176,15 +179,8 @@ def update_table(tabs, smiles, ring_size_range, has_comp, has_exp, rows_request)
     return {"rowData": np.array(table_data), "rowCount": results["total"]}
 
 
-@callback(
-    Output("analysis-chart", "data"),
-    Input("tabs", "value"),
-    Input("smiles-input", "value"),
-    Input("ring-size-slider", "value"),
-    Input("has-comp", "value"),
-    Input("has-exp", "value"),
-)
-def update_chart(tabs, smiles, ring_size_range, has_comp, has_exp):
+@callback(Output("analysis-chart", "data"), Input("tabs", "value"), *FILTER_INPUTS)
+def update_chart(tabs, *filter_args):
     # TODO: Currently this repeats the API call from the table update.
     # Ideally, we should refactor to avoid duplicate requests.
     # currently one difference is that the chart wants all the data, not just the first page
@@ -192,7 +188,7 @@ def update_chart(tabs, smiles, ring_size_range, has_comp, has_exp):
     if tabs != "analysis":
         return no_update
 
-    query = _build_query(smiles, ring_size_range, has_comp, has_exp)
+    query = _build_query(*filter_args)
     query += "&size=1000"
     response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
     results = response.json()
@@ -231,6 +227,90 @@ def update_chart(tabs, smiles, ring_size_range, has_comp, has_exp):
         {"color": "red.5", "name": "Computational", "data": comp},
         {"color": "blue.5", "name": "Experimental", "data": exp},
     ]
+
+
+@callback(
+    Output("download-data", "data"),
+    Input("export-data-button", "n_clicks"),
+    State("export-data-select", "value"),
+    *FILTER_STATES,
+    prevent_initial_call=True,
+)
+def export(n_clicks, file_type, *filter_args):
+    if n_clicks is None:
+        return no_update
+
+    query = _build_query(*filter_args)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+    )
+    if response.status_code != 200:
+        return no_update
+
+    data = get_export_data(response.json(), file_type)
+
+    return {
+        "content": data,
+        "filename": f"monomers.{file_type}",
+        "type": f"text/{file_type}",
+    }
+
+
+def get_export_data(data, file_type):
+    if file_type == "csv":
+        import csv
+        from io import StringIO
+
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(
+            [
+                "Monomer ID",
+                "SMILES",
+                "Ring Size",
+                "Type",
+                "Is Experimental",
+                "Monomer State",
+                "Is Experimental",
+                "Polymer State",
+                "Initial Monomer Conc",
+                "Bulk Monomer Conc",
+                "Solvent",
+                "ΔH (kJ/mol)",
+                "ΔS (kJ/mol·K)",
+                "Ceiling Temperature (K)",
+                "Date",
+            ]
+        )
+        for item in data["items"]:
+            for row in item["data"]:
+                writer.writerow(
+                    [
+                        item["monomer_id"],
+                        item["monomer"]["smiles"],
+                        item["monomer"]["ring_size"],
+                        row["type"],
+                        row["is_experimental"],
+                        row["monomer_state"],
+                        row["is_experimental"],
+                        row["polymer_state"],
+                        row["initial_monomer_conc"],
+                        row["bulk_monomer_conc"],
+                        row["solvent"],
+                        row["delta_h"],
+                        row["delta_s"],
+                        row["ceiling_temperature"],
+                        row["date"],
+                    ]
+                )
+        return output.getvalue()
+
+    if file_type == "json":
+        import json
+
+        return json.dumps(data, indent=4)
+
+    return ""
 
 
 @callback(
