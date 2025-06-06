@@ -29,10 +29,8 @@ async def startup_event():
 
 @app.get("/monomers", response_model=BigPage[MonomerSummary])
 async def get_monomers(
-    monomer_filter: MonomerSummaryFilter = None,
+    monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter),  # noqa: B008
 ) -> Any:
-    if monomer_filter is None:
-        monomer_filter = FilterDepends(MonomerSummaryFilter)
     query = monomer_filter.filter(MonomerSummaryDocument.find({}))
     query = monomer_filter.sort(query)
     query = query.find(fetch_links=False)
