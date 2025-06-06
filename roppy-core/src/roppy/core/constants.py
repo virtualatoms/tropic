@@ -1,12 +1,14 @@
-# ROP: Ring-Opening Polymerisation (monomer -> polymer)
+# ROP: Ring-Opening Polymerisation (monomer -> polymer, no end groups)
+# ROR: Ring-Opening Reaction (monomer -> polymer, with end groups)
+# RER: Ring-Expansion Reaction (monomer -> cyclic chain)
 # RCE: Ring-Chain Equilibrium (all rings -> polymer)
 POLY_TYPES = ["ROR", "RER", "ROP", "RCE"]
 
-# g: gas
-# l: liquid
-# s: solution
-# c: crystalline solid
-# a: amorphous solid
+# g: gaseous state
+# l: liquid state
+# s: in solution
+# c: crystalline or partially crystalline state
+# a: condensed, glassy (amorphous) state
 STATES = ["g", "l", "s", "c", "a"]
 
 # vant_hof: Van't Hoff Curve
