@@ -90,6 +90,7 @@ async def create_monomer_summaries():
             delta_s=poly.thermo.delta_s,
             ceiling_temperature=poly.thermo.ceiling_temperature,
             date=poly.metadata.date,
+            doi=poly.metadata.doi,
         )
         summaries[poly.monomer.smiles].append(row)
         monomers[poly.monomer.smiles] = poly.monomer

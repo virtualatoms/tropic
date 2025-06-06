@@ -182,6 +182,7 @@ class DataRow(BaseModel):
     )
     ceiling_temperature: Optional[float] = Field(description="Ceiling temperature in K")
     date: Optional[datetime] = Field(description="Year of publication")
+    doi: Optional[str] = Field(description="DOI of publication")
 
 
 class MonomerSummary(BaseModel):
