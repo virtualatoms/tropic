@@ -61,6 +61,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
         "thermo": {
             "delta_h": data["delta_h"],
             "delta_s": data["delta_s"],
+            "delta_g": data["delta_g"],
             "ceiling_temperature": data["ceiling_temperature"],
         },
         "metadata": {

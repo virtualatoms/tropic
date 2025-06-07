@@ -11,7 +11,7 @@ POLY_TYPES = ["ROR", "RER", "ROP", "RCE"]
 # a: condensed, glassy (amorphous) state
 STATES = ["g", "l", "s", "c", "a"]
 
-# vant_hof: Van't Hoff Curve
+# vant_hoff: Van't Hoff Curve
 # DSC: Differential Scanning Calorimetry
 METHODS = [
     "dft",
@@ -22,6 +22,7 @@ METHODS = [
     "ml",
     "vant_hoff",
     "DSC",
+    "NMR",
     "calorimetry",
 ]
 
