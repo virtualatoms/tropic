@@ -4,7 +4,7 @@ import requests
 import argparse
 from csv import DictReader
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -23,6 +23,7 @@ install_cache(
         "*": DO_NOT_CACHE,
     },
 )
+
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
 
@@ -74,7 +75,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
     }
 
 
-def get_formatted_reference(doi: str) -> str:
+def get_formatted_reference(doi: str) -> Optional[str]:
     """Formats the reference using the citation API."""
     if not doi:
         return None
@@ -87,7 +88,8 @@ def get_formatted_reference(doi: str) -> str:
 
     return response.text.strip()[2:-1]
 
-def get_iupac_name(smiles: str) -> str:
+
+def get_iupac_name(smiles: str) -> Optional[str]:
     """Fetches IUPAC name for a given SMILES string."""
     if not smiles:
         return None
@@ -101,6 +103,7 @@ def get_iupac_name(smiles: str) -> str:
     data = response.json()
     properties = data.get("PropertyTable", {}).get("Properties", [{}])[0]
     return properties.get("IUPACName")
+
 
 # Common names are a bit wacky from pubchem, so we are not using them for now.
 # def get_common_name(smiles: str) -> str:
