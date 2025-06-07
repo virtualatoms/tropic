@@ -6,6 +6,7 @@ from roppy.web import SETTINGS
 from roppy.web.components.breadcrumbs import get_breadcrumbs
 from roppy.web.components.molview import register_molview_callbacks
 from roppy.web.components.monomer import get_monomer_page_summary, get_monomer_toc
+from roppy.web.components.polymerisation import get_polymerisation_section
 from roppy.web.components.toc import register_toc_callbacks
 
 register_page(__name__, path_template="/monomers/<monomer_id>")
@@ -29,20 +30,22 @@ def layout(monomer_id="monomer-1", **_):
     toc = get_monomer_toc(data)
     monomer_summary = get_monomer_page_summary(data)
 
-    page = [monomer_summary]
+    polymerisation_section = get_polymerisation_section(data)
+    page = [monomer_summary, polymerisation_section]
 
-    # if data["polymerisation"]:
-    #     poly_section = get_polymerisation_section(data["polymerisation"])
+    # if data["has_exp"]:
+    #     poly_section = get_polymerisation_section(data["data"], exp=True)
     #     page.extend([dmc.Divider(mt=60, mb=40), poly_section])
 
-    # if data["ring_opening"]:
-    #     rop_section = get_rop_section(data)
-    #     page.extend([dmc.Divider(mt=60, mb=40), rop_section])
+    # if data["has_comp"]:
+    #     poly_section = get_polymerisation_section(data["data"], exp=False)
+    #     page.extend([dmc.Divider(mt=60, mb=40), poly_section])
 
     content = dmc.Grid(
         [dmc.GridCol(toc, span=3), dmc.GridCol(html.Div(page, id="content"), span=9)],
-        pt=40,
+        pt=60,
         gutter="xl",
+        mb=50,
     )
 
     return [breadcrumbs, content]

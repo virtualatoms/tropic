@@ -14,7 +14,9 @@ def get_monomer_info_card(data):
         ("SMILES", data["monomer"]["smiles"]),
         ("InChI", data["monomer"]["inchi"]),
         ("IUPAC Name", data["monomer"]["iupac_name"]),
-        ("Common Name", data["monomer"]["common_name"]),
+        # ("Common Name", data["monomer"]["common_name"]),
+        ("Molecular Weight", f'{data["monomer"]["molecular_weight"]:.2f} g/mol'),
+        ("Ring Size", data["monomer"]["ring_size"]),
     ]
     return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
 
@@ -30,6 +32,7 @@ def get_monomer_page_summary(data):
             dmc.GridCol(info_card, span=6),
         ],
         gutter="xl",
+        pb=10,
     )
 
 

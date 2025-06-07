@@ -29,6 +29,7 @@ register_page(__name__)
 FILTERS = (
     ("smiles-input", "value"),
     ("ring-size-slider", "value"),
+    ("mol-weight-slider", "value"),
     ("has-comp", "value"),
     ("has-exp", "value"),
 )
@@ -90,9 +91,9 @@ def layout(**_):
     return [
         breadcrumbs,
         dmc.Center(input_bar),
-        grid,
         draw_modal,
         html.Div(id="table-trigger", **{"data-label": {}}),
+        grid,
     ]
 
 
@@ -140,7 +141,7 @@ def reset_table(*_):
     *FILTER_INPUTS,
 )
 def update_table(tabs, rows_request, *filter_args):
-    if rows_request is None or tabs != "table":
+    if tabs != "table":
         return no_update
 
     query = [_build_query(*filter_args)]
@@ -308,7 +309,7 @@ def get_export_data(data, file_type):
                 "ΔH (kJ/mol)",
                 "ΔS (kJ/mol·K)",
                 "Ceiling Temperature (K)",
-                "Date",
+                "Year",
                 "Reference",
             ]
         )
@@ -330,7 +331,7 @@ def get_export_data(data, file_type):
                         row["delta_h"],
                         row["delta_s"],
                         row["ceiling_temperature"],
-                        row["date"],
+                        row["year"],
                         row["formatted_reference"],
                     ]
                 )
@@ -361,11 +362,14 @@ def update_chart_y_axis(selected_y):
     return data_key, y_axis_label
 
 
-def _build_query(smiles, ring_size_range, has_comp, has_exp):
+def _build_query(smiles, ring_size_range, molecular_weight_range, has_comp, has_exp):
     query = []
     if smiles:
         query.append(f"search={quote(smiles)}")
     query.append(f"monomer__ring_size__gte={ring_size_range[0]}")
+
+    query.append(f"monomer__molecular_weight__gte={molecular_weight_range[0]}")
+    query.append(f"monomer__molecular_weight__lte={molecular_weight_range[1]}")
 
     if ring_size_range[1] is not None and ring_size_range[1] < 15:
         query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
@@ -388,8 +392,5 @@ clientside_callback(
         return dash_clientside.no_update
     }""",
     Output("table-trigger", "data-label"),
-    Input("smiles-input", "value"),
-    Input("ring-size-slider", "value"),
-    Input("has-comp", "value"),
-    Input("has-exp", "value"),
+    *FILTER_INPUTS
 )

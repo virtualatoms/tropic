@@ -30,3 +30,11 @@
         background-color: var(--mantine-color-blue-light) !important;
     }
 }
+
+.ag-center-cols-clipper {
+    min-height: unset !important;
+}
+
+.ag-center-cols-viewport {
+    min-height: unset !important;
+}

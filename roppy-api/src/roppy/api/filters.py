@@ -10,10 +10,10 @@ from roppy.core.models import Monomer
 class MonomerFilter(Filter):
     smiles: Optional[str] = None
     smiles__in: Optional[list[str]] = None
-    molecular_weight__lt: Optional[float] = None
-    molecular_weight__gt: Optional[float] = None
+    molecular_weight__lte: Optional[float] = None
+    molecular_weight__gte: Optional[float] = None
     functional_groups__in: Optional[list[str]] = None
-    ring_size__lt: Optional[int] = None
+    ring_size__lte: Optional[int] = None
     ring_size__gte: Optional[int] = None
     has_exp: Optional[bool] = None
     has_calc: Optional[bool] = None
