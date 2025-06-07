@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -135,7 +134,7 @@ class Thermo(BaseModel):
 
 
 class Metadata(BaseModel):
-    date: EmptyStringToNone[datetime] = Field(description="Date of publication")
+    year: EmptyStringToNone[str] = Field(description="Year of publication")
     comment: EmptyStringToNone[str] = (
         Field(description="Additional comments or notes"),
     )
@@ -170,8 +169,9 @@ class DataRow(BaseModel):
     is_experimental: bool = Field(
         description="Flag indicating whether the reaction is experimental (True) or computational (False)",
     )
-    monomer_state: Optional[str] = Field(description="State of the monomer")
-    polymer_state: Optional[str] = Field(description="State of the polymer")
+    state_summary: str = Field(
+        description="Formatted summary of monomer-polymer states",
+    )
     initial_monomer_conc: Optional[float] = Field(
         description="Initial concentration of the monomer"
     )
@@ -188,7 +188,7 @@ class DataRow(BaseModel):
         description="Change in entropy (ΔS) for the polymerization reaction"
     )
     ceiling_temperature: Optional[float] = Field(description="Ceiling temperature in K")
-    date: Optional[datetime] = Field(description="Year of publication")
+    year: Optional[str] = Field(description="Year of publication")
     doi: Optional[str] = Field(description="DOI of publication")
     formatted_reference: Optional[str] = Field(description="Formatted reference string")
 

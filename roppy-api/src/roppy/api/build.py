@@ -1,25 +1,38 @@
 import asyncio
 from collections import defaultdict
+import requests
+import argparse
 from csv import DictReader
 from pathlib import Path
 from typing import Any
 
-import requests_cache
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from roppy.api import DATABASE_NAME, DATABASE_URL
 from roppy.api.documents import MonomerSummaryDocument, PolymerisationDocument
 from roppy.core.models import DataRow
+from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 
-session = requests_cache.CachedSession("doi_cache")
-
+install_cache(
+    "doi_cache",
+    cache_control=True,
+    urls_expire_after={
+        "*.doi.org": NEVER_EXPIRE,
+        "*.nih.gov": NEVER_EXPIRE,
+        "*": DO_NOT_CACHE,
+    },
+)
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
-    formatted_reference = get_formatted_reference(data.get("doi"))
+
     return {
         "type": data["polymerisation_type"],
-        "monomer": {"smiles": data["monomer_smiles"]},
+        "monomer": {
+            "smiles": data["monomer_smiles"],
+            "iupac_name": get_iupac_name(data["monomer_smiles"]),
+            # "common_name": get_common_name(data["monomer_smiles"]),
+        },
         "initiator": {"smiles": data["initiator_smiles"]},
         "product": {
             "smiles": data["polymer_smiles"],
@@ -51,11 +64,11 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "ceiling_temperature": data["ceiling_temperature"],
         },
         "metadata": {
-            "date": data["date"],
+            "year": data["date"],
             "comment": data["comment"],
             "doi": data["doi"],
             "url": data["url"],
-            "formatted_reference": formatted_reference,
+            "formatted_reference": get_formatted_reference(data["doi"]),
         },
     }
 
@@ -65,16 +78,50 @@ def get_formatted_reference(doi: str) -> str:
     if not doi:
         return None
 
-    response = session.get(
+    response = requests.get(
         f"https://citation.doi.org/format?doi={doi}&style=royal-society-of-chemistry&lang=en-US"
     )
     if response.status_code != 200:
         return None
+
     return response.text.strip()[2:-1]
 
+def get_iupac_name(smiles: str) -> str:
+    """Fetches IUPAC name for a given SMILES string."""
+    if not smiles:
+        return None
 
-async def clear_database():
-    await PolymerisationDocument.find_all().delete()
+    response = requests.get(
+        f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/property/IUPACName/JSON"
+    )
+    if response.status_code != 200:
+        return None
+
+    data = response.json()
+    properties = data.get("PropertyTable", {}).get("Properties", [{}])[0]
+    return properties.get("IUPACName")
+
+# Common names are a bit wacky from pubchem, so we are not using them for now.
+# def get_common_name(smiles: str) -> str:
+#     """Fetches common name for a given SMILES string."""
+#     if not smiles:
+#         return None
+
+#     response = requests.get(
+#         f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/synonyms/JSON"
+#     )
+#     if response.status_code != 200:
+#         return None
+
+#     data = response.json()
+#     properties = data.get("InformationList", {}).get("Information", [{}])[0]
+#     print(properties.get("Synonym", [None]))
+#     return properties.get("Synonym", [None])[0]
+
+
+async def clear_database(summaries_only: bool = False):
+    if not summaries_only:
+        await PolymerisationDocument.find_all().delete()
     await MonomerSummaryDocument.find_all().delete()
 
 
@@ -100,15 +147,14 @@ async def create_monomer_summaries():
             type=poly.type,
             polymerisation_id=poly.polymerisation_id,
             is_experimental=poly.parameters.is_experimental,
-            monomer_state=poly.parameters.monomer_state,
-            polymer_state=poly.parameters.polymer_state,
+            state_summary=poly.parameters.state_summary,
             initial_monomer_conc=poly.parameters.initial_monomer_conc,
             bulk_monomer_conc=poly.parameters.bulk_monomer_conc,
             solvent=poly.parameters.solvent,
             delta_h=poly.thermo.delta_h,
             delta_s=poly.thermo.delta_s,
             ceiling_temperature=poly.thermo.ceiling_temperature,
-            date=poly.metadata.date,
+            year=poly.metadata.year,
             doi=poly.metadata.doi,
             formatted_reference=poly.metadata.formatted_reference,
         )
@@ -127,16 +173,27 @@ async def create_monomer_summaries():
     await MonomerSummaryDocument.insert_many(monomer_summaries)
 
 
-async def rebuild_db():
+async def rebuild_db(summaries_only: bool = False):
     client = AsyncIOMotorClient(DATABASE_URL)
     await init_beanie(
         database=client[DATABASE_NAME],
         document_models=[MonomerSummaryDocument, PolymerisationDocument],
     )
-    await clear_database()
-    await parse_data()
+    await clear_database(summaries_only=summaries_only)
+
+    if not summaries_only:
+        await parse_data()
+
     await create_monomer_summaries()
 
 
 def main():
-    asyncio.run(rebuild_db())
+    parser = argparse.ArgumentParser(description="Rebuild the ROPPY database.")
+    parser.add_argument(
+        "-s",
+        "--summaries-only",
+        action="store_true",
+        help="Rebuild the monomer summaries only.",
+    )
+    args = parser.parse_args()
+    asyncio.run(rebuild_db(args.summaries_only))

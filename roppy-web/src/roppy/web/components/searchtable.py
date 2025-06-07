@@ -51,7 +51,7 @@ def get_search_table():
     )
     export = dmc.Group(
         [
-            dmc.Text("Export as:"),
+            dmc.Text("Export as:", size="sm", mr=-5),
             dmc.Select(
                 # label="Export format",
                 placeholder="Select one",
