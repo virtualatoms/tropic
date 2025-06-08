@@ -12,7 +12,6 @@ CLIENT_URL = "mongodb://localhost:27017"
 
 
 async def draw_dataset():
-
     polys = await PolymerisationDocument.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
@@ -100,7 +99,6 @@ async def draw_dataset():
 
 
 async def draw():
-
     client = AsyncIOMotorClient(CLIENT_URL)
     database = client["roppy"]
 
@@ -116,5 +114,4 @@ async def draw():
 
 
 if __name__ == "__main__":
-
     asyncio.run(draw())

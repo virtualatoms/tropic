@@ -10,7 +10,6 @@ CLIENT_URL = "mongodb://localhost:27017"
 
 
 def get_experimental(df: pd.Series) -> str:
-
     if df.any():
         if df.all():
             return "experimental"
@@ -21,7 +20,6 @@ def get_experimental(df: pd.Series) -> str:
 
 
 def get_func_group(func_groups: list[str]) -> str:
-
     if (
         ("O=C([O][R])[N]([R])[R]" in func_groups)
         or ("O=[C]([R])[N]([R])[R]" in func_groups)
@@ -61,7 +59,6 @@ def get_func_group(func_groups: list[str]) -> str:
 
 
 async def draw_dataset():
-
     polys = await PolymerisationDocument.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
@@ -129,7 +126,6 @@ async def draw_dataset():
 
 
 async def draw():
-
     client = AsyncIOMotorClient(CLIENT_URL)
     database = client["roppy"]
 
@@ -145,5 +141,4 @@ async def draw():
 
 
 if __name__ == "__main__":
-
     asyncio.run(draw())

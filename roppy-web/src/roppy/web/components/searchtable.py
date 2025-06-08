@@ -26,7 +26,7 @@ def get_search_table():
             {"headerName": "SMILES", "field": "smiles"},
             {"headerName": "Ring Size", "field": "ring_size"},
             {"headerName": "Has Exp", "field": "has_exp"},
-            {"headerName": "Has Comp", "field": "has_calc"},
+            {"headerName": "Has Comp", "field": "has_calc", "resizable": False},
         ],
         columnSize="responsiveSizeToFit",
         columnSizeOptions={

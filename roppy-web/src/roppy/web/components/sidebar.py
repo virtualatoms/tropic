@@ -37,8 +37,7 @@ def get_search_sidebar():
                 id="mol-weight-slider",
                 value=[10, 500],
                 marks=[
-                    {"value": i, "label": str(i)}
-                    for i in [10, 100, 200, 300, 400, 500]
+                    {"value": i, "label": str(i)} for i in [10, 100, 200, 300, 400, 500]
                 ],
                 min=10,
                 max=500,

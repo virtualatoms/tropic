@@ -38,3 +38,12 @@
 .ag-center-cols-viewport {
     min-height: unset !important;
 }
+
+.ag-theme-alpine.compact {
+    --ag-cell-horizontal-padding: 12px;
+}
+
+.ag-theme-alpine {
+    --ag-header-background-color: var(--mantine-color-gray-0) !important;
+    --ag-border-color: var(--mantine-color-gray-3) !important;
+}

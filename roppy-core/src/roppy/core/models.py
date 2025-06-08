@@ -48,6 +48,11 @@ class Molecule(BaseModel):
         description="Common name of the molecule",
     )
 
+    pubchem_cid: Optional[int] = Field(
+        None,
+        description="PubChem Compound ID (CID) for the molecule",
+    )
+
 
 class Monomer(Molecule):
     ring_size: Optional[int] = Field(
@@ -66,7 +71,7 @@ class Product(BaseModel):
         None,
         description="Big SMILES notation representing the polymer",
     )
-    repeating_units: EmptyStringToNone[float] = Field(
+    repeating_units: EmptyStringToNone[int] = Field(
         None,
         description="Number of repeating monomer units in the computational polymer chain/ring",
     )
@@ -186,6 +191,12 @@ class DataRow(BaseModel):
     )
     delta_s: Optional[float] = Field(
         description="Change in entropy (ΔS) for the polymerization reaction"
+    )
+    repeating_units: Optional[int] = Field(
+        description="Number of repeating monomer units in the computational polymer chain/ring"
+    )
+    method: Optional[str] = Field(
+        description="Computational method used for the polymerisation"
     )
     ceiling_temperature: Optional[float] = Field(description="Ceiling temperature in K")
     year: Optional[str] = Field(description="Year of publication")

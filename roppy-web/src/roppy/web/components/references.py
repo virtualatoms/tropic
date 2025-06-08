@@ -19,10 +19,10 @@ def get_reference_table_data(dois, formatted_references):
                 dmc.TableTd(ref),
                 dmc.TableTd(
                     html.A(
-                        doi, 
-                        href=f"https://doi.org/{doi}", 
-                        className="mantine-focus-auto m_849cf0da mantine-Text-root mantine-Anchor-root", 
-                        style={"text-decoration": "underline"}
+                        doi,
+                        href=f"https://doi.org/{doi}",
+                        className="mantine-focus-auto m_849cf0da mantine-Text-root mantine-Anchor-root",
+                        style={"text-decoration": "underline"},
                     )
                 ),
             ]

@@ -76,7 +76,7 @@ def layout(**_):
 
     grid = dmc.Grid(
         [dmc.GridCol(side_bar, span=3, pt=108), dmc.GridCol(tabs, span=9)],
-        pt=50,
+        pt=30,
         gutter="xl",
     )
 
@@ -85,7 +85,7 @@ def layout(**_):
             dmc.TextInput(id="smiles-input", placeholder="Enter SMILES", w=500),
             dmc.Button("Draw Molecule", id="draw-button"),
         ],
-        pt=50,
+        pt=30,
     )
 
     return [
@@ -300,15 +300,16 @@ def get_export_data(data, file_type):
                 "Ring Size",
                 "Type",
                 "Is Experimental",
-                "Monomer State",
+                "State",
                 "Is Experimental",
-                "Polymer State",
                 "Initial Monomer Conc",
                 "Bulk Monomer Conc",
                 "Solvent",
                 "ΔH (kJ/mol)",
                 "ΔS (kJ/mol·K)",
                 "Ceiling Temperature (K)",
+                "Repeating Units",
+                "DFT Method",
                 "Year",
                 "Reference",
             ]
@@ -322,15 +323,16 @@ def get_export_data(data, file_type):
                         item["monomer"]["ring_size"],
                         row["type"],
                         row["is_experimental"],
-                        row["monomer_state"],
+                        row["state_summary"],
                         row["is_experimental"],
-                        row["polymer_state"],
                         row["initial_monomer_conc"],
                         row["bulk_monomer_conc"],
                         row["solvent"],
                         row["delta_h"],
                         row["delta_s"],
                         row["ceiling_temperature"],
+                        row["repeating_units"],
+                        row["method"],
                         row["year"],
                         row["formatted_reference"],
                     ]
@@ -392,5 +394,5 @@ clientside_callback(
         return dash_clientside.no_update
     }""",
     Output("table-trigger", "data-label"),
-    *FILTER_INPUTS
+    *FILTER_INPUTS,
 )
