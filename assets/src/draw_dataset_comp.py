@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from roppy.api.documents import PolymerisationDocument, MonomerSummaryDocument
+from tropic.api.documents import PolymerisationDocument, MonomerSummaryDocument
 from matplotlib.patches import ConnectionPatch
 
 CLIENT_URL = "mongodb://localhost:27017"
@@ -99,7 +99,7 @@ async def draw_dataset():
 
 async def draw():
     client = AsyncIOMotorClient(CLIENT_URL)
-    database = client["roppy"]
+    database = client["tropic"]
 
     await init_beanie(
         database=database,

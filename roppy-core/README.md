@@ -1,1 +1,0 @@
-# Roppy core
