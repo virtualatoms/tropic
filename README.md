@@ -17,10 +17,19 @@ This repository contains the packages for running the tropic website, API server
 - `tropic-api`: The REST API implementation.
 - `tropic-web`: The interactive website implementation.
 
-# Documentation
+### Installation
+
+The TROPIC software is available as namespace packages on PyPI. This enables you to install only the specific portion of the software that you need. 
+For example, the TROPIC API client can be installed using.
+
+```bash
+pip install tropic-client
+```
+
+## Documentation
 
 - 📄 The full API documentation available at.
-- 📁 See `roppy-core/models.py` for full schema details.
+- 📁 See [`roppy-core/models.py`](https://github.com/virtualatoms/tropic/blob/main/tropic-core/src/tropic/core/models.py) for full schema details.
 
 ## Contributing
 
@@ -28,4 +37,4 @@ Contributions are welcome! Please open an issue or submit a pull request to cont
 
 ## License
 
-This project is released under the MIT License. See LICENSE for details.
+This project is released under the MIT License. See [LICENSE](https://github.com/virtualatoms/tropic/blob/main/LICENSE) for details.
