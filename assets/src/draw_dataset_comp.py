@@ -4,13 +4,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from tropic.api.documents import PolymerisationDocument, MonomerSummaryDocument
+from roppy.api import DATABASE_NAME, DATABASE_URL
+from roppy.api.documents import PolymerisationDocument, MonomerSummaryDocument
 from matplotlib.patches import ConnectionPatch
-
-CLIENT_URL = "mongodb://localhost:27017"
 
 
 async def draw_dataset():
+
     polys = await PolymerisationDocument.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
@@ -30,7 +30,7 @@ async def draw_dataset():
     patches, *_ = ax1.pie(
         experimental_count["poly_id"],
         autopct="%1.1f%%",
-        startangle=(180 * experimental_count["poly_id"][1]),
+        startangle=(180 * experimental_count["poly_id"].iloc[1]),
         labels=["comp", "exp"],
         explode=[0.1, 0.0],
     )
@@ -55,6 +55,7 @@ async def draw_dataset():
             bottom=bar_bottom,
             label=label,
             alpha=(0.1 + 0.25 * i),
+            color="C0",
         )
         ax2.bar_label(bc, labels=[f"{bar_height:.0%}"], label_type="center")
 
@@ -98,11 +99,10 @@ async def draw_dataset():
 
 
 async def draw():
-    client = AsyncIOMotorClient(CLIENT_URL)
-    database = client["tropic"]
 
+    client = AsyncIOMotorClient(DATABASE_URL)
     await init_beanie(
-        database=database,
+        database=client[DATABASE_NAME],
         document_models=[
             PolymerisationDocument,
             MonomerSummaryDocument,
@@ -113,4 +113,5 @@ async def draw():
 
 
 if __name__ == "__main__":
+
     asyncio.run(draw())
