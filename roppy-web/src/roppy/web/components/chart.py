@@ -36,7 +36,6 @@ def get_search_chart():
             ),
         ],
         justify="flex-end",
-        # align="top",
         mb=10,
     )
 

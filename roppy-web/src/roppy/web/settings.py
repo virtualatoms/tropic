@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     E.g. ROPPY_API_ENDPOINT="http://localhost:8000"
     """
 
-    # database settings
     API_ENDPOINT: str = Field(
         "http://localhost:8000",
         description="URL for the roppy API. This is used to fetch data for the website.",

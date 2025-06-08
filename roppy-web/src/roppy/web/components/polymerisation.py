@@ -150,7 +150,6 @@ def get_polymerisation_section(data):
             "ceiling_temperature": ceiling_temperature,
             "year": row["year"],
             "ref": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="https://doi.org/{row["doi"]}" target="_blank">{LINK_SVG}</a>',
-            # "doi": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="https://doi.org/{row["doi"]}">{row["doi"]}</a>',
         }
         if row["is_experimental"]:
             common_data |= {
