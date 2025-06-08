@@ -10,10 +10,10 @@
 <title>Entity Relationship Diagram created by erdantic</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-164.25 292.25,-164.25 292.25,4 -4,4"/>
 <text text-anchor="middle" x="144.12" y="-5.95" font-family="Times New Roman,Times,Liberation Serif,serif" font-size="9.00" fill="#a8a8a8">Created by erdantic v1.1.0.post1 &lt;https://github.com/drivendataorg/erdantic&gt;</text>
-<!-- roppy.core.models.Polymerisation -->
+<!-- tropic.core.models.Polymerisation -->
 <g id="node1" class="node">
-<title>roppy.core.models.Polymerisation</title>
-<g id="a_node1"><a xlink:title="roppy.core.models.Polymerisation&#10;&#10;Document Mapping class.&#10;&#10;Fields:&#10;&#10;&#45; `id` &#45; MongoDB document ObjectID &quot;_id&quot; field.&#10;Mapped to the PydanticObjectId class&#10;">
+<title>tropic.core.models.Polymerisation</title>
+<g id="a_node1"><a xlink:title="tropic.core.models.Polymerisation&#10;&#10;Document Mapping class.&#10;&#10;Fields:&#10;&#10;&#45; `id` &#45; MongoDB document ObjectID &quot;_id&quot; field.&#10;Mapped to the PydanticObjectId class&#10;">
 <polygon fill="none" stroke="black" points="88.62,-144.5 88.62,-160.25 199.62,-160.25 199.62,-144.5 88.62,-144.5"/>
 <text text-anchor="start" x="118.25" y="-150.65" font-family="Times New Roman,Times,Liberation Serif,serif" font-weight="bold" font-size="8.00">Polymerisation</text>
 <polygon fill="none" stroke="black" points="88.62,-128.75 88.62,-144.5 151.62,-144.5 151.62,-128.75 88.62,-128.75"/>
