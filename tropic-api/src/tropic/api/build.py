@@ -28,7 +28,13 @@ install_cache(
 
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
-    iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
+
+    pubchem_data = get_iupac_name_cid(data["monomer_smiles"])
+    if pubchem_data is None:
+        iupac_name, cid = None, None
+    else:
+        iupac_name, cid = pubchem_data
+
     return {
         "type": data["polymerisation_type"],
         "monomer": {
