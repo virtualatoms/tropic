@@ -1,18 +1,20 @@
+from __future__ import annotations
+
+import argparse
 import asyncio
 from collections import defaultdict
-import requests
-import argparse
 from csv import DictReader
 from pathlib import Path
 from typing import Any
 
+import requests
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 
 from roppy.api import DATABASE_NAME, DATABASE_URL
 from roppy.api.documents import MonomerSummaryDocument, PolymerisationDocument
 from roppy.core.models import DataRow
-from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 
 install_cache(
     "doi_cache",
@@ -24,13 +26,15 @@ install_cache(
     },
 )
 
-def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
 
+def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
+    iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
     return {
         "type": data["polymerisation_type"],
         "monomer": {
             "smiles": data["monomer_smiles"],
-            "iupac_name": get_iupac_name(data["monomer_smiles"]),
+            "iupac_name": iupac_name,
+            "pubchem_cid": cid,
             # "common_name": get_common_name(data["monomer_smiles"]),
         },
         "initiator": {"smiles": data["initiator_smiles"]},
@@ -79,27 +83,31 @@ def get_formatted_reference(doi: str) -> str:
         return None
 
     response = requests.get(
-        f"https://citation.doi.org/format?doi={doi}&style=royal-society-of-chemistry&lang=en-US"
+        f"https://citation.doi.org/format?doi={doi}&style=royal-society-of-chemistry&lang=en-US",
+        timeout=5,
     )
     if response.status_code != 200:
         return None
 
     return response.text.strip()[2:-1]
 
-def get_iupac_name(smiles: str) -> str:
+
+def get_iupac_name_cid(smiles: str) -> tuple[str, int] | None:
     """Fetches IUPAC name for a given SMILES string."""
     if not smiles:
         return None
 
     response = requests.get(
-        f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/property/IUPACName/JSON"
+        f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/property/IUPACName/JSON",
+        timeout=5,
     )
     if response.status_code != 200:
         return None
 
     data = response.json()
     properties = data.get("PropertyTable", {}).get("Properties", [{}])[0]
-    return properties.get("IUPACName")
+    return properties.get("IUPACName"), properties.get("CID")
+
 
 # Common names are a bit wacky from pubchem, so we are not using them for now.
 # def get_common_name(smiles: str) -> str:
@@ -156,6 +164,8 @@ async def create_monomer_summaries():
             ceiling_temperature=poly.thermo.ceiling_temperature,
             year=poly.metadata.year,
             doi=poly.metadata.doi,
+            repeating_units=poly.product.repeating_units,
+            method=poly.parameters.method,
             formatted_reference=poly.metadata.formatted_reference,
         )
         summaries[poly.monomer.smiles].append(row)

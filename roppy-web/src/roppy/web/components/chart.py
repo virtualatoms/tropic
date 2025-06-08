@@ -20,7 +20,7 @@ def get_search_chart():
     )
     y_select = dmc.Group(
         [
-            dmc.Text("Y axis property:"),
+            dmc.Text("Y axis property:", size="sm", mr=-5),
             dmc.Select(
                 # label="Y-axis property:",
                 placeholder="Select one",

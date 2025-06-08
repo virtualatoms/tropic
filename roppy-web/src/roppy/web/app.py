@@ -2,6 +2,7 @@ import dash
 import dash_mantine_components as dmc
 from dash import Dash, _dash_renderer
 
+from roppy.web.components.footer import FOOTER
 from roppy.web.components.header import HEADER
 
 _dash_renderer._set_react_version("18.2.0")
@@ -16,7 +17,10 @@ app = Dash(
 )
 
 app.layout = dmc.MantineProvider(
-    [dmc.Container([HEADER, dash.page_container], size="xl")]
+    [
+        dmc.Container([HEADER, dash.page_container], size="xl", className="content"),
+        FOOTER,
+    ]
 )
 
 

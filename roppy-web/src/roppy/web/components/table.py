@@ -12,4 +12,4 @@ def get_table(data, header=None):
     if header:
         head = dmc.TableThead(dmc.TableTr([dmc.TableTh(name) for name in header]))
         return dmc.Table([body, head])
-    return dmc.Table([body])
+    return dmc.Table([body], mt=14)

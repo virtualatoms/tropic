@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     )
 
     SEARCH_NUM_ROWS: int = Field(
-        10, description="Number of rows to return in the search table."
+        5, description="Number of rows to return in the search table."
     )
 
     REQUEST_TIMEOUT: int = Field(

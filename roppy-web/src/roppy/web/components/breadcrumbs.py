@@ -22,5 +22,5 @@ def get_breadcrumbs(pages: list[str]):
         py=10,
         px=20,
         mt=10,
-        style={"backgroundColor": dmc.DEFAULT_THEME["colors"]["gray"][1]},
+        style={"backgroundColor": dmc.DEFAULT_THEME["colors"]["gray"][0]},
     )

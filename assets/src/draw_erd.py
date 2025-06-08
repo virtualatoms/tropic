@@ -4,7 +4,6 @@ from roppy.core.models import MonomerSummary, Polymerisation
 # TODO: Split into separate files for each figure
 
 if __name__ == "__main__":
-
     # Create Erdantic Models
     poly_base_diagram = erd.create(Polymerisation, terminal_models=[Polymerisation])
     poly_attr_diagram = erd.create(Polymerisation)
@@ -18,7 +17,7 @@ if __name__ == "__main__":
             try:
                 del diagram.models[f"roppy.core.models.{field}"].fields["id"]
                 del diagram.models[f"roppy.core.models.{field}"].fields["revision_id"]
-            except:
+            except IndexError:
                 pass
 
     # separate polymerisation from its attributes

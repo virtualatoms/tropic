@@ -43,7 +43,7 @@ def layout(monomer_id="monomer-1", **_):
 
     content = dmc.Grid(
         [dmc.GridCol(toc, span=3), dmc.GridCol(html.Div(page, id="content"), span=9)],
-        pt=60,
+        pt=30,
         gutter="xl",
         mb=50,
     )

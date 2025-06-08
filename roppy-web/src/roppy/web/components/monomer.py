@@ -10,15 +10,43 @@ HIDDEN = {"height": 0, "width": 0, "overflow": "hidden"}
 
 
 def get_monomer_info_card(data):
+    pubchem_link = (
+        html.A(
+            data["monomer"]["pubchem_cid"],
+            href=f"https://pubchem.ncbi.nlm.nih.gov/compound/{data['monomer']['pubchem_cid']}",
+            className="mantine-focus-auto m_849cf0da mantine-Text-root mantine-Anchor-root",
+            style={"text-decoration": "underline"},
+            target="_blank",
+        )
+        if data["monomer"]["pubchem_cid"]
+        else "N/A"
+    )
     table_data = [
         ("SMILES", data["monomer"]["smiles"]),
         ("InChI", data["monomer"]["inchi"]),
         ("IUPAC Name", data["monomer"]["iupac_name"]),
         # ("Common Name", data["monomer"]["common_name"]),
-        ("Molecular Weight", f'{data["monomer"]["molecular_weight"]:.2f} g/mol'),
+        ("Molecular Weight", f"{data['monomer']['molecular_weight']:.2f} g/mol"),
         ("Ring Size", data["monomer"]["ring_size"]),
+        ("CID", pubchem_link),
     ]
-    return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
+
+    header = dmc.CardSection(
+        dmc.Center(
+            children=[
+                dmc.Text("Monomer Information", fw=700),
+            ],
+            # justify="space-between",
+        ),
+        withBorder=True,
+        inheritPadding=True,
+        py="xs",
+        style={"backgroundColor": dmc.DEFAULT_THEME["colors"]["gray"][0]},
+    )
+
+    return dmc.Card(
+        [header, get_table(table_data)], withBorder=True, shadow="sm", radius="md"
+    )
 
 
 def get_monomer_page_summary(data):
