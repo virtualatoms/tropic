@@ -65,6 +65,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
         "thermo": {
             "delta_h": data["delta_h"],
             "delta_s": data["delta_s"],
+            "delta_g": data["delta_g"],
             "ceiling_temperature": data["ceiling_temperature"],
         },
         "metadata": {
@@ -77,7 +78,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
     }
 
 
-def get_formatted_reference(doi: str) -> str:
+def get_formatted_reference(doi: str) -> str | None:
     """Formats the reference using the citation API."""
     if not doi:
         return None
