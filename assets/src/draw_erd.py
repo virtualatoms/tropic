@@ -1,5 +1,5 @@
 import erdantic as erd
-from roppy.core.models import MonomerSummary, Polymerisation
+from tropic.core.models import MonomerSummary, Polymerisation
 
 # TODO: Split into separate files for each figure
 
@@ -15,23 +15,23 @@ if __name__ == "__main__":
     for diagram in diagrams:
         for field in fields:
             try:
-                del diagram.models[f"roppy.core.models.{field}"].fields["id"]
-                del diagram.models[f"roppy.core.models.{field}"].fields["revision_id"]
+                del diagram.models[f"tropic.core.models.{field}"].fields["id"]
+                del diagram.models[f"tropic.core.models.{field}"].fields["revision_id"]
             except IndexError:
                 pass
 
     # separate polymerisation from its attributes
-    del poly_attr_diagram.models["roppy.core.models.Polymerisation"]
+    del poly_attr_diagram.models["tropic.core.models.Polymerisation"]
     poly_attr_diagram.edges.clear()
 
     # tidy up monomerSummary graph
-    del monomer_diagram.models["roppy.core.models.Monomer"]
+    del monomer_diagram.models["tropic.core.models.Monomer"]
     del monomer_diagram.edges[
-        "roppy.core.models.MonomerSummary-monomer-roppy.core.models.Monomer"
+        "tropic.core.models.MonomerSummary-monomer-tropic.core.models.Monomer"
     ]
-    del monomer_diagram.models["roppy.core.models.DataRow"]
+    del monomer_diagram.models["tropic.core.models.DataRow"]
     del monomer_diagram.edges[
-        "roppy.core.models.MonomerSummary-data-roppy.core.models.DataRow"
+        "tropic.core.models.MonomerSummary-data-tropic.core.models.DataRow"
     ]
 
     # TODO:Sorting fields
