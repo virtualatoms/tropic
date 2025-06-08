@@ -131,7 +131,10 @@ class Thermo(BaseModel):
         Field(None, description="Enthalpy of polymerisation (kJ/mol)"),
     )
     delta_s: EmptyStringToNone[float] = (
-        Field(None, description="Entropy of polymerisation (J/mol)"),
+        Field(None, description="Entropy of polymerisation (J/molK)"),
+    )
+    delta_g: EmptyStringToNone[float] = (
+        Field(None, description="Free energy of polymerisation (kJ/mol)"),
     )
     ceiling_temperature: EmptyStringToNone[float] = (
         Field(None, description="Ceiling temperature in C"),
