@@ -4,12 +4,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from tropic.api.documents import PolymerisationDocument, MonomerSummaryDocument
-
-CLIENT_URL = "mongodb://localhost:27017"
+from roppy.api import DATABASE_URL, DATABASE_NAME
+from roppy.api.documents import PolymerisationDocument, MonomerSummaryDocument
 
 
 def get_experimental(df: pd.Series) -> str:
+
     if df.any():
         if df.all():
             return "experimental"
@@ -20,6 +20,7 @@ def get_experimental(df: pd.Series) -> str:
 
 
 def get_func_group(func_groups: list[str]) -> str:
+
     if (
         ("O=C([O][R])[N]([R])[R]" in func_groups)
         or ("O=[C]([R])[N]([R])[R]" in func_groups)
@@ -59,6 +60,7 @@ def get_func_group(func_groups: list[str]) -> str:
 
 
 async def draw_dataset():
+
     polys = await PolymerisationDocument.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
@@ -92,9 +94,9 @@ async def draw_dataset():
 
     wedges, *_ = ax.pie(
         experimental_count["poly_id"],
-        # labels=experimental_count.index.to_list(),
-        # wedgeprops=dict(width=0.5, edgecolor="w"),
+        wedgeprops=dict(width=0.8, edgecolor="w"),
         autopct="%1.0f%%",
+        colors=["tab:purple", "tab:gray", "tab:blue"],
         # startangle=90,
     )
 
@@ -118,7 +120,7 @@ async def draw_dataset():
             **kw,
         )
 
-    ax.set_title("Distribution of Monomer Functional Groups", y=-0.01)
+    # ax.set_title("Distribution of Monomer Functional Groups", y=-0.01)
     plt.legend(wedges, experimental_count.index.to_list(), loc="upper right")
 
     # plt.show()
@@ -126,11 +128,10 @@ async def draw_dataset():
 
 
 async def draw():
-    client = AsyncIOMotorClient(CLIENT_URL)
-    database = client["tropic"]
 
+    client = AsyncIOMotorClient(DATABASE_URL)
     await init_beanie(
-        database=database,
+        database=client[DATABASE_NAME],
         document_models=[
             PolymerisationDocument,
             MonomerSummaryDocument,
@@ -141,4 +142,5 @@ async def draw():
 
 
 if __name__ == "__main__":
+
     asyncio.run(draw())
