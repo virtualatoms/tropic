@@ -18,10 +18,6 @@ class Settings(BaseSettings):
         description="URL for the tropic API. This is used to fetch data for the website.",
     )
 
-    SEARCH_NUM_ROWS: int = Field(
-        5, description="Number of rows to return in the search table."
-    )
-
     REQUEST_TIMEOUT: int = Field(
         5, description="Number of seconds before API requests timeout."
     )

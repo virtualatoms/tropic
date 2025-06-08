@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Implementation of Ertl's Functional Group Algorithm in RDKit
 
@@ -10,9 +11,9 @@ J Cheminform (2017) 9:36; DOI: 10.1186/s13321-017-0225-z
 @author: gonzalo.colmenarejo
 """
 
-import re
 
 from rdkit import Chem
+import re
 from rdkit.Chem.Draw import rdMolDraw2D
 
 
@@ -202,8 +203,8 @@ def get_freeval_envs(mol, functional_groups):
         if len(matches) > 0:  # found matches
             for m in matches:
                 group = [g for g in functional_groups if m[0] in g][0]
-                if (
-                    (pattern == oh_pattern) or (single_ns_group(mol, group))
+                if (pattern == oh_pattern) or (
+                    single_ns_group(mol, group)
                 ):  # we apply the oh pattern always but the n or s patterns only with single sn groups
                     atom = mol.GetAtomWithIdx(
                         m[0]
@@ -456,6 +457,7 @@ def get_dec_fgs(mol, verbose=False):
         ]
 
         if len(neigh_atoms) > 0:  # There is decoration applicable
+
             ## Get the bonds of the group
             bonds_idx = set()
             for j in range(mol.GetNumBonds()):
@@ -564,7 +566,7 @@ def get_dec_fgs(mol, verbose=False):
                 atom = mol.GetAtomWithIdx(list(group)[0])
                 charge = atom.GetFormalCharge()
                 charge_str = "+" if charge == 1 else "-" if charge == -1 else ""
-                fragment = Chem.RWMol()  ## Create empty edtiable molecule
+                fragment = Chem.RWMol()  ## Create emtpy edtiable molecule
                 fragment.AddAtom(Chem.Atom("*"))  ## Add dummy atom to molecule
                 if atom.GetIsAromatic():
                     if atom.GetAtomicNum() == 7:
@@ -736,7 +738,7 @@ def get_dec_fgs(mol, verbose=False):
             fg_mols.append(fragment)
         else:
             fg_mols.append(fragment_with_r_groups)
-        if "H" not in pseudo_smiles:
+        if not ("H" in pseudo_smiles):
             if verbose:
                 print("Canonical Pseudo-SMILES:", pseudo_smiles)
 

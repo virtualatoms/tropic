@@ -25,4 +25,4 @@ app.layout = dmc.MantineProvider(
 
 
 def main():
-    app.run(debug=True)
+    app.run(debug=False)

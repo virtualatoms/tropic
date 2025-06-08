@@ -142,7 +142,7 @@ class Thermo(BaseModel):
 
 
 class Metadata(BaseModel):
-    year: EmptyStringToNone[str] = Field(description="Year of publication")
+    year: EmptyStringToNone[int] = Field(description="Year of publication")
     comment: EmptyStringToNone[str] = (
         Field(description="Additional comments or notes"),
     )
@@ -202,7 +202,7 @@ class DataRow(BaseModel):
         description="Computational method used for the polymerisation"
     )
     ceiling_temperature: Optional[float] = Field(description="Ceiling temperature in K")
-    year: Optional[str] = Field(description="Year of publication")
+    year: Optional[int] = Field(description="Year of publication")
     doi: Optional[str] = Field(description="DOI of publication")
     formatted_reference: Optional[str] = Field(description="Formatted reference string")
 

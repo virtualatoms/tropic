@@ -93,17 +93,17 @@ def get_formatted_reference(doi: str) -> str | None:
     return response.text.strip()[2:-1]
 
 
-def get_iupac_name_cid(smiles: str) -> tuple[str, int] | None:
+def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     """Fetches IUPAC name for a given SMILES string."""
     if not smiles:
-        return None
+        return None, None
 
     response = requests.get(
         f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/property/IUPACName/JSON",
         timeout=5,
     )
     if response.status_code != 200:
-        return None
+        return None, None
 
     data = response.json()
     properties = data.get("PropertyTable", {}).get("Properties", [{}])[0]

@@ -2,7 +2,7 @@ import dash_ag_grid as dag
 import dash_mantine_components as dmc
 from dash import dcc, html
 
-from tropic.web import SETTINGS
+SEARCH_NUM_ROWS = 5
 
 
 def get_search_table():
@@ -38,12 +38,12 @@ def get_search_table():
         rowModelType="infinite",
         dashGridOptions={
             "animateRows": False,
-            "cacheBlockSize": SETTINGS.SEARCH_NUM_ROWS,
+            "cacheBlockSize": SEARCH_NUM_ROWS,
             "domLayout": "autoHeight",
             "suppressCellFocus": True,
             "pagination": True,
             "paginationPageSizeSelector": False,
-            "paginationPageSize": SETTINGS.SEARCH_NUM_ROWS,
+            "paginationPageSize": SEARCH_NUM_ROWS,
             "rowHeight": 100,
         },
         style={"height": None},
