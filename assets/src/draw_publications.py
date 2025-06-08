@@ -3,12 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from tropic.api.documents import PolymerisationDocument, MonomerSummaryDocument
+from roppy.api import DATABASE_NAME, DATABASE_URL
+from roppy.api.documents import PolymerisationDocument, MonomerSummaryDocument
 
-CLIENT_URL = "mongodb://localhost:27017"
+# TODO: This script needs to be updated to use the new database schema
 
 
 async def draw_publications():
+
     polys = await PolymerisationDocument.find_all().to_list()
     data = {
         "poly_id": [poly.polymerisation_id for poly in polys],
@@ -21,7 +23,7 @@ async def draw_publications():
     df["date"] = pd.to_datetime(df["date"])
 
     fig, ax1 = plt.subplots()
-    ax1.hist(df["date"], bins=60, alpha=0.5)
+    ax1.hist(df["date"], bins=120, alpha=0.5)
     ax1.set_xlabel("date")
     ax1.set_ylabel("data count")
 
@@ -34,11 +36,10 @@ async def draw_publications():
 
 
 async def draw():
-    client = AsyncIOMotorClient(CLIENT_URL)
-    database = client["tropic"]
 
+    client = AsyncIOMotorClient(DATABASE_URL)
     await init_beanie(
-        database=database,
+        database=client[DATABASE_NAME],
         document_models=[
             PolymerisationDocument,
             MonomerSummaryDocument,
@@ -49,4 +50,5 @@ async def draw():
 
 
 if __name__ == "__main__":
+
     asyncio.run(draw())
