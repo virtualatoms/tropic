@@ -33,14 +33,6 @@ def layout(monomer_id="monomer-1", **_):
     polymerisation_section = get_polymerisation_section(data)
     page = [monomer_summary, polymerisation_section]
 
-    # if data["has_exp"]:
-    #     poly_section = get_polymerisation_section(data["data"], exp=True)
-    #     page.extend([dmc.Divider(mt=60, mb=40), poly_section])
-
-    # if data["has_comp"]:
-    #     poly_section = get_polymerisation_section(data["data"], exp=False)
-    #     page.extend([dmc.Divider(mt=60, mb=40), poly_section])
-
     content = dmc.Grid(
         [dmc.GridCol(toc, span=3), dmc.GridCol(html.Div(page, id="content"), span=9)],
         pt=30,

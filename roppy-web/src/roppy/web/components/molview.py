@@ -1,13 +1,5 @@
 import dash_mantine_components as dmc
-from dash import (
-    ClientsideFunction,
-    Input,
-    Output,
-    State,
-    callback,
-    clientside_callback,
-    html,
-)
+from dash import ClientsideFunction, Input, Output, clientside_callback, html
 
 
 def get_mol_viewer_card(xyz):
@@ -34,15 +26,6 @@ def get_mol_viewer_card(xyz):
 
 
 def register_molview_callbacks():
-    @callback(
-        Output("molecule-data", "children"),
-        Input("page-load-trigger", "children"),
-        State("molecule-data", "children"),
-    )
-    def update_molecule_data(_, data):
-        # Sample XYZ data for water molecule
-        return data
-
     clientside_callback(
         ClientsideFunction(namespace="molecule_viewer", function_name="setupViewer"),
         Output("javascript-trigger", "children"),

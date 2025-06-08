@@ -1,6 +1,4 @@
-// document.addEventListener('DOMContentLoaded', function () {
 window.addEventListener("load", function () {
-    // Highlight active section based on scroll position
     window.addEventListener('scroll', function () {
         const headings = document.querySelectorAll('h1, h2, h3');
         const tocItems = document.querySelectorAll('.toc-item');

@@ -62,7 +62,6 @@ def get_search_table():
                     {"value": "json", "label": "JSON"},
                 ],
                 w=120,
-                # mb=10,
             ),
             dmc.Button(
                 "Export",
@@ -74,7 +73,6 @@ def get_search_table():
             ),
         ],
         justify="flex-end",
-        # align="top",
         mb=10,
     )
 

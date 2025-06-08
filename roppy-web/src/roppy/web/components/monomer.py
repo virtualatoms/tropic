@@ -32,12 +32,7 @@ def get_monomer_info_card(data):
     ]
 
     header = dmc.CardSection(
-        dmc.Center(
-            children=[
-                dmc.Text("Monomer Information", fw=700),
-            ],
-            # justify="space-between",
-        ),
+        dmc.Center([dmc.Text("Monomer Information", fw=700)]),
         withBorder=True,
         inheritPadding=True,
         py="xs",
