@@ -4,8 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from roppy.api import DATABASE_URL, DATABASE_NAME
-from roppy.api.documents import PolymerisationDocument, MonomerSummaryDocument
+from tropic.api import DATABASE_URL, DATABASE_NAME
+from tropic.api.documents import PolymerisationDocument, MonomerSummaryDocument
 
 
 def get_experimental(df: pd.Series) -> str:

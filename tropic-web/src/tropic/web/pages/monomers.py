@@ -20,7 +20,7 @@ from tropic.web.components.breadcrumbs import get_breadcrumbs
 from tropic.web.components.chart import get_search_chart
 from tropic.web.components.draw import get_draw_molecule
 from tropic.web.components.references import get_reference_table_data, get_references
-from tropic.web.components.searchtable import get_search_table
+from tropic.web.components.searchtable import get_search_table, SEARCH_NUM_ROWS
 from tropic.web.components.sidebar import get_search_sidebar
 from tropic.web.utils import smiles_to_image
 
@@ -148,9 +148,9 @@ def update_table(tabs, rows_request, *filter_args):
 
     # handle pagination
     page = (
-        rows_request["startRow"] // SETTINGS.SEARCH_NUM_ROWS + 1 if rows_request else 1
+        rows_request["startRow"] // SEARCH_NUM_ROWS + 1 if rows_request else 1
     )
-    query.append(f"size={SETTINGS.SEARCH_NUM_ROWS}&page={page}")
+    query.append(f"size={SEARCH_NUM_ROWS}&page={page}")
 
     # handle sort
     if rows_request and rows_request["sortModel"]:
