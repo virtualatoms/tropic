@@ -50,7 +50,7 @@ def get_xyz(smiles: str) -> str:
 
 def get_inchi(smiles: str) -> str:
     """Get InChI key for a molecule."""
-    return MolToInchi(get_mol(smiles))
+    return MolToInchi(get_mol(smiles))[0]
 
 
 def get_molecular_weight(smiles: str) -> float:
