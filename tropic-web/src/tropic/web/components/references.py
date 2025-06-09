@@ -27,7 +27,7 @@ def get_reference_table_data(dois, formatted_references):
                 ),
             ]
         )
-        for ref, doi in zip(formatted_references, dois)
+        for ref, doi in zip(formatted_references, dois, strict=False)
     ]
 
     return [

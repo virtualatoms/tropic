@@ -254,7 +254,7 @@ def update_references(tabs, *filter_args):
             if row["doi"] not in refs and row["doi"] and row["formatted_reference"]:
                 refs[row["doi"]] = row["formatted_reference"]
 
-    return get_reference_table_data(*zip(*refs.items()))
+    return get_reference_table_data(*zip(*refs.items(), strict=False))
 
 
 @callback(

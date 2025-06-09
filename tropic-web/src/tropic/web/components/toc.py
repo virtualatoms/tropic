@@ -35,7 +35,7 @@ def register_toc_callbacks():
             if component is None:
                 return
 
-            if isinstance(component, (str, int, float)):
+            if isinstance(component, str | int | float):
                 return
 
             if isinstance(component, dict):
@@ -53,7 +53,7 @@ def register_toc_callbacks():
                     heading_text = props.get("children", "")
                     heading_id = props.get("id", "")
 
-                    if isinstance(heading_text, (list, dict)):
+                    if isinstance(heading_text, list | dict):
                         heading_text = str(heading_text)
 
                     if heading_text and heading_id:
@@ -68,13 +68,13 @@ def register_toc_callbacks():
 
                 children = props.get("children", [])
                 if children is not None:
-                    if isinstance(children, (list, tuple)):
+                    if isinstance(children, list | tuple):
                         for child in children:
                             extract_headings(child, depth + 1)
                     else:
                         extract_headings(children, depth + 1)
 
-            elif isinstance(component, (list, tuple)):
+            elif isinstance(component, list | tuple):
                 for item in component:
                     extract_headings(item, depth + 1)
 
