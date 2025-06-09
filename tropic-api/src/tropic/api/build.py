@@ -1,4 +1,4 @@
-from __future__ import annotations
+"""Tool to rebuild the TROPIC database from CSV files."""
 
 import argparse
 import asyncio
@@ -27,6 +27,7 @@ install_cache(
 
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
+    """Format the polymerisation data into a structured dictionary."""
     iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
     return {
         "type": data["polymerisation_type"],
@@ -79,7 +80,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
 
 
 def get_formatted_reference(doi: str) -> str | None:
-    """Formats the reference using the citation API."""
+    """Format the reference using the citation API."""
     if not doi:
         return None
 
@@ -94,7 +95,7 @@ def get_formatted_reference(doi: str) -> str | None:
 
 
 def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
-    """Fetches IUPAC name for a given SMILES string."""
+    """Fetch IUPAC name for a given SMILES string."""
     if not smiles:
         return None, None
 
@@ -110,13 +111,15 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     return properties.get("IUPACName"), properties.get("CID")
 
 
-async def clear_database(summaries_only: bool = False):
+async def clear_database(summaries_only: bool = False) -> None:
+    """Clear the database, optionally only removing monomer summaries."""
     if not summaries_only:
         await PolymerisationDocument.find_all().delete()
     await MonomerSummaryDocument.find_all().delete()
 
 
 async def parse_data() -> None:
+    """Parse the input CSV files and create PolymerisationDocument instances."""
     import numpy as np
     import pandas as pd
 
@@ -136,7 +139,8 @@ async def parse_data() -> None:
     await PolymerisationDocument.insert_many(polys)
 
 
-async def create_monomer_summaries():
+async def create_monomer_summaries() -> None:
+    """Create monomer summaries from the polymerisation data."""
     summaries = defaultdict(list)
     monomers = {}
     polymerisations = await PolymerisationDocument.find_all().to_list()
@@ -173,7 +177,8 @@ async def create_monomer_summaries():
     await MonomerSummaryDocument.insert_many(monomer_summaries)
 
 
-async def rebuild_db(summaries_only: bool = False):
+async def rebuild_db(summaries_only: bool = False) -> None:
+    """Rebuild the TROPIC database, optionally only creating monomer summaries."""
     client = AsyncIOMotorClient(DATABASE_URL)
     await init_beanie(
         database=client[DATABASE_NAME],
@@ -187,7 +192,8 @@ async def rebuild_db(summaries_only: bool = False):
     await create_monomer_summaries()
 
 
-def main():
+def main() -> None:
+    """Entry point for the build script."""
     parser = argparse.ArgumentParser(description="Rebuild the TROPIC database.")
     parser.add_argument(
         "-s",
