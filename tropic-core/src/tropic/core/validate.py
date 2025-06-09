@@ -5,6 +5,7 @@ from typing import Annotated, Literal, TypeAlias
 from pydantic import AfterValidator
 from rdkit.Chem import AddHs, AllChem, MolFromSmiles, MolToXYZBlock
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
+from rdkit.Chem.rdchem import Mol
 from rdkit.Chem.rdinchi import MolToInchi
 from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
 from rdkit.Contrib.efgs.efgs import get_dec_fgs
@@ -21,11 +22,11 @@ def validate_solvent(solvent: str) -> str:
     # raise ValueError(f"Invalid solvent name: {solvent}.")
 
 
-def get_mol(smiles: str) -> str | None:
+def get_mol(smiles: str) -> Mol:
     """Get an rdkit molecule object from a SMILES string."""
     mol = MolFromSmiles(smiles)
     if mol is None:
-        return ValueError("Invalid SMILES string")
+        raise ValueError("Invalid SMILES string")
     return mol
 
 
@@ -94,11 +95,11 @@ Method: TypeAlias = Literal[
 ]
 
 # TODO: choose accepted values for computational fields
-SOLVENT_MODELS = []
-FUNCTIONALS = []
-BASIS_SETS = []
-DISPERSIONS = []
-FORCEFIELDS = []
+# SOLVENT_MODELS = []
+# FUNCTIONALS = []
+# BASIS_SETS = []
+# DISPERSIONS = []
+# FORCEFIELDS = []
 
 SOLVENT_ALIASES = {
     "dioxane": "1,4-dioxane",
