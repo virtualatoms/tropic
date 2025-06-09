@@ -8,17 +8,15 @@ class Settings(BaseSettings):
     """
     Settings for the tropic website.
 
-    The default way to modify these is to modify ~/.tropic.env or through
-    through environment variables by using the "TROPIC" prefix.
-    E.g. TROPIC_API_ENDPOINT="http://localhost:8000"
+    The default way to modify these is to set environment variables with the
+    "TROPIC_" prefix. E.g. TROPIC_API_ENDPOINT="http://localhost:8000"
     """
 
     API_ENDPOINT: str = Field(
         "http://localhost:8000",
         description="URL for the tropic API. This is used to fetch data for the website.",
     )
-
     REQUEST_TIMEOUT: int = Field(
         5, description="Number of seconds before API requests timeout."
     )
-    model_config = SettingsConfigDict(env_prefix="tropic_", env_file="~/.tropic.env")
+    model_config = SettingsConfigDict(env_prefix="TROPIC_")

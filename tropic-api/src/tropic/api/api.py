@@ -10,11 +10,10 @@ from fastapi_pagination import add_pagination
 from fastapi_pagination.ext.beanie import paginate
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from tropic.api import DATABASE_NAME, DATABASE_URL
+from tropic.api import SETTINGS
 from tropic.api.documents import MonomerSummaryDocument
 from tropic.api.filters import MonomerSummaryFilter
 from tropic.api.paginate import BigPage
-from tropic.core.models import MonomerSummary
 
 app = FastAPI(title="Polymerization API")
 add_pagination(app)
@@ -23,14 +22,14 @@ add_pagination(app)
 @app.on_event("startup")
 async def startup_event() -> None:
     """Initialize the Beanie ODM with the MongoDB client."""
-    client = AsyncIOMotorClient(DATABASE_URL)
+    client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
-        database=client[DATABASE_NAME],
+        database=client[SETTINGS.DATABASE_NAME],
         document_models=[MonomerSummaryDocument],
     )
 
 
-@app.get("/monomers", response_model=BigPage[MonomerSummary])
+@app.get("/monomers", response_model=BigPage[MonomerSummaryDocument])
 async def get_monomers(
     monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter),  # noqa: B008
 ) -> Any:
@@ -42,7 +41,7 @@ async def get_monomers(
 
 
 @app.get("/monomers/{monomer_id}")
-async def get_monomer(monomer_id: str) -> MonomerSummary:
+async def get_monomer(monomer_id: str) -> MonomerSummaryDocument:
     """Retrieve a specific monomer by its ID."""
     document = await MonomerSummaryDocument.find_one({"monomer_id": monomer_id})
     if not document:
@@ -52,4 +51,4 @@ async def get_monomer(monomer_id: str) -> MonomerSummary:
 
 def main() -> None:
     """Run the FastAPI application."""
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host=SETTINGS.API_HOST, port=SETTINGS.API_PORT)
