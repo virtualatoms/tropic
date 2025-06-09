@@ -19,7 +19,7 @@ This repository contains the packages for running the tropic website, API server
 
 ### Installation
 
-The TROPIC software is available as namespace packages on PyPI. This enables you to install only the specific portion of the software that you need. 
+The TROPIC software is available as namespace packages on PyPI. This enables you to install only the specific portion of the software that you need.
 For example, the TROPIC API client can be installed using.
 
 ```bash

@@ -6,11 +6,11 @@ from tropic.core.validate import (
     Smiles,
     Solvent,
     State,
+    get_func_groups,
+    get_inchi,
+    get_molecular_weight,
     get_ring_size,
     get_xyz,
-    get_molecular_weight,
-    get_func_groups,
-    get_inchi
 )
 
 
@@ -89,7 +89,9 @@ class Parameters(BaseModel):
     )
     monomer_state: State | None = Field(None, description="State of the monomer")
     polymer_state: State | None = Field(None, description="State of the polymer")
-    initiator_smiles: str | None = Field(None, description="Initiator of the polymerisation")
+    initiator_smiles: str | None = Field(
+        None, description="Initiator of the polymerisation"
+    )
     initial_monomer_conc: float | None = Field(
         None, description="Initial concentration of the monomer"
     )
@@ -102,12 +104,8 @@ class Parameters(BaseModel):
     method: Method | None = Field(None, description="Computational method used")
     functional: str | None = Field(None, description="DFT functional")
     basis_set: str | None = Field(None, description="Basis set")
-    dispersion: str | None = Field(
-        None, description="Dispersion correction method"
-    )
-    forcefield: str | None = Field(
-        None, description="Molecule dynamics force field"
-    )
+    dispersion: str | None = Field(None, description="Dispersion correction method")
+    forcefield: str | None = Field(None, description="Molecule dynamics force field")
     solvent_model: str | None = Field(None, description="Solvent model")
     state_summary: str = Field(
         description="Formatted summary of monomer-polymer states",
@@ -116,10 +114,18 @@ class Parameters(BaseModel):
 
 
 class Thermo(BaseModel):
-    delta_h: float | None = Field(None, description="Enthalpy of polymerisation (kJ/mol)")
-    delta_s: float | None = Field(None, description="Entropy of polymerisation (J/molK)")
-    delta_g: float | None = Field(None, description="Free energy of polymerisation (kJ/mol)")
-    ceiling_temperature: float | None = Field(None, description="Ceiling temperature in C")
+    delta_h: float | None = Field(
+        None, description="Enthalpy of polymerisation (kJ/mol)"
+    )
+    delta_s: float | None = Field(
+        None, description="Entropy of polymerisation (J/molK)"
+    )
+    delta_g: float | None = Field(
+        None, description="Free energy of polymerisation (kJ/mol)"
+    )
+    ceiling_temperature: float | None = Field(
+        None, description="Ceiling temperature in C"
+    )
 
 
 class Metadata(BaseModel):

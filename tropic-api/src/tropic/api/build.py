@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 from collections import defaultdict
-from csv import DictReader
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +35,9 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "iupac_name": iupac_name,
             "pubchem_cid": cid,
         },
-        "initiator": {"smiles": data["initiator_smiles"]} if data["initiator_smiles"] else {},
+        "initiator": {"smiles": data["initiator_smiles"]}
+        if data["initiator_smiles"]
+        else {},
         "product": {
             "smiles": data["polymer_smiles"],
             "repeating_units": data["repeating_units"],
@@ -116,15 +117,18 @@ async def clear_database(summaries_only: bool = False):
 
 
 async def parse_data() -> None:
-    import pandas as pd
     import numpy as np
+    import pandas as pd
+
     polys = []
     for input_file in Path("data").glob("input*.csv"):
-        df = pd.read_csv(input_file).replace({np.nan: None})
-        polys.extend([
-            PolymerisationDocument(**format_polymerisation_data(row))
-            for _, row in df.iterrows()
-        ])
+        data = pd.read_csv(input_file).replace({np.nan: None})
+        polys.extend(
+            [
+                PolymerisationDocument(**format_polymerisation_data(row))
+                for _, row in data.iterrows()
+            ]
+        )
 
     for i, poly in enumerate(polys):
         poly.polymerisation_id = f"poly-{i + 1}"
