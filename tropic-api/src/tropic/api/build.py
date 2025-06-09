@@ -1,9 +1,8 @@
-from __future__ import annotations
+"""Tool to rebuild the TROPIC database from CSV files."""
 
 import argparse
 import asyncio
 from collections import defaultdict
-from csv import DictReader
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +27,7 @@ install_cache(
 
 
 def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
+    """Format the polymerisation data into a structured dictionary."""
     iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
     return {
         "type": data["polymerisation_type"],
@@ -35,9 +35,10 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "smiles": data["monomer_smiles"],
             "iupac_name": iupac_name,
             "pubchem_cid": cid,
-            # "common_name": get_common_name(data["monomer_smiles"]),
         },
-        "initiator": {"smiles": data["initiator_smiles"]},
+        "initiator": {"smiles": data["initiator_smiles"]}
+        if data["initiator_smiles"]
+        else {},
         "product": {
             "smiles": data["polymer_smiles"],
             "repeating_units": data["repeating_units"],
@@ -79,7 +80,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
 
 
 def get_formatted_reference(doi: str) -> str | None:
-    """Formats the reference using the citation API."""
+    """Format the reference using the citation API."""
     if not doi:
         return None
 
@@ -94,7 +95,7 @@ def get_formatted_reference(doi: str) -> str | None:
 
 
 def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
-    """Fetches IUPAC name for a given SMILES string."""
+    """Fetch IUPAC name for a given SMILES string."""
     if not smiles:
         return None, None
 
@@ -110,36 +111,27 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     return properties.get("IUPACName"), properties.get("CID")
 
 
-# Common names are a bit wacky from pubchem, so we are not using them for now.
-# def get_common_name(smiles: str) -> str:
-#     """Fetches common name for a given SMILES string."""
-#     if not smiles:
-#         return None
-
-#     response = requests.get(
-#         f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/synonyms/JSON"
-#     )
-#     if response.status_code != 200:
-#         return None
-
-#     data = response.json()
-#     properties = data.get("InformationList", {}).get("Information", [{}])[0]
-#     print(properties.get("Synonym", [None]))
-#     return properties.get("Synonym", [None])[0]
-
-
-async def clear_database(summaries_only: bool = False):
+async def clear_database(summaries_only: bool = False) -> None:
+    """Clear the database, optionally only removing monomer summaries."""
     if not summaries_only:
         await PolymerisationDocument.find_all().delete()
     await MonomerSummaryDocument.find_all().delete()
 
 
 async def parse_data() -> None:
+    """Parse the input CSV files and create PolymerisationDocument instances."""
+    import numpy as np
+    import pandas as pd
+
     polys = []
     for input_file in Path("data").glob("input*.csv"):
-        with open(input_file) as fstream:
-            for data in DictReader(fstream):
-                polys.append(PolymerisationDocument(**format_polymerisation_data(data)))
+        data = pd.read_csv(input_file).replace({np.nan: None})
+        polys.extend(
+            [
+                PolymerisationDocument(**format_polymerisation_data(row))
+                for _, row in data.iterrows()
+            ]
+        )
 
     for i, poly in enumerate(polys):
         poly.polymerisation_id = f"poly-{i + 1}"
@@ -147,7 +139,8 @@ async def parse_data() -> None:
     await PolymerisationDocument.insert_many(polys)
 
 
-async def create_monomer_summaries():
+async def create_monomer_summaries() -> None:
+    """Create monomer summaries from the polymerisation data."""
     summaries = defaultdict(list)
     monomers = {}
     polymerisations = await PolymerisationDocument.find_all().to_list()
@@ -184,7 +177,8 @@ async def create_monomer_summaries():
     await MonomerSummaryDocument.insert_many(monomer_summaries)
 
 
-async def rebuild_db(summaries_only: bool = False):
+async def rebuild_db(summaries_only: bool = False) -> None:
+    """Rebuild the TROPIC database, optionally only creating monomer summaries."""
     client = AsyncIOMotorClient(DATABASE_URL)
     await init_beanie(
         database=client[DATABASE_NAME],
@@ -198,7 +192,8 @@ async def rebuild_db(summaries_only: bool = False):
     await create_monomer_summaries()
 
 
-def main():
+def main() -> None:
+    """Entry point for the build script."""
     parser = argparse.ArgumentParser(description="Rebuild the TROPIC database.")
     parser.add_argument(
         "-s",
