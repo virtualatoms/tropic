@@ -35,9 +35,8 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "smiles": data["monomer_smiles"],
             "iupac_name": iupac_name,
             "pubchem_cid": cid,
-            # "common_name": get_common_name(data["monomer_smiles"]),
         },
-        "initiator": {"smiles": data["initiator_smiles"]},
+        "initiator": {"smiles": data["initiator_smiles"]} if data["initiator_smiles"] else {},
         "product": {
             "smiles": data["polymer_smiles"],
             "repeating_units": data["repeating_units"],
@@ -110,24 +109,6 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     return properties.get("IUPACName"), properties.get("CID")
 
 
-# Common names are a bit wacky from pubchem, so we are not using them for now.
-# def get_common_name(smiles: str) -> str:
-#     """Fetches common name for a given SMILES string."""
-#     if not smiles:
-#         return None
-
-#     response = requests.get(
-#         f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/synonyms/JSON"
-#     )
-#     if response.status_code != 200:
-#         return None
-
-#     data = response.json()
-#     properties = data.get("InformationList", {}).get("Information", [{}])[0]
-#     print(properties.get("Synonym", [None]))
-#     return properties.get("Synonym", [None])[0]
-
-
 async def clear_database(summaries_only: bool = False):
     if not summaries_only:
         await PolymerisationDocument.find_all().delete()
@@ -135,11 +116,15 @@ async def clear_database(summaries_only: bool = False):
 
 
 async def parse_data() -> None:
+    import pandas as pd
+    import numpy as np
     polys = []
     for input_file in Path("data").glob("input*.csv"):
-        with open(input_file) as fstream:
-            for data in DictReader(fstream):
-                polys.append(PolymerisationDocument(**format_polymerisation_data(data)))
+        df = pd.read_csv(input_file).replace({np.nan: None})
+        polys.extend([
+            PolymerisationDocument(**format_polymerisation_data(row))
+            for _, row in df.iterrows()
+        ])
 
     for i, poly in enumerate(polys):
         poly.polymerisation_id = f"poly-{i + 1}"
