@@ -70,16 +70,20 @@ class Product(BaseModel):
         description="Number of repeating monomer units in the polymer chain",
     )
     deg_of_poly: float | None = Field(
-        None, description="average number of monomer units per polymer"
+        None,
+        description="average number of monomer units per polymer",
     )
     dispersity: float | None = Field(
-        None, description="measure of the molar mass distribution of the polymer"
+        None,
+        description="measure of the molar mass distribution of the polymer",
     )
     n_avg_molar_mass: float | None = Field(
-        None, description="arithmetic mean of the molar masses of the polymers"
+        None,
+        description="arithmetic mean of the molar masses of the polymers",
     )
     m_avg_molar_mass: float | None = Field(
-        None, description="measure of the molar mass of the polymer"
+        None,
+        description="measure of the molar mass of the polymer",
     )
 
 
@@ -90,24 +94,30 @@ class Parameters(BaseModel):
         description="Whether the reaction is experimental or computational",
     )
     temperature: float | None = Field(
-        None, description="Temperature of the polymerisation in C"
+        None,
+        description="Temperature of the polymerisation in C",
     )
     pressure: float | None = Field(
-        None, description="Pressure of the polymerisation (if not standard)"
+        None,
+        description="Pressure of the polymerisation (if not standard)",
     )
     monomer_state: State | None = Field(None, description="State of the monomer")
     polymer_state: State | None = Field(None, description="State of the polymer")
     initiator_smiles: str | None = Field(
-        None, description="Initiator of the polymerisation"
+        None,
+        description="Initiator of the polymerisation",
     )
     initial_monomer_conc: float | None = Field(
-        None, description="Initial concentration of the monomer"
+        None,
+        description="Initial concentration of the monomer",
     )
     bulk_monomer_conc: float | None = Field(
-        None, description="Bulk concentration of the monomer"
+        None,
+        description="Bulk concentration of the monomer",
     )
     solvent: Solvent | None = Field(
-        None, description="Solvent that the polymerisation is conducted within"
+        None,
+        description="Solvent that the polymerisation is conducted within",
     )
     method: Method | None = Field(None, description="Computational method used")
     functional: str | None = Field(None, description="DFT functional")
@@ -125,16 +135,20 @@ class Thermo(BaseModel):
     """Model representing thermodynamic data for a polymerisation."""
 
     delta_h: float | None = Field(
-        None, description="Enthalpy of polymerisation (kJ/mol)"
+        None,
+        description="Enthalpy of polymerisation (kJ/mol)",
     )
     delta_s: float | None = Field(
-        None, description="Entropy of polymerisation (J/molK)"
+        None,
+        description="Entropy of polymerisation (J/molK)",
     )
     delta_g: float | None = Field(
-        None, description="Free energy of polymerisation (kJ/mol)"
+        None,
+        description="Free energy of polymerisation (kJ/mol)",
     )
     ceiling_temperature: float | None = Field(
-        None, description="Ceiling temperature in C"
+        None,
+        description="Ceiling temperature in C",
     )
 
 
@@ -155,7 +169,8 @@ class Polymerisation(BaseModel):
     """Model representing a polymerisation in the TROPIC database."""
 
     polymerisation_id: str = Field(
-        "poly-0", description="unique display id for the polymerisation"
+        "poly-0",
+        description="unique display id for the polymerisation",
     )
     type: PolymerisationType = Field(description="Type of polymerisation")
     monomer: Monomer = Field(description="Monomer of the polymerisation")
@@ -179,25 +194,25 @@ class DataRow(BaseModel):
         description="Formatted summary of monomer-polymer states",
     )
     initial_monomer_conc: float | None = Field(
-        description="Initial concentration of the monomer"
+        description="Initial concentration of the monomer",
     )
     bulk_monomer_conc: float | None = Field(
-        description="bulk concentration of the monomer"
+        description="bulk concentration of the monomer",
     )
     solvent: str | None = Field(
-        description="Solvent that the polymerisation is conducted within"
+        description="Solvent that the polymerisation is conducted within",
     )
     delta_h: float | None = Field(
-        description="Change in enthalpy (ΔH) for the polymerization reaction"
+        description="Change in enthalpy (ΔH) for the polymerization reaction",
     )
     delta_s: float | None = Field(
-        description="Change in entropy (ΔS) for the polymerization reaction"
+        description="Change in entropy (ΔS) for the polymerization reaction",
     )
     repeating_units: int | None = Field(
-        description="Number of repeating monomer units in the polymer chain"
+        description="Number of repeating monomer units in the polymer chain",
     )
     method: str | None = Field(
-        description="Computational method used for the polymerisation"
+        description="Computational method used for the polymerisation",
     )
     ceiling_temperature: float | None = Field(description="Ceiling temperature in K")
     year: int | None = Field(description="Year of publication")

@@ -1,7 +1,5 @@
 """Central starting point for the Tropic API."""
 
-from typing import Any
-
 import uvicorn
 from beanie import init_beanie
 from fastapi import FastAPI, HTTPException
@@ -32,7 +30,7 @@ async def startup_event() -> None:
 @app.get("/monomers", response_model=BigPage[MonomerSummaryDocument])
 async def get_monomers(
     monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter),  # noqa: B008
-) -> Any:
+) -> list[MonomerSummaryDocument]:
     """Retrieve a paginated list of monomers with optional filtering."""
     query = monomer_filter.filter(MonomerSummaryDocument.find({}))
     query = monomer_filter.sort(query)

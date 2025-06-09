@@ -88,7 +88,7 @@ def get_formatted_reference(doi: str) -> str | None:
         f"https://citation.doi.org/format?doi={doi}&style=royal-society-of-chemistry&lang=en-US",
         timeout=5,
     )
-    if response.status_code != 200:
+    if response.status_code != requests.codes.OK:
         return None
 
     return response.text.strip()[2:-1]
@@ -103,7 +103,7 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
         f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{smiles}/property/IUPACName/JSON",
         timeout=5,
     )
-    if response.status_code != 200:
+    if response.status_code != requests.codes.OK:
         return None, None
 
     data = response.json()
@@ -130,7 +130,7 @@ async def parse_data() -> None:
             [
                 PolymerisationDocument(**format_polymerisation_data(row))
                 for _, row in data.iterrows()
-            ]
+            ],
         )
 
     for i, poly in enumerate(polys):

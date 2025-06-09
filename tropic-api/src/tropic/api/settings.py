@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     """
 
     DATABASE_URL: str = Field(
-        "mongodb://localhost:27017", description="URL for the MongoDB database."
+        "mongodb://localhost:27017",
+        description="URL for the MongoDB database.",
     )
     DATABASE_NAME: str = Field("tropic", description="Name of the MongoDB database.")
     API_HOST: str = Field("127.0.0.1", description="Host for the API server.")
