@@ -1,5 +1,7 @@
 """Filters for the API."""
 
+from typing import ClassVar
+
 from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.beanie import Filter
 
@@ -20,7 +22,7 @@ class MonomerFilter(Filter):
     has_exp: bool | None = None
     has_calc: bool | None = None
     search: str | None = None
-    order_by: list[str] = ("smiles",)
+    order_by: ClassVar[list[str]] = ["smiles"]
 
     class Constants(Filter.Constants):
         """Settings for the Monomer filter."""
@@ -37,7 +39,7 @@ class MonomerSummaryFilter(Filter):
     has_exp: bool | None = None
     has_calc: bool | None = None
     search: str | None = None
-    order_by: list[str] = ("monomer_id",)
+    order_by: ClassVar[list[str]] = ["monomer_id"]
 
     class Constants(Filter.Constants):
         """Settings for the MonomerSummary filter."""

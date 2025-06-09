@@ -33,10 +33,10 @@ repos:
   rev: v1.14.1
   hooks:
   - id: mypy
-    files: ^tropic-core/src/
+    files: ^tropic-core/src/|^tropic-api/src/
     additional_dependencies:
     - tokenize-rt==4.1.0
-    - types-paramiko
+    - types-requests
 - repo: https://github.com/codespell-project/codespell
   rev: v2.4.0
   hooks:
