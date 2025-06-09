@@ -1,3 +1,5 @@
+"""Definition of TROPIC data models."""
+
 from pydantic import BaseModel, Field
 
 from tropic.core.validate import (
@@ -15,6 +17,8 @@ from tropic.core.validate import (
 
 
 class Monomer(BaseModel):
+    """Model representing a monomer in the TROPIC database."""
+
     smiles: Smiles = Field(
         description="SMILES notation representing the molecular structure",
     )
@@ -55,13 +59,15 @@ class Monomer(BaseModel):
 
 
 class Product(BaseModel):
+    """Model representing a polymer product in the TROPIC database."""
+
     smiles: str | None = Field(
         None,
         description="Big SMILES notation representing the polymer",
     )
     repeating_units: int | None = Field(
         None,
-        description="Number of repeating monomer units in the computational polymer chain/ring",
+        description="Number of repeating monomer units in the polymer chain",
     )
     deg_of_poly: float | None = Field(
         None, description="average number of monomer units per polymer"
@@ -78,8 +84,10 @@ class Product(BaseModel):
 
 
 class Parameters(BaseModel):
+    """Model representing experimental/computational parameters of a polymerisation."""
+
     is_experimental: bool = Field(
-        description="Flag indicating whether the reaction is experimental (True) or computational (False)",
+        description="Whether the reaction is experimental or computational",
     )
     temperature: float | None = Field(
         None, description="Temperature of the polymerisation in C"
@@ -109,11 +117,13 @@ class Parameters(BaseModel):
     solvent_model: str | None = Field(None, description="Solvent model")
     state_summary: str = Field(
         description="Formatted summary of monomer-polymer states",
-        default_factory=lambda data: f"{data['monomer_state'] or 'x'}-{data['polymer_state'] or 'x'}",
+        default_factory=lambda data: f"{data.get('monomer_state', 'x')}-{data.get('polymer_state', 'x')}",  # noqa: E501
     )
 
 
 class Thermo(BaseModel):
+    """Model representing thermodynamic data for a polymerisation."""
+
     delta_h: float | None = Field(
         None, description="Enthalpy of polymerisation (kJ/mol)"
     )
@@ -129,6 +139,8 @@ class Thermo(BaseModel):
 
 
 class Metadata(BaseModel):
+    """Model representing metadata for a polymerisation."""
+
     year: int | None = Field(description="Year of publication")
     comment: str | None = Field(description="Additional comments or notes")
     doi: str | None = Field(description="Digital Object Identifier for the source")
@@ -140,6 +152,8 @@ class Metadata(BaseModel):
 
 
 class Polymerisation(BaseModel):
+    """Model representing a polymerisation in the TROPIC database."""
+
     polymerisation_id: str = Field(
         "poly-0", description="unique display id for the polymerisation"
     )
@@ -152,12 +166,14 @@ class Polymerisation(BaseModel):
 
 
 class DataRow(BaseModel):
+    """Model representing a single row of data in a polymerisation summary table."""
+
     type: PolymerisationType = Field(description="Type of polymerisation")
     polymerisation_id: str = Field(
         description="Unique display id for the polymerisation",
     )
     is_experimental: bool = Field(
-        description="Flag indicating whether the reaction is experimental (True) or computational (False)",
+        description="Whether the reaction is experimental or computational",
     )
     state_summary: str = Field(
         description="Formatted summary of monomer-polymer states",
@@ -178,7 +194,7 @@ class DataRow(BaseModel):
         description="Change in entropy (ΔS) for the polymerization reaction"
     )
     repeating_units: int | None = Field(
-        description="Number of repeating monomer units in the computational polymer chain/ring"
+        description="Number of repeating monomer units in the polymer chain"
     )
     method: str | None = Field(
         description="Computational method used for the polymerisation"
@@ -190,10 +206,12 @@ class DataRow(BaseModel):
 
 
 class MonomerSummary(BaseModel):
-    monomer_id: str = Field(description="unique display id for the monomer summary")
-    monomer: Monomer = Field(description="corresponding monomer")
+    """Model representing a summary of monomers in the TROPIC database."""
+
+    monomer_id: str = Field(description="Unique display id for the monomer summary")
+    monomer: Monomer = Field(description="Corresponding monomer")
     data: list[DataRow] = Field(
-        description="table of data where each row corresponds to a polymerisation (for display purposes)",
+        description="Table of data where each row corresponds to a polymerisation",
     )
     has_exp: bool = Field(
         description="Whether the molecule has experimental data",

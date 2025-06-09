@@ -1,3 +1,5 @@
+"""Validation functions for chemical properties and structures."""
+
 from typing import Annotated, Literal, TypeAlias
 
 from pydantic import AfterValidator
@@ -9,7 +11,7 @@ from rdkit.Contrib.efgs.efgs import get_dec_fgs
 
 
 def validate_solvent(solvent: str) -> str:
-    """Validates and normalizes solvent names."""
+    """Validate and normalize solvent names."""
     if solvent in CANONICAL_SOLVENTS:
         return solvent
     if solvent in SOLVENT_ALIASES:
@@ -20,7 +22,7 @@ def validate_solvent(solvent: str) -> str:
 
 
 def get_mol(smiles: str) -> str | None:
-    """Returns a molecule object from a SMILES string."""
+    """Get an rdkit molecule object from a SMILES string."""
     mol = MolFromSmiles(smiles)
     if mol is None:
         return ValueError("Invalid SMILES string")
@@ -28,7 +30,7 @@ def get_mol(smiles: str) -> str | None:
 
 
 def get_ring_size(smiles: str) -> int | None:
-    """Calculates the size of the largest ring in a molecule given its SMILES."""
+    """Get the size of the largest ring in a molecule."""
     mol = get_mol(smiles)
     ring_info = mol.GetRingInfo()
     n_atoms = mol.GetNumAtoms()
@@ -39,24 +41,24 @@ def get_ring_size(smiles: str) -> int | None:
 
 
 def get_xyz(smiles: str) -> str:
-    """Generates XYZ coordinates for a molecule given its SMILES."""
+    """Generate XYZ coordinates for a molecule."""
     mol = AddHs(get_mol(smiles))
     AllChem.EmbedMolecule(mol)
     return MolToXYZBlock(mol)
 
 
 def get_inchi(smiles: str) -> str:
-    """Generates InChI for a molecule given its SMILES."""
+    """Get InChI key for a molecule."""
     return MolToInchi(get_mol(smiles))
 
 
 def get_molecular_weight(smiles: str) -> float:
-    """Calculates the molecular weight of a molecule given its SMILES."""
+    """Calculate the molecular weight of a molecule."""
     return CalcExactMolWt(get_mol(smiles))
 
 
 def get_func_groups(smiles: str) -> list[str]:
-    """Extracts functional groups from a molecule given its SMILES."""
+    """Extract functional groups from a molecule."""
     return get_dec_fgs(get_mol(smiles))[2]
 
 
