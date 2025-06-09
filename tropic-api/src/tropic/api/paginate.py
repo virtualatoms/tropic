@@ -1,3 +1,5 @@
+"""Pagination configuration for FastAPI."""
+
 from typing import TypeVar
 
 from fastapi import Query

@@ -16,9 +16,9 @@ def validate_solvent(solvent: str) -> str:
         return solvent
     if solvent in SOLVENT_ALIASES:
         return SOLVENT_ALIASES[solvent]
-    raise ValueError(
-        f"Invalid solvent name: {solvent}. Must be one of {CANONICAL_SOLVENTS}."
-    )
+    return solvent
+    # For now, we return the solvent as is.
+    # raise ValueError(f"Invalid solvent name: {solvent}.")
 
 
 def get_mol(smiles: str) -> str | None:

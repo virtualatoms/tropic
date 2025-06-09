@@ -1,3 +1,5 @@
+"""Filters for the API."""
+
 from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.beanie import Filter
 
@@ -6,6 +8,8 @@ from tropic.core.models import Monomer
 
 
 class MonomerFilter(Filter):
+    """Filter for monomers based on various criteria."""
+
     smiles: str | None = None
     smiles__in: list[str] | None = None
     molecular_weight__lte: float | None = None
@@ -16,21 +20,27 @@ class MonomerFilter(Filter):
     has_exp: bool | None = None
     has_calc: bool | None = None
     search: str | None = None
-    order_by: list[str] = ["smiles"]
+    order_by: list[str] = ("smiles",)
 
     class Constants(Filter.Constants):
+        """Settings for the Monomer filter."""
+
         model = Monomer
 
 
 class MonomerSummaryFilter(Filter):
+    """Filter for monomer summaries based on various criteria."""
+
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
     monomer_id: str | None = None
     monomer_id__in: list[str] | None = None
     has_exp: bool | None = None
     has_calc: bool | None = None
     search: str | None = None
-    order_by: list[str] = ["monomer_id"]
+    order_by: list[str] = ("monomer_id",)
 
     class Constants(Filter.Constants):
+        """Settings for the MonomerSummary filter."""
+
         model = MonomerSummaryDocument
-        search_model_fields = ["monomer.smiles"]
+        search_model_fields = ("monomer.smiles",)
