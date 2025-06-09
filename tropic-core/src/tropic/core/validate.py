@@ -2,8 +2,8 @@ from typing import Annotated, Literal, TypeAlias
 
 from pydantic import AfterValidator
 from rdkit.Chem import AddHs, AllChem, MolFromSmiles, MolToXYZBlock
-from rdkit.Chem.rdinchi import MolToInchi
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
+from rdkit.Chem.rdinchi import MolToInchi
 from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
 from rdkit.Contrib.efgs.efgs import get_dec_fgs
 
@@ -14,7 +14,10 @@ def validate_solvent(solvent: str) -> str:
         return solvent
     if solvent in SOLVENT_ALIASES:
         return SOLVENT_ALIASES[solvent]
-    raise ValueError(f"Invalid solvent name: {solvent}. Must be one of {CANONICAL_SOLVENTS}.")
+    raise ValueError(
+        f"Invalid solvent name: {solvent}. Must be one of {CANONICAL_SOLVENTS}."
+    )
+
 
 def get_mol(smiles: str) -> str | None:
     """Returns a molecule object from a SMILES string."""
@@ -41,9 +44,11 @@ def get_xyz(smiles: str) -> str:
     AllChem.EmbedMolecule(mol)
     return MolToXYZBlock(mol)
 
+
 def get_inchi(smiles: str) -> str:
     """Generates InChI for a molecule given its SMILES."""
     return MolToInchi(get_mol(smiles))
+
 
 def get_molecular_weight(smiles: str) -> float:
     """Calculates the molecular weight of a molecule given its SMILES."""
@@ -53,6 +58,7 @@ def get_molecular_weight(smiles: str) -> float:
 def get_func_groups(smiles: str) -> list[str]:
     """Extracts functional groups from a molecule given its SMILES."""
     return get_dec_fgs(get_mol(smiles))[2]
+
 
 Smiles = Annotated[str, AfterValidator(StandardizeSmiles)]
 Solvent = Annotated[str, AfterValidator(validate_solvent)]
