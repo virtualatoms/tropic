@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 from rdkit.Chem import MolFromSmiles
 from rdkit.Chem.rdinchi import MolToInchi
 from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
+from rdkit.Contrib.efgs.efgs import get_dec_fgs
 
-from tropic.core.efgs import get_dec_fgs
 from tropic.core.validate import (
     EmptyStringToNone,
     Method,
