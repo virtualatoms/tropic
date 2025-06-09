@@ -4,8 +4,7 @@ from pydantic import AfterValidator, BeforeValidator
 from rdkit.Chem import AddHs, AllChem, MolFromSmiles, MolToXYZBlock
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
 
-from tropic.core.constants import METHODS, POLY_TYPES, STATES
-from tropic.core.solvents import CANONICAL_SOLVENTS, SOLVENT_ALIASES
+from tropic.core.constants import METHODS, POLY_TYPES, STATES, CANONICAL_SOLVENTS, SOLVENT_ALIASES
 
 
 def validate_solvent(solvent: Optional[str]) -> Optional[str]:
