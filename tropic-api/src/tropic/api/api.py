@@ -9,8 +9,8 @@ from fastapi_pagination.ext.beanie import paginate
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
-from tropic.api.documents import MonomerSummaryDocument
-from tropic.api.filters import MonomerSummaryFilter
+from tropic.api.documents import PolymerisationDocument, MonomerDocument, MonomerSummary
+from tropic.api.filters import PolymerisationFilter
 from tropic.api.paginate import BigPage
 
 app = FastAPI(title="Polymerization API")
@@ -23,28 +23,105 @@ async def startup_event() -> None:
     client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
-        document_models=[MonomerSummaryDocument],
+        document_models=[PolymerisationDocument, MonomerDocument],  # noqa: B008
     )
 
 
-@app.get("/monomers", response_model=BigPage[MonomerSummaryDocument])
-async def get_monomers(
-    monomer_filter: MonomerSummaryFilter = FilterDepends(MonomerSummaryFilter),  # noqa: B008
-) -> list[MonomerSummaryDocument]:
-    """Retrieve a paginated list of monomers with optional filtering."""
-    query = monomer_filter.filter(MonomerSummaryDocument.find({}))
-    query = monomer_filter.sort(query)
-    query = query.find(fetch_links=False)
-    return await paginate(query)
+@app.get("/polymerisations")
+async def get_polymerisations(
+    polymerisation_filter: PolymerisationFilter = FilterDepends(PolymerisationFilter),  # noqa: B008
+) -> list[PolymerisationDocument]:
+    """Retrieve a paginated list of polymerisations with optional filtering."""
+    query = polymerisation_filter.filter(PolymerisationDocument.find({}))
+    query = query.find(fetch_links=True)
+    return await query.to_list()
 
 
-@app.get("/monomers/{monomer_id}")
-async def get_monomer(monomer_id: str) -> MonomerSummaryDocument:
-    """Retrieve a specific monomer by its ID."""
-    document = await MonomerSummaryDocument.find_one({"monomer_id": monomer_id})
+@app.get("/poymerisations/{polymer_id}")
+async def get_polymerisations(polymerisation_id: str) -> PolymerisationDocument:
+    """Retrieve a paginated list of polymerisations with optional filtering."""
+    document = await PolymerisationDocument.find_one({"polymerisation_id": polymerisation_id}, fetch_links=True)
     if not document:
-        raise HTTPException(status_code=404, detail="Monomer not found")
+        raise HTTPException(status_code=404, detail="Polymerisation not found")
     return document
+
+
+@app.get("/monomer-summaries", response_model=BigPage)
+async def get_monomers(
+    polymerisation_filter: PolymerisationFilter = FilterDepends(PolymerisationFilter),  # noqa: B008
+):
+    """Retrieve monomer summaries."""
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$monomer.smiles",
+                "monomer": {
+                    "$first": {
+                        "monomer_id": "$monomer.monomer_id",
+                        "smiles": "$monomer.smiles",
+                        "ring_size": "$monomer.ring_size",
+                    }
+                },
+                "has_exp": {"$max": "$parameters.is_experimental"},
+                "has_calc": {"$max": {"$not": "$parameters.is_experimental"}},
+            }
+        },
+        {"$sort": {"monomer.monomer_id": 1}},
+        {"$project": {"_id": 0}}
+    ]
+    query = polymerisation_filter.filter(PolymerisationDocument.find({}))
+    return await paginate(query.aggregate(pipeline))
+
+
+@app.get("/monomer-summaries/{monomer_id}")
+async def get_monomer(monomer_id: str):
+    """Retrieve a specific monomer by its ID."""
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$monomer.smiles",
+                "has_exp": {"$max": "$parameters.is_experimental"},
+                "has_calc": {"$max": {"$not": "$parameters.is_experimental"}},
+                "monomer": {
+                    "$first": {
+                        "monomer_id": "$monomer.monomer_id", 
+                        "smiles": "$monomer.smiles",
+                        "inchi": "$monomer.inchi",
+                        "molecular_weight": "$monomer.molecular_weight",
+                        "functional_groups": "$monomer.functional_groups",
+                        "iupac_name": "$monomer.iupac_name",
+                        "pubchem_cid": "$monomer.pubchem_cid",
+                        "ring_size": "$monomer.ring_size",
+                        "xyz": "$monomer.xyz",
+                    }
+                },
+                "data": {
+                    "$push": {
+                        "type": "$type",
+                        "polymerisation_id": "$polymerisation_id",
+                        "is_experimental": "$parameters.is_experimental",
+                        "state_summary": "$parameters.state_summary",
+                        "initial_monomer_conc": "$parameters.initial_monomer_conc",
+                        "bulk_monomer_conc": "$parameters.bulk_monomer_conc",
+                        "medium": "$parameters.medium",
+                        "repeating_units": "$product.repeating_units",
+                        "delta_h": "$thermo.delta_h",
+                        "delta_s": "$thermo.delta_s",
+                        "ceiling_temperature": "$thermo.ceiling_temperature",
+                        "method": "$parameters.method",
+                        "year": "$metadata.year",
+                        "doi": "$metadata.doi",
+                        "formatted_reference": "$metadata.formatted_reference",
+                    }
+                }
+            }
+        },
+    ]
+    query = PolymerisationDocument.find({"monomer.monomer_id": monomer_id}, fetch_links=True)
+    documents = await query.aggregate(pipeline).to_list()
+    if not documents:
+        raise HTTPException(status_code=404, detail="Monomer not found")
+    return documents[0]
 
 
 def main() -> None:

@@ -64,7 +64,7 @@ def get_func_groups(smiles: str) -> list[str]:
 
 
 Smiles = Annotated[str, AfterValidator(StandardizeSmiles)]
-Solvent = Annotated[str, AfterValidator(validate_solvent)]
+Medium = Annotated[str, AfterValidator(validate_solvent)]
 
 # ROP: Ring-Opening Polymerisation (monomer -> polymer, no end groups)
 # ROR: Ring-Opening Reaction (monomer -> polymer, with end groups)

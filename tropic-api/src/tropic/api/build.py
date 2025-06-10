@@ -2,18 +2,17 @@
 
 import argparse
 import asyncio
-from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
 import requests
-from beanie import init_beanie
+from beanie import init_beanie, WriteRules
 from motor.motor_asyncio import AsyncIOMotorClient
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
+from tqdm import tqdm
 
 from tropic.api import SETTINGS
-from tropic.api.documents import MonomerSummaryDocument, PolymerisationDocument
-from tropic.core.models import DataRow
+from tropic.api.documents import PolymerisationDocument, MonomerDocument
 
 install_cache(
     "doi_cache",
@@ -26,59 +25,70 @@ install_cache(
 )
 
 
-def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
+def get_polymerisation_document(
+    data: dict[str, str], monomers: dict[str, MonomerDocument], polymerisation_id: int
+) -> dict[str, Any]:
     """Format the polymerisation data into a structured dictionary."""
-    iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
-    return {
-        "type": data["polymerisation_type"],
-        "monomer": {
-            "smiles": data["monomer_smiles"],
-            "iupac_name": iupac_name,
-            "pubchem_cid": cid,
-        },
-        "product": {
-            "smiles": data["polymer_smiles"],
-            "repeating_units": data["repeating_units"],
-            "dispersity": data["dispersity"],
-            "deg_of_poly": data["degree_of_polymerisation"],
-            "n_avg_molar_mass": data["number_average_molar_mass"],
-            "m_avg_molar_mass": data["mass_average_molar_mass"],
-        },
-        "parameters": {
-            "is_experimental": data["is_experimental"],
-            "temperature": data["temperature"],
-            "pressure": data["pressure"],
-            "solvent": data["solvent"],
-            "initiator": data["initiator_smiles"],
-            "initial_monomer_conc": data["initial_monomer_conc"],
-            "bulk_monomer_conc": data["bulk_monomer_conc"],
-            "monomer_state": data["monomer_state"],
-            "polymer_state": data["polymer_state"],
-            "solvent_model": data["solvent_model"],
-            "method": data["method"],
-            "functional": data["comp_functional"],
-            "basis_set": data["comp_basis_set"],
-            "dispersion": data["comp_dispersion"],
-            "forcefield": data["comp_forcefield"],
-        },
-        "thermo": {
-            "delta_h": data["delta_h"],
-            "delta_s": data["delta_s"],
-            "delta_g": data["delta_g"],
-            "ceiling_temperature": data["ceiling_temperature"],
-        },
-        "metadata": {
-            "year": data["date"],
-            "comment": data["comment"],
-            "doi": data["doi"],
-            "url": data["url"],
-            "formatted_reference": get_formatted_reference(data["doi"]),
-        },
-    }
+    if data["monomer_smiles"] not in monomers:
+        # iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
+        iupac_name = None
+        cid = None
+        monomers[data["monomer_smiles"]] = MonomerDocument(
+            smiles=data["monomer_smiles"],
+            iupac_name=iupac_name,
+            pubchem_cid=cid,
+            monomer_id=f"monomer-{len(monomers) + 1}",
+        )
+    return PolymerisationDocument(
+        **{
+            "polymerisation_id": f"poly-{polymerisation_id}",
+            "type": data["polymerisation_type"],
+            "monomer": monomers[data["monomer_smiles"]],  # use the existing monomer
+            "product": {
+                "smiles": data["polymer_smiles"],
+                "repeating_units": data["repeating_units"],
+                "dispersity": data["dispersity"],
+                "deg_of_poly": data["degree_of_polymerisation"],
+                "n_avg_molar_mass": data["number_average_molar_mass"],
+                "m_avg_molar_mass": data["mass_average_molar_mass"],
+            },
+            "parameters": {
+                "is_experimental": data["is_experimental"],
+                "temperature": data["temperature"],
+                "pressure": data["pressure"],
+                "solvent": data["solvent"],
+                "initiator": data["initiator_smiles"],
+                "initial_monomer_conc": data["initial_monomer_conc"],
+                "bulk_monomer_conc": data["bulk_monomer_conc"],
+                "monomer_state": data["monomer_state"],
+                "polymer_state": data["polymer_state"],
+                "solvent_model": data["solvent_model"],
+                "method": data["method"],
+                "functional": data["comp_functional"],
+                "basis_set": data["comp_basis_set"],
+                "dispersion": data["comp_dispersion"],
+                "forcefield": data["comp_forcefield"],
+            },
+            "thermo": {
+                "delta_h": data["delta_h"],
+                "delta_s": data["delta_s"],
+                "delta_g": data["delta_g"],
+                "ceiling_temperature": data["ceiling_temperature"],
+            },
+            "metadata": {
+                "year": data["date"],
+                "comment": data["comment"],
+                "doi": data["doi"],
+                "url": data["url"],
+                "formatted_reference": get_formatted_reference(data["doi"]),
+            },
+        }
+    )
 
 
 def get_formatted_reference(doi: str) -> str | None:
     """Format the reference using the citation API."""
+    return None
     if not doi:
         return None
 
@@ -108,86 +118,39 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     properties = data.get("PropertyTable", {}).get("Properties", [{}])[0]
     return properties.get("IUPACName"), properties.get("CID")
 
-
-async def clear_database(summaries_only: bool = False) -> None:
-    """Clear the database, optionally only removing monomer summaries."""
-    if not summaries_only:
-        await PolymerisationDocument.find_all().delete()
-    await MonomerSummaryDocument.find_all().delete()
-
-
-async def parse_data() -> None:
+async def create_polymerisations_monomers(monomers: dict[str, MonomerDocument]) -> None:
     """Parse the input CSV files and create PolymerisationDocument instances."""
     import numpy as np
     import pandas as pd
 
-    polys = []
-    for input_file in Path("data").glob("input*.csv"):
-        data = pd.read_csv(input_file).replace({np.nan: None})
-        polys.extend(
-            [
-                PolymerisationDocument(**format_polymerisation_data(row))
-                for _, row in data.iterrows()
-            ],
-        )
-
-    for i, poly in enumerate(polys):
-        poly.polymerisation_id = f"poly-{i + 1}"
-
-    await PolymerisationDocument.insert_many(polys)
+    all_files = Path("data").glob("input*.csv")
+    data = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+    data = data.replace({np.nan: None})
+    for polymerisation_id, row in tqdm(data.iterrows(), total=data.shape[0]):
+        poly = get_polymerisation_document(row, monomers, polymerisation_id + 1)
+        await poly.save(link_rule=WriteRules.WRITE)
+        
 
 
-async def create_monomer_summaries() -> None:
-    """Create monomer summaries from the polymerisation data."""
-    summaries = defaultdict(list)
-    monomers = {}
-    polymerisations = await PolymerisationDocument.find_all().to_list()
-    for poly in polymerisations:
-        row = DataRow(
-            type=poly.type,
-            polymerisation_id=poly.polymerisation_id,
-            is_experimental=poly.parameters.is_experimental,
-            state_summary=poly.parameters.state_summary,
-            initial_monomer_conc=poly.parameters.initial_monomer_conc,
-            bulk_monomer_conc=poly.parameters.bulk_monomer_conc,
-            solvent=poly.parameters.solvent,
-            delta_h=poly.thermo.delta_h,
-            delta_s=poly.thermo.delta_s,
-            ceiling_temperature=poly.thermo.ceiling_temperature,
-            year=poly.metadata.year,
-            doi=poly.metadata.doi,
-            repeating_units=poly.product.repeating_units,
-            method=poly.parameters.method,
-            formatted_reference=poly.metadata.formatted_reference,
-        )
-        summaries[poly.monomer.smiles].append(row)
-        monomers[poly.monomer.smiles] = poly.monomer
-
-    monomer_summaries = []
-    for i, (monomer_smiles, monomer) in enumerate(monomers.items()):
-        monomer_summary = MonomerSummaryDocument(
-            monomer_id=f"monomer-{i + 1}",
-            monomer=monomer,
-            data=summaries[monomer_smiles],
-        )
-        monomer_summaries.append(monomer_summary)
-
-    await MonomerSummaryDocument.insert_many(monomer_summaries)
-
-
-async def rebuild_db(summaries_only: bool = False) -> None:
-    """Rebuild the TROPIC database, optionally only creating monomer summaries."""
+async def build_db(skip_monomers: bool = False) -> None:
+    """Rebuild the TROPIC database."""
     client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
-        document_models=[MonomerSummaryDocument, PolymerisationDocument],
+        document_models=[PolymerisationDocument, MonomerDocument],
     )
-    await clear_database(summaries_only=summaries_only)
 
-    if not summaries_only:
-        await parse_data()
+    if not skip_monomers:
+        await MonomerDocument.find_all().delete()
+    await PolymerisationDocument.find_all().delete()
 
-    await create_monomer_summaries()
+    monomers = {
+        monomer.smiles: monomer for monomer 
+        in await MonomerDocument.find_all().to_list()
+    }
+
+    await create_polymerisations_monomers(monomers)
+
 
 
 def main() -> None:
@@ -195,9 +158,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Rebuild the TROPIC database.")
     parser.add_argument(
         "-s",
-        "--summaries-only",
+        "--skip-monomers",
         action="store_true",
-        help="Rebuild the monomer summaries only.",
+        help="Skip rebuilding the monomers.",
     )
     args = parser.parse_args()
-    asyncio.run(rebuild_db(args.summaries_only))
+    asyncio.run(build_db(args.skip_monomers))

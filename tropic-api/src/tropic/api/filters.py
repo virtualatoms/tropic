@@ -5,8 +5,7 @@ from typing import ClassVar
 from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.beanie import Filter
 
-from tropic.api.documents import MonomerSummaryDocument
-from tropic.core.models import Monomer
+from tropic.core.models import Monomer, Product, Parameters, Thermo, Metadata, Polymerisation
 
 
 class MonomerFilter(Filter):
@@ -14,35 +13,131 @@ class MonomerFilter(Filter):
 
     smiles: str | None = None
     smiles__in: list[str] | None = None
+    monomer_id: str | None = None
+    monomer_id__in: list[str] | None = None
+    inchi: str | None = None
+    inchi__in: list[str] | None = None
     molecular_weight__lte: float | None = None
     molecular_weight__gte: float | None = None
     functional_groups__in: list[str] | None = None
+    iupac_name: str | None = None
+    iupac_name__in: list[str] | None = None
+    pubchem_cid: str | None = None
+    pubchem_cid__in: list[str] | None = None
     ring_size__lte: int | None = None
     ring_size__gte: int | None = None
-    has_exp: bool | None = None
-    has_calc: bool | None = None
-    search: str | None = None
-    order_by: ClassVar[list[str]] = ["smiles"]
 
     class Constants(Filter.Constants):
         """Settings for the Monomer filter."""
 
         model = Monomer
 
+class ProductFilter(Filter):
+    """Filter for monomers based on various criteria."""
 
-class MonomerSummaryFilter(Filter):
-    """Filter for monomer summaries based on various criteria."""
-
-    monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
-    monomer_id: str | None = None
-    monomer_id__in: list[str] | None = None
-    has_exp: bool | None = None
-    has_calc: bool | None = None
-    search: str | None = None
-    order_by: ClassVar[list[str]] = ["monomer_id"]
+    smiles: str | None = None
+    smiles__in: list[str] | None = None
+    repeating_units__lte: int | None = None
+    repeating_units__gte: int | None = None
+    repeating_units: int | None = None
+    deg_of_poly__lte: float | None = None
+    deg_of_poly__gte: float | None = None
+    dispersity__lte: float | None = None
+    dispersity__gte: float | None = None
+    n_avg_molar_mass__lte: float | None = None
+    n_avg_molar_mass__gte: float | None = None
+    m_avg_molar_mass__lte: float | None = None
+    m_avg_molar_mass__gte: float | None = None
 
     class Constants(Filter.Constants):
-        """Settings for the MonomerSummary filter."""
+        """Settings for the Monomer filter."""
 
-        model = MonomerSummaryDocument
-        search_model_fields = ("monomer.smiles",)
+        model = Product
+
+class ParametersFilter(Filter):
+    """Filter for polymerisation parameters based on various criteria."""
+
+    is_experimental: bool | None = None
+    is_experimental__in: list[bool] | None = None
+    temperature__lte: float | None = None
+    temperature__gte: float | None = None
+    pressure__lte: float | None = None
+    pressure__gte: float | None = None
+    monomer_state: str | None = None
+    monomer_state__in: list[str] | None = None
+    polymer_state: str | None = None
+    polymer_state__in: list[str] | None = None
+    initiator_smiles: str | None = None
+    initiator_smiles__in: list[str] | None = None
+    initial_monomer_conc__lte: float | None = None
+    initial_monomer_conc__gte: float | None = None
+    bulk_monomer_conc__lte: float | None = None
+    bulk_monomer_conc__gte: float | None = None
+    medium: str | None = None
+    medium__in: list[str] | None = None
+    method: str | None = None
+    method__in: list[str] | None = None
+    functional: str | None = None
+    functional__in: list[str] | None = None
+    basis_set: str | None = None
+    basis_set__in: list[str] | None = None
+    dispersion: str | None = None
+    dispersion__in: list[str] | None = None
+    forcefield: str | None = None
+    forcefield__in: list[str] | None = None
+    solvent_model: str | None = None
+    solvent_model__in: list[str] | None = None
+
+    class Constants(Filter.Constants):
+        """Settings for the Parameters filter."""
+
+        model = Parameters
+
+class ThermoFilter(Filter):
+    """Filter for polymerisation thermodynamic data based on various criteria."""
+
+    delta_h__lte: float | None = None
+    delta_h__gte: float | None = None
+    delta_s__lte: float | None = None
+    delta_s__gte: float | None = None
+    delta_g__lte: float | None = None
+    delta_g__gte: float | None = None
+    ceiling_temperature__lte: float | None = None
+    ceiling_temperature__gte: float | None = None
+
+    class Constants(Filter.Constants):
+        """Settings for the Thermo filter."""
+
+        model = Thermo
+
+class MetadataFilter(Filter):
+    """Filter for polymerisation metadata based on various criteria."""
+
+    year__lte: int | None = None
+    year__gte: int | None = None
+    doi: str | None = None
+    doi__in: list[str] | None = None
+
+    class Constants(Filter.Constants):
+        """Settings for the Metadata filter."""
+
+        model = Metadata
+
+class PolymerisationFilter(Filter):
+    """Filter for polymerisations based on various criteria."""
+
+    polymerisation_id: str | None = None
+    polymerisation_id__in: list[str] | None = None
+    type: str | None = None
+    type__in: list[str] | None = None
+    monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
+    product: ProductFilter | None = FilterDepends(with_prefix("product", ProductFilter))
+    parameters: ParametersFilter | None = FilterDepends(with_prefix("parameters", ParametersFilter))
+    thermo: ThermoFilter | None = FilterDepends(with_prefix("thermo", ThermoFilter))
+    metadata: MetadataFilter | None = FilterDepends(with_prefix("metadata", MetadataFilter))
+    order_by: ClassVar[list[str]] = ["polymerisation_id"]
+
+    class Constants(Filter.Constants):
+        """Settings for the Polymerisation filter."""
+
+        model = Polymerisation

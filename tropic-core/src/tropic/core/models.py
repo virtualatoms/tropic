@@ -6,7 +6,7 @@ from tropic.core.validate import (
     Method,
     PolymerisationType,
     Smiles,
-    Solvent,
+    Medium,
     State,
     get_func_groups,
     get_inchi,
@@ -19,30 +19,29 @@ from tropic.core.validate import (
 class Monomer(BaseModel):
     """Model representing a monomer in the TROPIC database."""
 
+    monomer_id: str = Field(
+        "monomer-0",
+        description="Unique display id for the monomer",
+    )
     smiles: Smiles = Field(
         description="SMILES notation representing the molecular structure",
     )
-
     inchi: str | None = Field(
         description="Inchi identifier for the molecule",
         default_factory=lambda data: get_inchi(data["smiles"]),
     )
-
     molecular_weight: float | None = Field(
         description="Molecular weight of the molecule in g/mol",
         default_factory=lambda data: get_molecular_weight(data["smiles"]),
     )
-
     functional_groups: list[str] | None = Field(
         description="Primary functional group of molecule",
         default_factory=lambda data: get_func_groups(data["smiles"]),
     )
-
     iupac_name: str | None = Field(
         None,
         description="IUPAC name of the molecule",
     )
-
     pubchem_cid: int | None = Field(
         None,
         description="PubChem Compound ID (CID) for the molecule",
@@ -51,7 +50,6 @@ class Monomer(BaseModel):
         description="Size of the ring in the monomer structure",
         default_factory=lambda data: get_ring_size(data["smiles"]),
     )
-
     xyz: str | None = Field(
         description="XYZ coordinates for the molecule",
         default_factory=lambda data: get_xyz(data["smiles"]),
@@ -115,9 +113,9 @@ class Parameters(BaseModel):
         None,
         description="Bulk concentration of the monomer",
     )
-    solvent: Solvent | None = Field(
+    medium: Medium | None = Field(
         None,
-        description="Solvent that the polymerisation is conducted within",
+        description="Medium that the polymerisation is conducted within",
     )
     method: Method | None = Field(None, description="Computational method used")
     functional: str | None = Field(None, description="DFT functional")
@@ -178,65 +176,3 @@ class Polymerisation(BaseModel):
     parameters: Parameters = Field(description="Experimental/Computational parameters")
     thermo: Thermo = Field(description="Thermodynamic data/results")
     metadata: Metadata = Field(description="Polymerisation references and metadata")
-
-
-class DataRow(BaseModel):
-    """Model representing a single row of data in a polymerisation summary table."""
-
-    type: PolymerisationType = Field(description="Type of polymerisation")
-    polymerisation_id: str = Field(
-        description="Unique display id for the polymerisation",
-    )
-    is_experimental: bool = Field(
-        description="Whether the reaction is experimental or computational",
-    )
-    state_summary: str = Field(
-        description="Formatted summary of monomer-polymer states",
-    )
-    initial_monomer_conc: float | None = Field(
-        description="Initial concentration of the monomer",
-    )
-    bulk_monomer_conc: float | None = Field(
-        description="bulk concentration of the monomer",
-    )
-    solvent: str | None = Field(
-        description="Solvent that the polymerisation is conducted within",
-    )
-    delta_h: float | None = Field(
-        description="Change in enthalpy (ΔH) for the polymerization reaction",
-    )
-    delta_s: float | None = Field(
-        description="Change in entropy (ΔS) for the polymerization reaction",
-    )
-    repeating_units: int | None = Field(
-        description="Number of repeating monomer units in the polymer chain",
-    )
-    method: str | None = Field(
-        description="Computational method used for the polymerisation",
-    )
-    ceiling_temperature: float | None = Field(description="Ceiling temperature in K")
-    year: int | None = Field(description="Year of publication")
-    doi: str | None = Field(description="DOI of publication")
-    formatted_reference: str | None = Field(description="Formatted reference string")
-
-
-class MonomerSummary(BaseModel):
-    """Model representing a summary of monomers in the TROPIC database."""
-
-    monomer_id: str = Field(description="Unique display id for the monomer summary")
-    monomer: Monomer = Field(description="Corresponding monomer")
-    data: list[DataRow] = Field(
-        description="Table of data where each row corresponds to a polymerisation",
-    )
-    has_exp: bool = Field(
-        description="Whether the molecule has experimental data",
-        default_factory=lambda data: any(
-            poly.is_experimental for poly in data.get("data", [])
-        ),
-    )
-    has_calc: bool = Field(
-        description="Whether the molecule has calculated data",
-        default_factory=lambda data: any(
-            not poly.is_experimental for poly in data.get("data", [])
-        ),
-    )

@@ -158,7 +158,7 @@ def update_table(tabs, rows_request, *filter_args):
 
     query = "&".join(query)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
     )
     results = response.json()
 
@@ -175,7 +175,7 @@ def update_table(tabs, rows_request, *filter_args):
         table_data.append(
             {
                 "structure": structure_cell,
-                "monomer_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="monomers/{result["monomer_id"]}">{result["monomer_id"]}</a>',
+                "monomer_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="monomers/{result["monomer"]["monomer_id"]}">{result["monomer"]["monomer_id"]}</a>',
                 "smiles": result["monomer"]["smiles"],
                 "ring_size": result["monomer"]["ring_size"],
                 "has_exp": yes_no_mapping[result["has_exp"]],
@@ -197,7 +197,7 @@ def update_chart(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=2)
     results = response.json()
 
     exp = []
@@ -245,7 +245,7 @@ def update_references(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=2)
     results = response.json()
 
     refs = {}
@@ -270,7 +270,7 @@ def export(n_clicks, file_type, *filter_args):
 
     query = _build_query(*filter_args)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
     )
     if response.status_code != 200:
         return no_update
@@ -316,7 +316,7 @@ def get_export_data(data, file_type):
             for row in item["data"]:
                 writer.writerow(
                     [
-                        item["monomer_id"],
+                        item["monomer"]["monomer_id"],
                         item["monomer"]["smiles"],
                         item["monomer"]["ring_size"],
                         row["type"],
@@ -375,10 +375,10 @@ def _build_query(smiles, ring_size_range, molecular_weight_range, has_comp, has_
         query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
 
     if has_comp != "both":
-        query.append(f"has_calc={has_comp == 'yes'}")
+        query.append(f"parameters__is_experimental={not (has_comp == 'yes')}")
 
     if has_exp != "both":
-        query.append(f"has_exp={has_exp == 'yes'}")
+        query.append(f"parameters__is_experimental={has_exp == 'yes'}")
 
     return "&".join(query)
 
