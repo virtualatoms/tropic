@@ -11,7 +11,7 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 
-from tropic.api import DATABASE_NAME, DATABASE_URL
+from tropic.api import SETTINGS
 from tropic.api.documents import MonomerSummaryDocument, PolymerisationDocument
 from tropic.core.models import DataRow
 
@@ -177,9 +177,9 @@ async def create_monomer_summaries() -> None:
 
 async def rebuild_db(summaries_only: bool = False) -> None:
     """Rebuild the TROPIC database, optionally only creating monomer summaries."""
-    client = AsyncIOMotorClient(DATABASE_URL)
+    client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
-        database=client[DATABASE_NAME],
+        database=client[SETTINGS.DATABASE_NAME],
         document_models=[MonomerSummaryDocument, PolymerisationDocument],
     )
     await clear_database(summaries_only=summaries_only)
