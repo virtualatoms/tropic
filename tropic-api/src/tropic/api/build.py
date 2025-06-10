@@ -36,9 +36,6 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "iupac_name": iupac_name,
             "pubchem_cid": cid,
         },
-        "initiator": {"smiles": data["initiator_smiles"]}
-        if data["initiator_smiles"]
-        else {},
         "product": {
             "smiles": data["polymer_smiles"],
             "repeating_units": data["repeating_units"],
@@ -52,6 +49,7 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "temperature": data["temperature"],
             "pressure": data["pressure"],
             "solvent": data["solvent"],
+            "initiator": data["initiator_smiles"],
             "initial_monomer_conc": data["initial_monomer_conc"],
             "bulk_monomer_conc": data["bulk_monomer_conc"],
             "monomer_state": data["monomer_state"],
