@@ -11,7 +11,6 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 
-from tropic.api import DATABASE_NAME, DATABASE_URL
 from tropic.api.documents import MonomerSummaryDocument, PolymerisationDocument
 from tropic.core.models import DataRow
 
@@ -36,9 +35,9 @@ def format_polymerisation_data(data: dict[str, str]) -> dict[str, Any]:
             "iupac_name": iupac_name,
             "pubchem_cid": cid,
         },
-        "initiator": {"smiles": data["initiator_smiles"]}
-        if data["initiator_smiles"]
-        else {},
+        "initiator": (
+            {"smiles": data["initiator_smiles"]} if data["initiator_smiles"] else {}
+        ),
         "product": {
             "smiles": data["polymer_smiles"],
             "repeating_units": data["repeating_units"],
