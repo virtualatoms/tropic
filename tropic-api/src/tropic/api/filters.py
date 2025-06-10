@@ -5,7 +5,14 @@ from typing import ClassVar
 from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.beanie import Filter
 
-from tropic.core.models import Monomer, Product, Parameters, Thermo, Metadata, Polymerisation
+from tropic.core.models import (
+    Metadata,
+    Monomer,
+    Parameters,
+    Polymerisation,
+    Product,
+    Thermo,
+)
 
 
 class MonomerFilter(Filter):
@@ -32,6 +39,7 @@ class MonomerFilter(Filter):
 
         model = Monomer
 
+
 class ProductFilter(Filter):
     """Filter for monomers based on various criteria."""
 
@@ -53,6 +61,7 @@ class ProductFilter(Filter):
         """Settings for the Monomer filter."""
 
         model = Product
+
 
 class ParametersFilter(Filter):
     """Filter for polymerisation parameters based on various criteria."""
@@ -93,6 +102,7 @@ class ParametersFilter(Filter):
 
         model = Parameters
 
+
 class ThermoFilter(Filter):
     """Filter for polymerisation thermodynamic data based on various criteria."""
 
@@ -110,6 +120,7 @@ class ThermoFilter(Filter):
 
         model = Thermo
 
+
 class MetadataFilter(Filter):
     """Filter for polymerisation metadata based on various criteria."""
 
@@ -123,6 +134,7 @@ class MetadataFilter(Filter):
 
         model = Metadata
 
+
 class PolymerisationFilter(Filter):
     """Filter for polymerisations based on various criteria."""
 
@@ -132,9 +144,13 @@ class PolymerisationFilter(Filter):
     type__in: list[str] | None = None
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
     product: ProductFilter | None = FilterDepends(with_prefix("product", ProductFilter))
-    parameters: ParametersFilter | None = FilterDepends(with_prefix("parameters", ParametersFilter))
+    parameters: ParametersFilter | None = FilterDepends(
+        with_prefix("parameters", ParametersFilter)
+    )
     thermo: ThermoFilter | None = FilterDepends(with_prefix("thermo", ThermoFilter))
-    metadata: MetadataFilter | None = FilterDepends(with_prefix("metadata", MetadataFilter))
+    metadata: MetadataFilter | None = FilterDepends(
+        with_prefix("metadata", MetadataFilter)
+    )
     order_by: ClassVar[list[str]] = ["polymerisation_id"]
 
     class Constants(Filter.Constants):

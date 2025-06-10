@@ -6,13 +6,13 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from beanie import init_beanie, WriteRules
+from beanie import WriteRules, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 from tqdm import tqdm
 
 from tropic.api import SETTINGS
-from tropic.api.documents import PolymerisationDocument, MonomerDocument
+from tropic.api.documents import MonomerDocument, PolymerisationDocument
 
 install_cache(
     "doi_cache",
@@ -26,7 +26,9 @@ install_cache(
 
 
 def get_polymerisation_document(
-    data: dict[str, str], monomers: dict[str, MonomerDocument], polymerisation_id: int
+    data: dict[str, str],
+    monomers: dict[str, MonomerDocument],
+    polymerisation_id: int,
 ) -> dict[str, Any]:
     """Format the polymerisation data into a structured dictionary."""
     if data["monomer_smiles"] not in monomers:
@@ -40,49 +42,47 @@ def get_polymerisation_document(
             monomer_id=f"monomer-{len(monomers) + 1}",
         )
     return PolymerisationDocument(
-        **{
-            "polymerisation_id": f"poly-{polymerisation_id}",
-            "type": data["polymerisation_type"],
-            "monomer": monomers[data["monomer_smiles"]],  # use the existing monomer
-            "product": {
-                "smiles": data["polymer_smiles"],
-                "repeating_units": data["repeating_units"],
-                "dispersity": data["dispersity"],
-                "deg_of_poly": data["degree_of_polymerisation"],
-                "n_avg_molar_mass": data["number_average_molar_mass"],
-                "m_avg_molar_mass": data["mass_average_molar_mass"],
-            },
-            "parameters": {
-                "is_experimental": data["is_experimental"],
-                "temperature": data["temperature"],
-                "pressure": data["pressure"],
-                "solvent": data["solvent"],
-                "initiator": data["initiator_smiles"],
-                "initial_monomer_conc": data["initial_monomer_conc"],
-                "bulk_monomer_conc": data["bulk_monomer_conc"],
-                "monomer_state": data["monomer_state"],
-                "polymer_state": data["polymer_state"],
-                "solvent_model": data["solvent_model"],
-                "method": data["method"],
-                "functional": data["comp_functional"],
-                "basis_set": data["comp_basis_set"],
-                "dispersion": data["comp_dispersion"],
-                "forcefield": data["comp_forcefield"],
-            },
-            "thermo": {
-                "delta_h": data["delta_h"],
-                "delta_s": data["delta_s"],
-                "delta_g": data["delta_g"],
-                "ceiling_temperature": data["ceiling_temperature"],
-            },
-            "metadata": {
-                "year": data["date"],
-                "comment": data["comment"],
-                "doi": data["doi"],
-                "url": data["url"],
-                "formatted_reference": get_formatted_reference(data["doi"]),
-            },
-        }
+        polymerisation_id=f"poly-{polymerisation_id}",
+        type=data["polymerisation_type"],
+        monomer=monomers[data["monomer_smiles"]],
+        product={
+            "smiles": data["polymer_smiles"],
+            "repeating_units": data["repeating_units"],
+            "dispersity": data["dispersity"],
+            "deg_of_poly": data["degree_of_polymerisation"],
+            "n_avg_molar_mass": data["number_average_molar_mass"],
+            "m_avg_molar_mass": data["mass_average_molar_mass"],
+        },
+        parameters={
+            "is_experimental": data["is_experimental"],
+            "temperature": data["temperature"],
+            "pressure": data["pressure"],
+            "solvent": data["solvent"],
+            "initiator": data["initiator_smiles"],
+            "initial_monomer_conc": data["initial_monomer_conc"],
+            "bulk_monomer_conc": data["bulk_monomer_conc"],
+            "monomer_state": data["monomer_state"],
+            "polymer_state": data["polymer_state"],
+            "solvent_model": data["solvent_model"],
+            "method": data["method"],
+            "functional": data["comp_functional"],
+            "basis_set": data["comp_basis_set"],
+            "dispersion": data["comp_dispersion"],
+            "forcefield": data["comp_forcefield"],
+        },
+        thermo={
+            "delta_h": data["delta_h"],
+            "delta_s": data["delta_s"],
+            "delta_g": data["delta_g"],
+            "ceiling_temperature": data["ceiling_temperature"],
+        },
+        metadata={
+            "year": data["date"],
+            "comment": data["comment"],
+            "doi": data["doi"],
+            "url": data["url"],
+            "formatted_reference": get_formatted_reference(data["doi"]),
+        },
     )
 
 
@@ -118,6 +118,7 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     properties = data.get("PropertyTable", {}).get("Properties", [{}])[0]
     return properties.get("IUPACName"), properties.get("CID")
 
+
 async def create_polymerisations_monomers(monomers: dict[str, MonomerDocument]) -> None:
     """Parse the input CSV files and create PolymerisationDocument instances."""
     import numpy as np
@@ -129,7 +130,6 @@ async def create_polymerisations_monomers(monomers: dict[str, MonomerDocument]) 
     for polymerisation_id, row in tqdm(data.iterrows(), total=data.shape[0]):
         poly = get_polymerisation_document(row, monomers, polymerisation_id + 1)
         await poly.save(link_rule=WriteRules.WRITE)
-        
 
 
 async def build_db(skip_monomers: bool = False) -> None:
@@ -145,12 +145,11 @@ async def build_db(skip_monomers: bool = False) -> None:
     await PolymerisationDocument.find_all().delete()
 
     monomers = {
-        monomer.smiles: monomer for monomer 
-        in await MonomerDocument.find_all().to_list()
+        monomer.smiles: monomer
+        for monomer in await MonomerDocument.find_all().to_list()
     }
 
     await create_polymerisations_monomers(monomers)
-
 
 
 def main() -> None:

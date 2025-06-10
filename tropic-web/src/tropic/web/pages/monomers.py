@@ -158,7 +158,8 @@ def update_table(tabs, rows_request, *filter_args):
 
     query = "&".join(query)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}",
+        timeout=SETTINGS.REQUEST_TIMEOUT,
     )
     results = response.json()
 
@@ -197,7 +198,9 @@ def update_chart(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=2)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=2
+    )
     results = response.json()
 
     exp = []
@@ -245,7 +248,9 @@ def update_references(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=2)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=2
+    )
     results = response.json()
 
     refs = {}
@@ -270,7 +275,8 @@ def export(n_clicks, file_type, *filter_args):
 
     query = _build_query(*filter_args)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}",
+        timeout=SETTINGS.REQUEST_TIMEOUT,
     )
     if response.status_code != 200:
         return no_update

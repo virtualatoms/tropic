@@ -9,7 +9,7 @@ from fastapi_pagination.ext.beanie import paginate
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
-from tropic.api.documents import PolymerisationDocument, MonomerDocument, MonomerSummary
+from tropic.api.documents import MonomerDocument, PolymerisationDocument
 from tropic.api.filters import PolymerisationFilter
 from tropic.api.paginate import BigPage
 
@@ -23,7 +23,7 @@ async def startup_event() -> None:
     client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
-        document_models=[PolymerisationDocument, MonomerDocument],  # noqa: B008
+        document_models=[PolymerisationDocument, MonomerDocument],
     )
 
 
@@ -40,7 +40,9 @@ async def get_polymerisations(
 @app.get("/poymerisations/{polymer_id}")
 async def get_polymerisations(polymerisation_id: str) -> PolymerisationDocument:
     """Retrieve a paginated list of polymerisations with optional filtering."""
-    document = await PolymerisationDocument.find_one({"polymerisation_id": polymerisation_id}, fetch_links=True)
+    document = await PolymerisationDocument.find_one(
+        {"polymerisation_id": polymerisation_id}, fetch_links=True
+    )
     if not document:
         raise HTTPException(status_code=404, detail="Polymerisation not found")
     return document
@@ -60,14 +62,14 @@ async def get_monomers(
                         "monomer_id": "$monomer.monomer_id",
                         "smiles": "$monomer.smiles",
                         "ring_size": "$monomer.ring_size",
-                    }
+                    },
                 },
                 "has_exp": {"$max": "$parameters.is_experimental"},
                 "has_calc": {"$max": {"$not": "$parameters.is_experimental"}},
-            }
+            },
         },
         {"$sort": {"monomer.monomer_id": 1}},
-        {"$project": {"_id": 0}}
+        {"$project": {"_id": 0}},
     ]
     query = polymerisation_filter.filter(PolymerisationDocument.find({}))
     return await paginate(query.aggregate(pipeline))
@@ -84,7 +86,7 @@ async def get_monomer(monomer_id: str):
                 "has_calc": {"$max": {"$not": "$parameters.is_experimental"}},
                 "monomer": {
                     "$first": {
-                        "monomer_id": "$monomer.monomer_id", 
+                        "monomer_id": "$monomer.monomer_id",
                         "smiles": "$monomer.smiles",
                         "inchi": "$monomer.inchi",
                         "molecular_weight": "$monomer.molecular_weight",
@@ -93,7 +95,7 @@ async def get_monomer(monomer_id: str):
                         "pubchem_cid": "$monomer.pubchem_cid",
                         "ring_size": "$monomer.ring_size",
                         "xyz": "$monomer.xyz",
-                    }
+                    },
                 },
                 "data": {
                     "$push": {
@@ -112,12 +114,14 @@ async def get_monomer(monomer_id: str):
                         "year": "$metadata.year",
                         "doi": "$metadata.doi",
                         "formatted_reference": "$metadata.formatted_reference",
-                    }
-                }
-            }
+                    },
+                },
+            },
         },
     ]
-    query = PolymerisationDocument.find({"monomer.monomer_id": monomer_id}, fetch_links=True)
+    query = PolymerisationDocument.find(
+        {"monomer.monomer_id": monomer_id}, fetch_links=True
+    )
     documents = await query.aggregate(pipeline).to_list()
     if not documents:
         raise HTTPException(status_code=404, detail="Monomer not found")

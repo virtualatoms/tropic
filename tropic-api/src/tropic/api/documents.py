@@ -1,9 +1,9 @@
 """Beanie documents for the API."""
 
-from beanie import Document
-from beanie import Link
-from pydantic import Field, BaseModel
-from tropic.core.models import Polymerisation, Monomer
+from beanie import Document, Link
+from pydantic import BaseModel, Field
+
+from tropic.core.models import Monomer, Polymerisation
 
 
 class MonomerDocument(Document, Monomer):

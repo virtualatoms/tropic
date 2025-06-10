@@ -3,10 +3,10 @@
 from pydantic import BaseModel, Field
 
 from tropic.core.validate import (
+    Medium,
     Method,
     PolymerisationType,
     Smiles,
-    Medium,
     State,
     get_func_groups,
     get_inchi,
