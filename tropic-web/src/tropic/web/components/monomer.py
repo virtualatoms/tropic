@@ -78,5 +78,5 @@ def get_monomer_logo(smiles: str, monomer_id: str):
 
 
 def get_monomer_toc(data):
-    header = get_monomer_logo(data["monomer"]["smiles"], data["monomer_id"])
+    header = get_monomer_logo(data["monomer"]["smiles"], data["monomer"]["monomer_id"])
     return create_toc_sidebar(header)

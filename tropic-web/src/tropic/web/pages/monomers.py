@@ -158,7 +158,8 @@ def update_table(tabs, rows_request, *filter_args):
 
     query = "&".join(query)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+        f"{SETTINGS.API_ENDPOINT}/monomer-summaries?{query}",
+        timeout=SETTINGS.REQUEST_TIMEOUT,
     )
     results = response.json()
 
@@ -175,11 +176,11 @@ def update_table(tabs, rows_request, *filter_args):
         table_data.append(
             {
                 "structure": structure_cell,
-                "monomer_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="monomers/{result["monomer_id"]}">{result["monomer_id"]}</a>',
+                "monomer_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="monomers/{result["monomer"]["monomer_id"]}">{result["monomer"]["monomer_id"]}</a>',
                 "smiles": result["monomer"]["smiles"],
                 "ring_size": result["monomer"]["ring_size"],
                 "has_exp": yes_no_mapping[result["has_exp"]],
-                "has_calc": yes_no_mapping[result["has_calc"]],
+                "has_comp": yes_no_mapping[result["has_comp"]],
             }
         )
 
@@ -197,38 +198,39 @@ def update_chart(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/polymerisations?{query}", timeout=2
+    )
     results = response.json()
 
     exp = []
     comp = []
-    for result in results["items"]:
-        for row in result["data"]:
-            if row["delta_s"] and row["delta_h"]:
-                delta_g = row["delta_h"] - row["delta_s"] * 298.15
-            else:
-                delta_g = None
+    for result in results:
+        if result["thermo"]["delta_s"] and result["thermo"]["delta_h"]:
+            delta_g = result["thermo"]["delta_h"] - result["thermo"]["delta_s"] * 298.15
+        else:
+            delta_g = None
 
-            if row["is_experimental"]:
-                exp.append(
-                    {
-                        "ring_size": result["monomer"]["ring_size"],
-                        "delta_h": row["delta_h"],
-                        "delta_s": row["delta_s"],
-                        "delta_g": delta_g,
-                        "ceiling_temperature": row["ceiling_temperature"],
-                    }
-                )
-            else:
-                comp.append(
-                    {
-                        "ring_size": result["monomer"]["ring_size"],
-                        "delta_h": row["delta_h"],
-                        "delta_s": row["delta_s"],
-                        "delta_g": delta_g,
-                        "ceiling_temperature": row["ceiling_temperature"],
-                    }
-                )
+        if result["parameters"]["is_experimental"]:
+            exp.append(
+                {
+                    "ring_size": result["monomer"]["ring_size"],
+                    "delta_h": result["thermo"]["delta_h"],
+                    "delta_s": result["thermo"]["delta_s"],
+                    "delta_g": delta_g,
+                    "ceiling_temperature": result["thermo"]["ceiling_temperature"],
+                }
+            )
+        else:
+            comp.append(
+                {
+                    "ring_size": result["monomer"]["ring_size"],
+                    "delta_h": result["thermo"]["delta_h"],
+                    "delta_s": result["thermo"]["delta_s"],
+                    "delta_g": delta_g,
+                    "ceiling_temperature": result["thermo"]["ceiling_temperature"],
+                }
+            )
 
     return [
         {"color": "red.5", "name": "Computational", "data": comp},
@@ -245,14 +247,19 @@ def update_references(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=2)
+    response = requests.get(
+        f"{SETTINGS.API_ENDPOINT}/polymerisations?{query}", timeout=2
+    )
     results = response.json()
 
     refs = {}
-    for result in results["items"]:
-        for row in result["data"]:
-            if row["doi"] not in refs and row["doi"] and row["formatted_reference"]:
-                refs[row["doi"]] = row["formatted_reference"]
+    for result in results:
+        if (
+            result["metadata"]["doi"] not in refs
+            and result["metadata"]["doi"]
+            and result["metadata"]["formatted_reference"]
+        ):
+            refs[result["metadata"]["doi"]] = result["metadata"]["formatted_reference"]
 
     return get_reference_table_data(*zip(*refs.items(), strict=False))
 
@@ -270,7 +277,8 @@ def export(n_clicks, file_type, *filter_args):
 
     query = _build_query(*filter_args)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/monomers?{query}", timeout=SETTINGS.REQUEST_TIMEOUT
+        f"{SETTINGS.API_ENDPOINT}/polymerisations?{query}",
+        timeout=SETTINGS.REQUEST_TIMEOUT,
     )
     if response.status_code != 200:
         return no_update
@@ -299,7 +307,6 @@ def get_export_data(data, file_type):
                 "Type",
                 "Is Experimental",
                 "State",
-                "Is Experimental",
                 "Initial Monomer Conc",
                 "Bulk Monomer Conc",
                 "Solvent",
@@ -312,29 +319,27 @@ def get_export_data(data, file_type):
                 "Reference",
             ]
         )
-        for item in data["items"]:
-            for row in item["data"]:
-                writer.writerow(
-                    [
-                        item["monomer_id"],
-                        item["monomer"]["smiles"],
-                        item["monomer"]["ring_size"],
-                        row["type"],
-                        row["is_experimental"],
-                        row["state_summary"],
-                        row["is_experimental"],
-                        row["initial_monomer_conc"],
-                        row["bulk_monomer_conc"],
-                        row["solvent"],
-                        row["delta_h"],
-                        row["delta_s"],
-                        row["ceiling_temperature"],
-                        row["repeating_units"],
-                        row["method"],
-                        row["year"],
-                        row["formatted_reference"],
-                    ]
-                )
+        for result in data:
+            writer.writerow(
+                [
+                    result["monomer"]["monomer_id"],
+                    result["monomer"]["smiles"],
+                    result["monomer"]["ring_size"],
+                    result["type"],
+                    result["parameters"]["is_experimental"],
+                    result["parameters"]["state_summary"],
+                    result["parameters"]["initial_monomer_conc"],
+                    result["parameters"]["bulk_monomer_conc"],
+                    result["parameters"]["medium"],
+                    result["thermo"]["delta_h"],
+                    result["thermo"]["delta_s"],
+                    result["thermo"]["ceiling_temperature"],
+                    result["product"]["repeating_units"],
+                    result["parameters"]["method"],
+                    result["metadata"]["year"],
+                    result["metadata"]["formatted_reference"],
+                ]
+            )
         return output.getvalue()
 
     if file_type == "json":
@@ -375,7 +380,7 @@ def _build_query(smiles, ring_size_range, molecular_weight_range, has_comp, has_
         query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
 
     if has_comp != "both":
-        query.append(f"has_calc={has_comp == 'yes'}")
+        query.append(f"has_comp={has_comp == 'yes'}")
 
     if has_exp != "both":
         query.append(f"has_exp={has_exp == 'yes'}")
