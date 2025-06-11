@@ -180,7 +180,7 @@ def update_table(tabs, rows_request, *filter_args):
                 "smiles": result["monomer"]["smiles"],
                 "ring_size": result["monomer"]["ring_size"],
                 "has_exp": yes_no_mapping[result["has_exp"]],
-                "has_calc": yes_no_mapping[result["has_calc"]],
+                "has_comp": yes_no_mapping[result["has_comp"]],
             }
         )
 
@@ -381,10 +381,10 @@ def _build_query(smiles, ring_size_range, molecular_weight_range, has_comp, has_
         query.append(f"monomer__ring_size__lte={ring_size_range[1]}")
 
     if has_comp != "both":
-        query.append(f"parameters__is_experimental={not (has_comp == 'yes')}")
+        query.append(f"has_comp={has_comp == 'yes'}")
 
     if has_exp != "both":
-        query.append(f"parameters__is_experimental={has_exp == 'yes'}")
+        query.append(f"has_exp={has_exp == 'yes'}")
 
     return "&".join(query)
 

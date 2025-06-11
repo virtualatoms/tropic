@@ -3,11 +3,11 @@
 import argparse
 import asyncio
 from pathlib import Path
-from typing import Any
 
 import requests
 from beanie import WriteRules, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
+from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 from tqdm import tqdm
 
@@ -29,14 +29,16 @@ def get_polymerisation_document(
     data: dict[str, str],
     monomers: dict[str, MonomerDocument],
     polymerisation_id: int,
-) -> dict[str, Any]:
+) -> PolymerisationDocument:
     """Format the polymerisation data into a structured dictionary."""
-    if data["monomer_smiles"] not in monomers:
+    # need to use consistent SMILES format
+    monomer_smiles = StandardizeSmiles(data["monomer_smiles"])
+    if monomer_smiles not in monomers:
         # iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
         iupac_name = None
         cid = None
-        monomers[data["monomer_smiles"]] = MonomerDocument(
-            smiles=data["monomer_smiles"],
+        monomers[monomer_smiles] = MonomerDocument(
+            smiles=monomer_smiles,
             iupac_name=iupac_name,
             pubchem_cid=cid,
             monomer_id=f"monomer-{len(monomers) + 1}",
@@ -44,7 +46,7 @@ def get_polymerisation_document(
     return PolymerisationDocument(
         polymerisation_id=f"poly-{polymerisation_id}",
         type=data["polymerisation_type"],
-        monomer=monomers[data["monomer_smiles"]],
+        monomer=monomers[monomer_smiles],
         product={
             "smiles": data["polymer_smiles"],
             "repeating_units": data["repeating_units"],

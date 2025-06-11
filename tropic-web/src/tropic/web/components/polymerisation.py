@@ -151,7 +151,6 @@ def get_polymerisation_section(data):
             "year": row["year"],
             "ref": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="https://doi.org/{row["doi"]}" target="_blank">{LINK_SVG}</a>',
         }
-        print(row["is_experimental"])
         if row["is_experimental"]:
             common_data |= {
                 "state": row["state_summary"],

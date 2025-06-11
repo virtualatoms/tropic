@@ -145,15 +145,26 @@ class PolymerisationFilter(Filter):
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
     product: ProductFilter | None = FilterDepends(with_prefix("product", ProductFilter))
     parameters: ParametersFilter | None = FilterDepends(
-        with_prefix("parameters", ParametersFilter)
+        with_prefix("parameters", ParametersFilter),
     )
     thermo: ThermoFilter | None = FilterDepends(with_prefix("thermo", ThermoFilter))
     metadata: MetadataFilter | None = FilterDepends(
-        with_prefix("metadata", MetadataFilter)
+        with_prefix("metadata", MetadataFilter),
     )
     order_by: ClassVar[list[str]] = ["polymerisation_id"]
 
     class Constants(Filter.Constants):
         """Settings for the Polymerisation filter."""
+
+        model = Polymerisation
+
+
+class MonomerSummariesFilter(Filter):
+    """Filter for monomer summaries based on various criteria."""
+
+    monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
+
+    class Constants(Filter.Constants):
+        """Settings for the MonomerSummaries filter."""
 
         model = Polymerisation

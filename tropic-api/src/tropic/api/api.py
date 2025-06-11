@@ -10,7 +10,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
 from tropic.api.documents import MonomerDocument, PolymerisationDocument
-from tropic.api.filters import PolymerisationFilter
+from tropic.api.filters import MonomerSummariesFilter, PolymerisationFilter
 from tropic.api.paginate import BigPage
 
 app = FastAPI(title="Polymerization API")
@@ -38,10 +38,11 @@ async def get_polymerisations(
 
 
 @app.get("/poymerisations/{polymer_id}")
-async def get_polymerisations(polymerisation_id: str) -> PolymerisationDocument:
+async def get_polymerisation(polymerisation_id: str) -> PolymerisationDocument:
     """Retrieve a paginated list of polymerisations with optional filtering."""
     document = await PolymerisationDocument.find_one(
-        {"polymerisation_id": polymerisation_id}, fetch_links=True
+        {"polymerisation_id": polymerisation_id},
+        fetch_links=True,
     )
     if not document:
         raise HTTPException(status_code=404, detail="Polymerisation not found")
@@ -50,8 +51,12 @@ async def get_polymerisations(polymerisation_id: str) -> PolymerisationDocument:
 
 @app.get("/monomer-summaries", response_model=BigPage)
 async def get_monomers(
-    polymerisation_filter: PolymerisationFilter = FilterDepends(PolymerisationFilter),  # noqa: B008
-):
+    polymerisation_filter: MonomerSummariesFilter = FilterDepends(  # noqa: B008
+        MonomerSummariesFilter,
+    ),
+    has_comp: bool | None = None,
+    has_exp: bool | None = None,
+) -> list[dict]:
     """Retrieve monomer summaries."""
     pipeline = [
         {
@@ -65,25 +70,33 @@ async def get_monomers(
                     },
                 },
                 "has_exp": {"$max": "$parameters.is_experimental"},
-                "has_calc": {"$max": {"$not": "$parameters.is_experimental"}},
+                "has_comp": {"$max": {"$not": "$parameters.is_experimental"}},
             },
         },
         {"$sort": {"monomer.monomer_id": 1}},
         {"$project": {"_id": 0}},
     ]
+    match = []
+    if has_comp is not None:
+        match.append({"has_comp": has_comp})
+    if has_exp is not None:
+        match.append({"has_exp": has_exp})
+    if match:
+        pipeline += [{"$match": {"$and": match}}]
+
     query = polymerisation_filter.filter(PolymerisationDocument.find({}))
     return await paginate(query.aggregate(pipeline))
 
 
 @app.get("/monomer-summaries/{monomer_id}")
-async def get_monomer(monomer_id: str):
+async def get_monomer(monomer_id: str) -> dict:
     """Retrieve a specific monomer by its ID."""
     pipeline = [
         {
             "$group": {
                 "_id": "$monomer.smiles",
                 "has_exp": {"$max": "$parameters.is_experimental"},
-                "has_calc": {"$max": {"$not": "$parameters.is_experimental"}},
+                "has_comp": {"$max": {"$not": "$parameters.is_experimental"}},
                 "monomer": {
                     "$first": {
                         "monomer_id": "$monomer.monomer_id",
@@ -120,7 +133,8 @@ async def get_monomer(monomer_id: str):
         },
     ]
     query = PolymerisationDocument.find(
-        {"monomer.monomer_id": monomer_id}, fetch_links=True
+        {"monomer.monomer_id": monomer_id},
+        fetch_links=True,
     )
     documents = await query.aggregate(pipeline).to_list()
     if not documents:
