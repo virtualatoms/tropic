@@ -49,7 +49,7 @@ async def get_polymerisation(polymerisation_id: str) -> PolymerisationDocument:
     return document
 
 
-@app.get("/monomer-summaries", response_model=BigPage)
+@app.get("/monomer-summaries", response_model=BigPage, include_in_schema=False)
 async def get_monomers(
     polymerisation_filter: MonomerSummariesFilter = FilterDepends(  # noqa: B008
         MonomerSummariesFilter,
@@ -57,7 +57,7 @@ async def get_monomers(
     has_comp: bool | None = None,
     has_exp: bool | None = None,
 ) -> list[dict]:
-    """Retrieve monomer summaries."""
+    """Private endpoint to retrieve monomer summaries."""
     pipeline = [
         {
             "$group": {
@@ -88,9 +88,9 @@ async def get_monomers(
     return await paginate(query.aggregate(pipeline))
 
 
-@app.get("/monomer-summaries/{monomer_id}")
+@app.get("/monomer-summaries/{monomer_id}", include_in_schema=False)
 async def get_monomer(monomer_id: str) -> dict:
-    """Retrieve a specific monomer by its ID."""
+    """Private endpoint to retrieve a specific monomer by its ID."""
     pipeline = [
         {
             "$group": {

@@ -31,12 +31,9 @@ def get_polymerisation_document(
     polymerisation_id: int,
 ) -> PolymerisationDocument:
     """Format the polymerisation data into a structured dictionary."""
-    # need to use consistent SMILES format
     monomer_smiles = StandardizeSmiles(data["monomer_smiles"])
     if monomer_smiles not in monomers:
-        # iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
-        iupac_name = None
-        cid = None
+        iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
         monomers[monomer_smiles] = MonomerDocument(
             smiles=monomer_smiles,
             iupac_name=iupac_name,
@@ -90,7 +87,6 @@ def get_polymerisation_document(
 
 def get_formatted_reference(doi: str) -> str | None:
     """Format the reference using the citation API."""
-    return None
     if not doi:
         return None
 
