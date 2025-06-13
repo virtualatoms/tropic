@@ -44,13 +44,23 @@ HEADER = dmc.Box(
                                 ),
                                 dcc.Link(
                                     dmc.Button(
-                                        "Search",
+                                        "Monomers",
                                         variant="subtle",
                                         color="black",
                                         size="sm",
                                         styles={"root": {"fontWeight": 500}},
                                     ),
                                     href="/monomers",
+                                ),
+                                dcc.Link(
+                                    dmc.Button(
+                                        "Reactions",
+                                        variant="subtle",
+                                        color="black",
+                                        size="sm",
+                                        styles={"root": {"fontWeight": 500}},
+                                    ),
+                                    href="/reactions",
                                 ),
                                 dcc.Link(
                                     dmc.Button(

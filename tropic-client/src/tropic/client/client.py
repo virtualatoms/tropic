@@ -103,7 +103,7 @@ class TropicClient:
             The JSON response from the API.
         """
         url = f"{self.ENDPOINT}{sub_url}"
-        response = requests.request(method, url, timeout=5, verify=True)
+        response = self.session.request(method, url, timeout=5, verify=True)
         response.raise_for_status()
         return response.json()
 
