@@ -66,11 +66,11 @@ def get_func_groups(smiles: str) -> list[str]:
 Smiles = Annotated[str, AfterValidator(StandardizeSmiles)]
 Medium = Annotated[str, AfterValidator(validate_solvent)]
 
-# ROP: Ring-Opening Polymerisation (monomer -> polymer, no end groups)
+# ROP: Ring-Opening Reaction (monomer -> polymer, no end groups)
 # ROR: Ring-Opening Reaction (monomer -> polymer, with end groups)
 # RER: Ring-Expansion Reaction (monomer -> cyclic chain)
 # RCE: Ring-Chain Equilibrium (all rings -> polymer)
-PolymerisationType = Literal["ROR", "RER", "ROP", "RCE"]
+ReactionType = Literal["ROR", "RER", "ROP", "RCE"]
 
 # g: gaseous state
 # l: liquid state

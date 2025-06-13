@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from tropic.core.validate import (
     Medium,
     Method,
-    PolymerisationType,
+    ReactionType,
     Smiles,
     State,
     get_func_groups,
@@ -86,24 +86,24 @@ class Product(BaseModel):
 
 
 class Parameters(BaseModel):
-    """Model representing experimental/computational parameters of a polymerisation."""
+    """Model representing experimental/computational parameters of a reaction."""
 
     is_experimental: bool = Field(
         description="Whether the reaction is experimental or computational",
     )
     temperature: float | None = Field(
         None,
-        description="Temperature of the polymerisation in C",
+        description="Temperature of the reaction in K",
     )
     pressure: float | None = Field(
         None,
-        description="Pressure of the polymerisation (if not standard)",
+        description="Pressure of the reaction (if not standard)",
     )
     monomer_state: State | None = Field(None, description="State of the monomer")
     polymer_state: State | None = Field(None, description="State of the polymer")
     initiator_smiles: str | None = Field(
         None,
-        description="Initiator of the polymerisation",
+        description="Initiator of the reaction",
     )
     initial_monomer_conc: float | None = Field(
         None,
@@ -115,7 +115,7 @@ class Parameters(BaseModel):
     )
     medium: Medium | None = Field(
         None,
-        description="Medium that the polymerisation is conducted within",
+        description="Medium that the reaction is conducted within",
     )
     method: Method | None = Field(None, description="Computational method used")
     functional: str | None = Field(None, description="DFT functional")
@@ -130,7 +130,7 @@ class Parameters(BaseModel):
 
 
 class Thermo(BaseModel):
-    """Model representing thermodynamic data for a polymerisation."""
+    """Model representing thermodynamic data for a reaction."""
 
     delta_h: float | None = Field(
         None,
@@ -151,7 +151,7 @@ class Thermo(BaseModel):
 
 
 class Metadata(BaseModel):
-    """Model representing metadata for a polymerisation."""
+    """Model representing metadata for a reaction."""
 
     year: int | None = Field(description="Year of publication")
     comment: str | None = Field(description="Additional comments or notes")
@@ -163,16 +163,16 @@ class Metadata(BaseModel):
     )
 
 
-class Polymerisation(BaseModel):
-    """Model representing a polymerisation in the TROPIC database."""
+class Reaction(BaseModel):
+    """Model representing a reaction in the TROPIC database."""
 
-    polymerisation_id: str = Field(
-        "poly-0",
-        description="unique display id for the polymerisation",
+    reaction_id: str = Field(
+        "reaction-0",
+        description="unique display id for the reaction",
     )
-    type: PolymerisationType = Field(description="Type of polymerisation")
-    monomer: Monomer = Field(description="Monomer of the polymerisation")
-    product: Product = Field(description="Product of the polymerisation")
+    type: ReactionType = Field(description="Type of reaction")
+    monomer: Monomer = Field(description="Monomer of the reaction")
+    product: Product = Field(description="Product of the reaction")
     parameters: Parameters = Field(description="Experimental/Computational parameters")
     thermo: Thermo = Field(description="Thermodynamic data/results")
-    metadata: Metadata = Field(description="Polymerisation references and metadata")
+    metadata: Metadata = Field(description="Reaction references and metadata")

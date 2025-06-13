@@ -1,6 +1,6 @@
 # TROPIC: Thermodynamic Ring-Opening Polymerisation Information Collection
 
-**TROPIC** is a curated database and web platform for collecting, organising, and analysing thermodynamic data related to the ring-opening polymerisation (ROP) of polar cyclic monomers. It supports both experimental and computational data, enabling structured comparison of polymerisation parameters such as enthalpy and entropy of polymerisation across monomers and conditions.
+**TROPIC** is a curated database and web platform for collecting, organising, and analysing thermodynamic data related to the ring-opening polymerisation (ROP) of polar cyclic monomers. It supports both experimental and computational data, enabling structured comparison of reaction parameters such as enthalpy and entropy of polymerisation across monomers and conditions.
 
 ## Features
 
@@ -13,7 +13,7 @@
 ## Getting Started
 
 This repository contains the packages for running the tropic website, API server, and API client. The repository is structured as:
-- `tropic-core`: Pydantic document models representing polymerisations, used by the API server and client.
+- `tropic-core`: Pydantic document models representing reactions, used by the API server and client.
 - `tropic-client`: The TROPIC Python API client.
 - `tropic-api`: The REST API implementation.
 - `tropic-web`: The interactive website implementation.

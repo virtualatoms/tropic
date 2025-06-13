@@ -6,7 +6,7 @@ from tropic.web import SETTINGS
 from tropic.web.components.breadcrumbs import get_breadcrumbs
 from tropic.web.components.molview import register_molview_callbacks
 from tropic.web.components.monomer import get_monomer_page_summary, get_monomer_toc
-from tropic.web.components.polymerisation import get_polymerisation_section
+from tropic.web.components.reaction import get_reaction_section
 from tropic.web.components.toc import register_toc_callbacks
 
 register_page(__name__, path_template="/monomers/<monomer_id>")
@@ -30,8 +30,8 @@ def layout(monomer_id="monomer-1", **_):
     toc = get_monomer_toc(data)
     monomer_summary = get_monomer_page_summary(data)
 
-    polymerisation_section = get_polymerisation_section(data)
-    page = [monomer_summary, polymerisation_section]
+    reaction_section = get_reaction_section(data)
+    page = [monomer_summary, reaction_section]
 
     content = dmc.Grid(
         [dmc.GridCol(toc, span=3), dmc.GridCol(html.Div(page, id="content"), span=9)],
