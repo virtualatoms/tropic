@@ -15,13 +15,13 @@ class TropicClient:
     Example
     -------
 
-    The client can be used with pythons "with" statement to ensure proper
+    The client can be used with Python's "with" statement to ensure proper
     resource management::
 
         from tropic.client import TropicClient
 
         with TropicClient() as client:
-            reactions = client.get_reactions(type="addition")
+            reactions = client.get_reactions(type="ROR", monomer__ring_size__gte=10)
     """
 
     ENDPOINT: str = "http://127.0.0.1:8000/"
@@ -45,6 +45,7 @@ class TropicClient:
         "monomer__pubchem_cid__in",
         "monomer__ring_size__lte",
         "monomer__ring_size__gte",
+        "monomer__ring_size",
         "product__smiles",
         "product__smiles__in",
         "product__repeating_units__lte",
