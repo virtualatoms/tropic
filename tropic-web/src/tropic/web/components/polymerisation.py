@@ -137,7 +137,12 @@ def get_polymerisation_section(data):
     for row in data["data"]:
         if row["ceiling_temperature"]:
             ceiling_temperature = f"{row['ceiling_temperature']:.2f} K"
-        elif row["delta_h"] and row["delta_s"]:
+        elif (
+            row["delta_h"]
+            and row["delta_s"]
+            and row["delta_s"] < 0
+            and row["delta_h"] < 0
+        ):
             ceiling_temperature = f"{row['delta_h'] * 1000 / row['delta_s']:.2f} K"
         else:
             ceiling_temperature = ""
