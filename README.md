@@ -29,7 +29,7 @@ pip install tropic-client
 
 ### Using the API
 
-The easiet way to use the TROPIC API is through the Python client:
+The easiest way to use the TROPIC API is through the Python client:
 
 ```python
 from tropic.client import TropicClient
