@@ -3,7 +3,7 @@
 from beanie import Document, Link
 from pydantic import Field
 
-from tropic.core.models import Monomer, Polymerisation
+from tropic.core.models import Monomer, Reaction
 
 
 class MonomerDocument(Document, Monomer):
@@ -16,15 +16,15 @@ class MonomerDocument(Document, Monomer):
         indexes = ("monomer_id", "smiles")
 
 
-class PolymerisationDocument(Document, Polymerisation):
-    """Document representing a polymerisation record."""
+class ReactionDocument(Document, Reaction):
+    """Document representing a reaction record."""
 
     monomer: Link[MonomerDocument] = Field(
-        description="Monomer of the polymerisation",
+        description="Monomer of the reaction",
     )
 
     class Settings:
-        """Settings for the Polymerisation document."""
+        """Settings for the Reaction document."""
 
-        name = "polymerizations"
-        indexes = ("polymerisation_id", "monomer.smiles")
+        name = "reactions"
+        indexes = ("reaction_id", "monomer.smiles")

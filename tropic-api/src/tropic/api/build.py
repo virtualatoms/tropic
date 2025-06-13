@@ -13,7 +13,7 @@ from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 from tqdm import tqdm
 
 from tropic.api import SETTINGS
-from tropic.api.documents import MonomerDocument, PolymerisationDocument
+from tropic.api.documents import MonomerDocument, ReactionDocument
 
 RDLogger.DisableLog("rdApp.*")
 
@@ -28,12 +28,12 @@ install_cache(
 )
 
 
-def get_polymerisation_document(
+def get_reaction_document(
     data: dict[str, str],
     monomers: dict[str, MonomerDocument],
-    polymerisation_id: int,
-) -> PolymerisationDocument:
-    """Format the polymerisation data into a structured dictionary."""
+    reaction_id: int,
+) -> ReactionDocument:
+    """Format the reaction data into a structured dictionary."""
     monomer_smiles = StandardizeSmiles(data["monomer_smiles"])
     if monomer_smiles not in monomers:
         iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
@@ -43,9 +43,9 @@ def get_polymerisation_document(
             pubchem_cid=cid,
             monomer_id=f"monomer-{len(monomers) + 1}",
         )
-    return PolymerisationDocument(
-        polymerisation_id=f"poly-{polymerisation_id}",
-        type=data["polymerisation_type"],
+    return ReactionDocument(
+        reaction_id=f"reaction-{reaction_id}",
+        type=data["reaction_type"],
         monomer=monomers[monomer_smiles],
         product={
             "smiles": data["polymer_smiles"],
@@ -120,17 +120,17 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     return properties.get("IUPACName"), properties.get("CID")
 
 
-async def create_polymerisations_monomers(monomers: dict[str, MonomerDocument]) -> None:
-    """Parse the input CSV files and create PolymerisationDocument instances."""
+async def create_reactions_monomers(monomers: dict[str, MonomerDocument]) -> None:
+    """Parse the input CSV files and create ReactionDocument instances."""
     import numpy as np
     import pandas as pd
 
     all_files = Path("data").glob("input*.csv")
     data = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
     data = data.replace({np.nan: None})
-    for polymerisation_id, row in tqdm(data.iterrows(), total=data.shape[0]):
-        poly = get_polymerisation_document(row, monomers, polymerisation_id + 1)
-        await poly.save(link_rule=WriteRules.WRITE)
+    for reaction_id, row in tqdm(data.iterrows(), total=data.shape[0]):
+        reaction = get_reaction_document(row, monomers, reaction_id + 1)
+        await reaction.save(link_rule=WriteRules.WRITE)
 
 
 async def build_db(skip_monomers: bool = False) -> None:
@@ -138,19 +138,19 @@ async def build_db(skip_monomers: bool = False) -> None:
     client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
-        document_models=[PolymerisationDocument, MonomerDocument],
+        document_models=[ReactionDocument, MonomerDocument],
     )
 
     if not skip_monomers:
         await MonomerDocument.find_all().delete()
-    await PolymerisationDocument.find_all().delete()
+    await ReactionDocument.find_all().delete()
 
     monomers = {
         monomer.smiles: monomer
         for monomer in await MonomerDocument.find_all().to_list()
     }
 
-    await create_polymerisations_monomers(monomers)
+    await create_reactions_monomers(monomers)
 
 
 def main() -> None:
