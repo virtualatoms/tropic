@@ -108,10 +108,7 @@ class TropicClient:
         response.raise_for_status()
         return response.json()
 
-    def get_reactions(
-        self,
-        **kwargs: dict[str, str | list[str] | None | float | int],
-    ) -> list[Reaction]:
+    def get_reactions(self, **kwargs: dict[str, Any]) -> list[Reaction]:
         """Retrieve reactions from the Tropic API.
 
         Parameters
@@ -230,10 +227,7 @@ class TropicClient:
         documents = self.request(sub_url=sub_url, method="GET")
         return [Reaction(**doc) for doc in documents]
 
-    def get_reaction(
-        self,
-        reaction_id: str,
-    ) -> Reaction:
+    def get_reaction(self, reaction_id: str) -> Reaction:
         """Retrieve a specific reaction by its ID.
 
         Parameters
