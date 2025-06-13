@@ -27,9 +27,20 @@ For example, the TROPIC API client can be installed using.
 pip install tropic-client
 ```
 
+### Using the API
+
+The easiet way to use the TROPIC API is through the Python client:
+
+```python
+from tropic.client import TropicClient
+
+with TropicClient() as client:
+    reactions = client.get_reactions(type="ROR", monomer__ring_size__gte=10)
+```
+
 ## Documentation
 
-- 📄 The full API documentation available at.
+- 📄 The full API documentation available on the [polytropic website](https://polytropic.org/api).
 - 📁 See [`roppy-core/models.py`](https://github.com/virtualatoms/tropic/blob/main/tropic-core/src/tropic/core/models.py) for full schema details.
 
 ## Contributing
