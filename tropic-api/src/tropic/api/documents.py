@@ -1,7 +1,7 @@
 """Beanie documents for the API."""
 
 from beanie import Document, Link
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from tropic.core.models import Monomer, Polymerisation
 
@@ -28,10 +28,3 @@ class PolymerisationDocument(Document, Polymerisation):
 
         name = "polymerizations"
         indexes = ("polymerisation_id", "monomer.smiles")
-
-
-class MonomerSummary(BaseModel):
-    monomer_id: str = Field(alias="_id")
-    smiles: str
-    has_exp: bool
-    has_comp: bool
