@@ -37,9 +37,9 @@ async def get_polymerisations(
     return await query.to_list()
 
 
-@app.get("/poymerisations/{polymer_id}")
+@app.get("/polymerisations/{polymer_id}")
 async def get_polymerisation(polymerisation_id: str) -> PolymerisationDocument:
-    """Retrieve a paginated list of polymerisations with optional filtering."""
+    """Retrieve a specific polymerisation by its ID."""
     document = await PolymerisationDocument.find_one(
         {"polymerisation_id": polymerisation_id},
         fetch_links=True,

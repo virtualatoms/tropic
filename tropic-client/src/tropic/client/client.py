@@ -1,7 +1,7 @@
 """Module for Tropic API client."""
 
-from dataclasses import dataclass
-from typing import ClassVar
+from dataclasses import dataclass, field
+from typing import Any, ClassVar
 
 import requests
 
@@ -10,12 +10,23 @@ from tropic.core.models import Polymerisation
 
 @dataclass
 class TropicClient:
-    """Client for interacting with the Tropic API."""
+    """Client for interacting with the Tropic API.
+
+    Example
+    -------
+
+    The client can be used with pythons "with" statement to ensure proper
+    resource management::
+
+        from tropic.client import TropicClient
+
+        with TropicClient() as client:
+            polymerisations = client.get_polymerisations(type="addition")
+    """
 
     ENDPOINT: str = "http://127.0.0.1:8000/"
-
     ALLOWED_FIELDS: ClassVar[set[str]] = {
-        "poymerisation_id",
+        "polymerisation_id",
         "polymerisation_id__in",
         "type",
         "type__in",
@@ -61,15 +72,35 @@ class TropicClient:
         "metadata__doi__in",
         "order_by",
     }
+    session: requests.Session = field(
+        default_factory=requests.Session,
+        init=False,
+        repr=False,
+    )
 
-    def request(self, sub_url: str, method: str = "GET") -> dict:
+    def __enter__(self) -> "TropicClient":
+        """Support for "with" context."""
+        return self
+
+    def __exit__(self, *_: object) -> None:
+        """Support for "with" context."""
+        self.session.close()
+
+    def request(self, sub_url: str, method: str = "GET") -> list | dict[str, Any]:
         """
         Make a request to the Tropic API.
 
-        :param method: HTTP method (e.g., 'GET', 'POST').
-        :param url: The URL endpoint for the request.
-        :param kwargs: Additional keyword arguments for the request.
-        :return: Response from the Tropic API.
+        Parameters
+        ----------
+        sub_url : str
+            The sub-path of the API endpoint to request.
+        method : str
+            The HTTP method to use for the request (default is "GET").
+
+        Returns
+        -------
+        Any
+            The JSON response from the API.
         """
         url = f"{self.ENDPOINT}{sub_url}"
         response = requests.request(method, url, timeout=5, verify=True)
@@ -182,16 +213,38 @@ class TropicClient:
         list[Polymerisation]
             List of polymerisation records matching the filters.
         """
-        # Validate the fields in kwargs against ALLOWED_FIELDS
-        for key in kwargs:
-            if key not in self.ALLOWED_FIELDS:
-                raise ValueError(
-                    f"Invalid query field: {key}, must be in: {self.ALLOWED_FIELDS}",
-                )
+        if invalid_keys := {key for key in kwargs if key not in self.ALLOWED_FIELDS}:
+            raise ValueError(
+                f"Invalid query fields: {invalid_keys}."
+                f" Must be in: {self.ALLOWED_FIELDS}",
+            )
 
         sub_url = "polymerisations"
         if kwargs:
-            sub_url += requests.utils.unquote(requests.utils.urlencode(kwargs))
+            query_params = "&".join(
+                f"{key}={value}" for key, value in kwargs.items() if value is not None
+            )
+            sub_url += f"?{query_params}"
 
         documents = self.request(sub_url=sub_url, method="GET")
         return [Polymerisation(**doc) for doc in documents]
+
+    def get_polymerisation(
+        self,
+        polymerisation_id: str,
+    ) -> Polymerisation:
+        """Retrieve a specific polymerisation by its ID.
+
+        Parameters
+        ----------
+        polymerisation_id : str
+            The ID of the polymerisation to retrieve.
+
+        Returns
+        -------
+        Polymerisation
+            The polymerisation record with the specified ID.
+        """
+        sub_url = f"polymerisations/{polymerisation_id}"
+        document = self.request(sub_url=sub_url, method="GET")
+        return Polymerisation(**document)
