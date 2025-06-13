@@ -1,6 +1,6 @@
 import dash
 import dash_mantine_components as dmc
-from dash import Dash, _dash_renderer
+from dash import Dash, _dash_renderer, html
 
 from tropic.web.components.footer import FOOTER
 from tropic.web.components.header import HEADER
@@ -15,12 +15,21 @@ app = Dash(
         "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js",
     ],
 )
-
 app.layout = dmc.MantineProvider(
-    [
-        dmc.Container([HEADER, dash.page_container], size="xl", className="content"),
-        FOOTER,
-    ]
+    html.Div(
+        [
+            html.Div(
+                dmc.Container([HEADER, dash.page_container], size="xl"),
+                style={"flex": "1"},
+            ),
+            FOOTER,
+        ],
+        style={
+            "display": "flex",
+            "flexDirection": "column",
+            "minHeight": "100vh",
+        },
+    )
 )
 
 
