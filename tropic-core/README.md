@@ -1,3 +1,3 @@
-# tropic-core
+# tropic-client
 
-This namespace package defines the schema models used by the API server and client.
+This namespace package defines the TROPIC API client.

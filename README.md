@@ -14,6 +14,7 @@
 
 This repository contains the packages for running the tropic website, API server, and API client. The repository is structured as:
 - `tropic-core`: Pydantic document models representing polymerisations, used by the API server and client.
+- `tropic-client`: The TROPIC Python API client.
 - `tropic-api`: The REST API implementation.
 - `tropic-web`: The interactive website implementation.
 
