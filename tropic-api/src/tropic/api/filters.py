@@ -31,6 +31,7 @@ class MonomerFilter(Filter):
     iupac_name__in: list[str] | None = None
     pubchem_cid: str | None = None
     pubchem_cid__in: list[str] | None = None
+    ring_size: int | None = None
     ring_size__lte: int | None = None
     ring_size__gte: int | None = None
 
