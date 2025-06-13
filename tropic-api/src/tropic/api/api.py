@@ -9,11 +9,11 @@ from fastapi_pagination.ext.beanie import paginate
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
-from tropic.api.documents import MonomerDocument, PolymerisationDocument
-from tropic.api.filters import MonomerSummariesFilter, PolymerisationFilter
+from tropic.api.documents import MonomerDocument, ReactionDocument
+from tropic.api.filters import MonomerSummariesFilter, ReactionFilter
 from tropic.api.paginate import BigPage
 
-app = FastAPI(title="Polymerization API")
+app = FastAPI(title="TROPIC API")
 add_pagination(app)
 
 
@@ -23,35 +23,35 @@ async def startup_event() -> None:
     client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
-        document_models=[PolymerisationDocument, MonomerDocument],
+        document_models=[ReactionDocument, MonomerDocument],
     )
 
 
-@app.get("/polymerisations")
-async def get_polymerisations(
-    polymerisation_filter: PolymerisationFilter = FilterDepends(PolymerisationFilter),  # noqa: B008
-) -> list[PolymerisationDocument]:
-    """Retrieve a paginated list of polymerisations with optional filtering."""
-    query = polymerisation_filter.filter(PolymerisationDocument.find({}))
+@app.get("/reactions")
+async def get_reactions(
+    reaction_filter: ReactionFilter = FilterDepends(ReactionFilter),  # noqa: B008
+) -> list[ReactionDocument]:
+    """Retrieve a paginated list of reactions with optional filtering."""
+    query = reaction_filter.filter(ReactionDocument.find({}))
     query = query.find(fetch_links=True)
     return await query.to_list()
 
 
-@app.get("/polymerisations/{polymer_id}")
-async def get_polymerisation(polymerisation_id: str) -> PolymerisationDocument:
-    """Retrieve a specific polymerisation by its ID."""
-    document = await PolymerisationDocument.find_one(
-        {"polymerisation_id": polymerisation_id},
+@app.get("/reactions/{reaction_id}")
+async def get_reaction(reaction_id: str) -> ReactionDocument:
+    """Retrieve a specific reaction by its ID."""
+    document = await ReactionDocument.find_one(
+        {"reaction_id": reaction_id},
         fetch_links=True,
     )
     if not document:
-        raise HTTPException(status_code=404, detail="Polymerisation not found")
+        raise HTTPException(status_code=404, detail="Reaction not found")
     return document
 
 
 @app.get("/monomer-summaries", response_model=BigPage, include_in_schema=False)
 async def get_monomers(
-    polymerisation_filter: MonomerSummariesFilter = FilterDepends(  # noqa: B008
+    reaction_filter: MonomerSummariesFilter = FilterDepends(  # noqa: B008
         MonomerSummariesFilter,
     ),
     has_comp: bool | None = None,
@@ -84,7 +84,7 @@ async def get_monomers(
     if match:
         pipeline += [{"$match": {"$and": match}}]
 
-    query = polymerisation_filter.filter(PolymerisationDocument.find({}))
+    query = reaction_filter.filter(ReactionDocument.find({}))
     return await paginate(query.aggregate(pipeline))
 
 
@@ -113,7 +113,7 @@ async def get_monomer(monomer_id: str) -> dict:
                 "data": {
                     "$push": {
                         "type": "$type",
-                        "polymerisation_id": "$polymerisation_id",
+                        "reaction_id": "$reaction_id",
                         "is_experimental": "$parameters.is_experimental",
                         "state_summary": "$parameters.state_summary",
                         "initial_monomer_conc": "$parameters.initial_monomer_conc",
@@ -132,7 +132,7 @@ async def get_monomer(monomer_id: str) -> dict:
             },
         },
     ]
-    query = PolymerisationDocument.find(
+    query = ReactionDocument.find(
         {"monomer.monomer_id": monomer_id},
         fetch_links=True,
     )

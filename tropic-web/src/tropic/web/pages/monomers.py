@@ -198,9 +198,7 @@ def update_chart(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/polymerisations?{query}", timeout=2
-    )
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/reactions?{query}", timeout=2)
     results = response.json()
 
     exp = []
@@ -247,9 +245,7 @@ def update_references(tabs, *filter_args):
 
     query = _build_query(*filter_args)
     query += "&size=1000"
-    response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/polymerisations?{query}", timeout=2
-    )
+    response = requests.get(f"{SETTINGS.API_ENDPOINT}/reactions?{query}", timeout=2)
     results = response.json()
 
     refs = {}
@@ -277,7 +273,7 @@ def export(n_clicks, file_type, *filter_args):
 
     query = _build_query(*filter_args)
     response = requests.get(
-        f"{SETTINGS.API_ENDPOINT}/polymerisations?{query}",
+        f"{SETTINGS.API_ENDPOINT}/reactions?{query}",
         timeout=SETTINGS.REQUEST_TIMEOUT,
     )
     if response.status_code != 200:

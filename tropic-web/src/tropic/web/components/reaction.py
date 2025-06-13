@@ -1,6 +1,6 @@
 import dash_ag_grid as dag
 import dash_mantine_components as dmc
-from dash import dcc, html
+from dash import html
 
 from tropic.web.utils import reaction_to_image
 
@@ -25,8 +25,8 @@ HTML_HEADER = """
 
 COMMON_COLUMNS = [
     {
-        "headerName": "Polymer ID",
-        "field": "polymerisation_id",
+        "headerName": "Reaction ID",
+        "field": "reaction_id",
         "cellRenderer": "markdown",
         "width": 140,
         "maxWidth": 140,
@@ -105,33 +105,13 @@ COMP_COLUMNS = (
 )
 
 
-def get_polymer_info_card(polyinfo):
-    table_data = [
-        (
-            "PolyInfo",
-            dcc.Link(
-                polyinfo["polyinfo_id"],
-                href=f"https://polyinfo.com/{polyinfo['polyinfo_id']}",
-            ),
-        ),
-        (
-            "PolyGenome",
-            dcc.Link(
-                polyinfo["polygenome_id"],
-                href=f"https://polygenome.com/{polyinfo['polygenome_id']}",
-            ),
-        ),
-    ]
-    return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")
-
-
-def get_polymer_reaction_card(data):
+def get_reaction_reaction_card(data):
     reaction_data = reaction_to_image(data["reaction_smiles"], size=(-1, -1))
     reaction_img = dmc.Image(h=200, src=f"data:image/svg+xml;base64,{reaction_data}")
     return dmc.Card(reaction_img, withBorder=True, shadow="sm", radius="md")
 
 
-def get_polymerisation_section(data):
+def get_reaction_section(data):
     exp_table_data = []
     comp_table_data = []
     for row in data["data"]:
@@ -148,7 +128,7 @@ def get_polymerisation_section(data):
             ceiling_temperature = ""
 
         common_data = {
-            "polymerisation_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="polymers/{row["polymerisation_id"]}">{row["polymerisation_id"]}</a>',
+            "reaction_id": f'<a class="mantine-focus-auto  m_849cf0da mantine-Text-root mantine-Anchor-root" data-underline="always" href="reactions/{row["reaction_id"]}">{row["reaction_id"]}</a>',
             "type": row["type"],
             "delta_h": f"{row['delta_h']:.2f}" if row["delta_h"] else "",
             "delta_s": f"{row['delta_s']:.2f}" if row["delta_s"] else "",
@@ -175,34 +155,36 @@ def get_polymerisation_section(data):
             }
             comp_table_data.append(common_data)
 
-    poly = []
+    reaction = []
     if exp_table_data:
-        exp_table = get_table(exp_table_data, EXP_COLUMNS, section_id="poly-exp-table")
+        exp_table = get_table(
+            exp_table_data, EXP_COLUMNS, section_id="reaction-exp-table"
+        )
         exp_section = dmc.Stack(
             [
                 html.H1(
                     "Experimental Data",
-                    id="poly",
+                    id="reaction",
                 ),
                 exp_table,
             ],
             gap=0,
         )
-        poly.append(exp_section)
+        reaction.append(exp_section)
 
     if comp_table_data:
         comp_table = get_table(
-            comp_table_data, COMP_COLUMNS, section_id="poly-comp-table"
+            comp_table_data, COMP_COLUMNS, section_id="reaction-comp-table"
         )
         comp_section = dmc.Stack(
             [
-                html.H1("Computational Data", id="poly-comp"),
+                html.H1("Computational Data", id="reaction-comp"),
                 comp_table,
             ],
             gap=0,
         )
-        poly.append(comp_section)
-    return dmc.Stack(poly)
+        reaction.append(comp_section)
+    return dmc.Stack(reaction)
 
 
 def get_table(data, columns, section_id=None):
@@ -226,31 +208,50 @@ def get_table(data, columns, section_id=None):
     return table
 
 
-# def get_polymerisation_section(data):
-#     poly_info_card = get_polymer_info_card(data["polymer"])
-#     poly_reaction_card = get_polymer_reaction_card(data)
+# def get_reaction_section(data):
+#     poly_info_card = get_reaction_info_card(data["reaction"])
+#     poly_reaction_card = get_reaction_reaction_card(data)
 
 #     summary = dmc.Grid(
 #         [
-#             dmc.GridCol(poly_reaction_card, span=8),
-#             dmc.GridCol(poly_info_card, span=4),
+#             dmc.GridCol(reaction_reaction_card, span=8),
+#             dmc.GridCol(reaction_info_card, span=4),
 #         ],
 #         gutter="xl",
 #     )
 
-#     poly = dmc.Stack(
+#     reaction = dmc.Stack(
 #         [
 #             html.H1(
-#                 "Polymerisation", id="poly", style={"margin-top": 0, "padding-top": 0}
+#                 "Reaction", id="reaction", style={"margin-top": 0, "padding-top": 0}
 #             ),
 #             summary,
 #             html.H2(
 #                 "Experimental",
-#                 id="poly-exp",
+#                 id="reaction-exp",
 #                 style={"margin-bottom": 10, "padding-bottom": 0},
 #             ),
-#             html.H2("Computational", id="poly-comp"),
+#             html.H2("Computational", id="reaction-comp"),
 #         ],
 #         gap=20,
 #     )
-#     return poly
+#     return reaction
+
+# def get_poly_info_card(polyinfo):
+#     table_data = [
+#         (
+#             "PolyInfo",
+#             dcc.Link(
+#                 polyinfo["polyinfo_id"],
+#                 href=f"https://polyinfo.com/{polyinfo['polyinfo_id']}",
+#             ),
+#         ),
+#         (
+#             "PolyGenome",
+#             dcc.Link(
+#                 polyinfo["polygenome_id"],
+#                 href=f"https://polygenome.com/{polyinfo['polygenome_id']}",
+#             ),
+#         ),
+#     ]
+#     return dmc.Card([get_table(table_data)], withBorder=True, shadow="sm", radius="md")

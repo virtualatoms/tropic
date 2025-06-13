@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 
 import requests
 
-from tropic.core.models import Polymerisation
+from tropic.core.models import Reaction
 
 
 @dataclass
@@ -21,13 +21,13 @@ class TropicClient:
         from tropic.client import TropicClient
 
         with TropicClient() as client:
-            polymerisations = client.get_polymerisations(type="addition")
+            reactions = client.get_reactions(type="addition")
     """
 
     ENDPOINT: str = "http://127.0.0.1:8000/"
     ALLOWED_FIELDS: ClassVar[set[str]] = {
-        "polymerisation_id",
-        "polymerisation_id__in",
+        "reaction_id",
+        "reaction_id__in",
         "type",
         "type__in",
         "monomer__smiles",
@@ -107,20 +107,20 @@ class TropicClient:
         response.raise_for_status()
         return response.json()
 
-    def get_polymerisations(
+    def get_reactions(
         self,
         **kwargs: dict[str, str | list[str] | None | float | int],
-    ) -> list[Polymerisation]:
-        """Retrieve polymerisations from the Tropic API.
+    ) -> list[Reaction]:
+        """Retrieve reactions from the Tropic API.
 
         Parameters
         ----------
-        polymerisation_id : str | None
-            Polymerisation ID to filter by.
-        polymerisation_id__in : list[str] | None
-            List of polymerisation IDs to filter by.
+        reaction_id : str | None
+            Reaction ID to filter by.
+        reaction_id__in : list[str] | None
+            List of reaction IDs to filter by.
         type : str | None
-            Type of polymerisation to filter by.
+            Type of reaction to filter by.
         type__in : list[str] | None
             List of types to filter by.
         monomer__smiles : str | None
@@ -166,7 +166,7 @@ class TropicClient:
         product__repeating_units : int | None
             Number of repeating units in the product to filter by.
         product__deg_of_poly__lte : float | None
-            Maximum degree of polymerisation in the product to filter by.
+            Maximum degree of reaction in the product to filter by.
         product__deg_of_poly__gte : float | None
             Minimum degree of polymerisation in the product to filter by.
         product__dispersity__lte : float | None
@@ -182,27 +182,27 @@ class TropicClient:
         product__m_avg_molar_mass__gte : float | None
             Minimum mass average molar mass of the product to filter by.
         thermo__delta_h__lte : float | None
-            Maximum enthalpy change of the polymerisation to filter by.
+            Maximum enthalpy change of the reaction to filter by.
         thermo__delta_h__gte : float | None
-            Minimum enthalpy change of the polymerisation to filter by.
+            Minimum enthalpy change of the reaction to filter by.
         thermo__delta_s__lte : float | None
-            Maximum entropy change of the polymerisation to filter by.
+            Maximum entropy change of the reaction to filter by.
         thermo__delta_s__gte : float | None
-            Minimum entropy change of the polymerisation to filter by.
+            Minimum entropy change of the reaction to filter by.
         thermo__delta_g__lte : float | None
-            Maximum Gibbs free energy change of the polymerisation to filter by.
+            Maximum Gibbs free energy change of the reaction to filter by.
         thermo__delta_g__gte : float | None
-            Minimum Gibbs free energy change of the polymerisation to filter by.
+            Minimum Gibbs free energy change of the reaction to filter by.
         thermo__ceiling_temperature__lte : float | None
-            Maximum ceiling temperature of the polymerisation to filter by.
+            Maximum ceiling temperature of the reaction to filter by.
         thermo__ceiling_temperature__gte : float | None
-            Minimum ceiling temperature of the polymerisation to filter by.
+            Minimum ceiling temperature of the reaction to filter by.
         metadata__year__lte : int | None
-            Maximum year of the polymerisation to filter by.
+            Maximum year of the reaction to filter by.
         metadata__year__gte : int | None
-            Minimum year of the polymerisation to filter by.
+            Minimum year of the reaction to filter by.
         metadata__doi : str | None
-            DOI of the polymerisation to filter by.
+            DOI of the reaction to filter by.
         metadata__doi__in : list[str] | None
             List of DOIs to filter by.
         order_by : str | None
@@ -210,8 +210,8 @@ class TropicClient:
 
         Returns
         -------
-        list[Polymerisation]
-            List of polymerisation records matching the filters.
+        list[Reaction]
+            List of reaction records matching the filters.
         """
         if invalid_keys := {key for key in kwargs if key not in self.ALLOWED_FIELDS}:
             raise ValueError(
@@ -219,7 +219,7 @@ class TropicClient:
                 f" Must be in: {self.ALLOWED_FIELDS}",
             )
 
-        sub_url = "polymerisations"
+        sub_url = "reactions"
         if kwargs:
             query_params = "&".join(
                 f"{key}={value}" for key, value in kwargs.items() if value is not None
@@ -227,24 +227,24 @@ class TropicClient:
             sub_url += f"?{query_params}"
 
         documents = self.request(sub_url=sub_url, method="GET")
-        return [Polymerisation(**doc) for doc in documents]
+        return [Reaction(**doc) for doc in documents]
 
-    def get_polymerisation(
+    def get_reaction(
         self,
-        polymerisation_id: str,
-    ) -> Polymerisation:
-        """Retrieve a specific polymerisation by its ID.
+        reaction_id: str,
+    ) -> Reaction:
+        """Retrieve a specific reaction by its ID.
 
         Parameters
         ----------
-        polymerisation_id : str
-            The ID of the polymerisation to retrieve.
+        reaction_id : str
+            The ID of the reaction to retrieve.
 
         Returns
         -------
-        Polymerisation
-            The polymerisation record with the specified ID.
+        Reaction
+            The reaction record with the specified ID.
         """
-        sub_url = f"polymerisations/{polymerisation_id}"
+        sub_url = f"reactions/{reaction_id}"
         document = self.request(sub_url=sub_url, method="GET")
-        return Polymerisation(**document)
+        return Reaction(**document)

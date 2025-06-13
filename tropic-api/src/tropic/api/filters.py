@@ -5,14 +5,7 @@ from typing import ClassVar
 from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.beanie import Filter
 
-from tropic.core.models import (
-    Metadata,
-    Monomer,
-    Parameters,
-    Polymerisation,
-    Product,
-    Thermo,
-)
+from tropic.core.models import Metadata, Monomer, Parameters, Product, Reaction, Thermo
 
 
 class MonomerFilter(Filter):
@@ -65,7 +58,7 @@ class ProductFilter(Filter):
 
 
 class ParametersFilter(Filter):
-    """Filter for polymerisation parameters based on various criteria."""
+    """Filter for reaction parameters based on various criteria."""
 
     is_experimental: bool | None = None
     is_experimental__in: list[bool] | None = None
@@ -105,7 +98,7 @@ class ParametersFilter(Filter):
 
 
 class ThermoFilter(Filter):
-    """Filter for polymerisation thermodynamic data based on various criteria."""
+    """Filter for reaction thermodynamic data based on various criteria."""
 
     delta_h__lte: float | None = None
     delta_h__gte: float | None = None
@@ -123,7 +116,7 @@ class ThermoFilter(Filter):
 
 
 class MetadataFilter(Filter):
-    """Filter for polymerisation metadata based on various criteria."""
+    """Filter for reaction metadata based on various criteria."""
 
     year__lte: int | None = None
     year__gte: int | None = None
@@ -136,11 +129,11 @@ class MetadataFilter(Filter):
         model = Metadata
 
 
-class PolymerisationFilter(Filter):
-    """Filter for polymerisations based on various criteria."""
+class ReactionFilter(Filter):
+    """Filter for reactions based on various criteria."""
 
-    polymerisation_id: str | None = None
-    polymerisation_id__in: list[str] | None = None
+    reaction_id: str | None = None
+    reaction_id__in: list[str] | None = None
     type: str | None = None
     type__in: list[str] | None = None
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
@@ -152,12 +145,12 @@ class PolymerisationFilter(Filter):
     metadata: MetadataFilter | None = FilterDepends(
         with_prefix("metadata", MetadataFilter),
     )
-    order_by: ClassVar[list[str]] = ["polymerisation_id"]
+    order_by: ClassVar[list[str]] = ["reaction_id"]
 
     class Constants(Filter.Constants):
-        """Settings for the Polymerisation filter."""
+        """Settings for the Reaction filter."""
 
-        model = Polymerisation
+        model = Reaction
 
 
 class MonomerSummariesFilter(Filter):
@@ -168,4 +161,4 @@ class MonomerSummariesFilter(Filter):
     class Constants(Filter.Constants):
         """Settings for the MonomerSummaries filter."""
 
-        model = Polymerisation
+        model = Reaction
