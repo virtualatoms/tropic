@@ -41,7 +41,7 @@ FOOTER = html.Div(
                 ),
             ],
             justify="space-between",
-            py=30,
+            py=20,
             px=15,
         ),
         size="xl",
