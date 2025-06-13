@@ -18,7 +18,7 @@ from tropic.api.documents import MonomerDocument, PolymerisationDocument
 RDLogger.DisableLog("rdApp.*")
 
 install_cache(
-    "doi_cache",
+    "data/doi_cache",
     cache_control=True,
     urls_expire_after={
         "*.doi.org": NEVER_EXPIRE,
