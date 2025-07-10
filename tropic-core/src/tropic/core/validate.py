@@ -5,10 +5,25 @@ from typing import Annotated, Literal, TypeAlias
 from pydantic import AfterValidator
 from rdkit.Chem import AddHs, AllChem, MolFromSmiles, MolToXYZBlock
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
-from rdkit.Chem.rdchem import Mol
+from rdkit.Chem.rdchem import Atom, Mol, RingInfo
 from rdkit.Chem.rdinchi import MolToInchi
 from rdkit.Chem.rdMolDescriptors import CalcExactMolWt
-from rdkit.Contrib.efgs.efgs import get_dec_fgs
+from rdkit.Chem.rdmolfiles import MolFromSmarts
+
+MONOMER_GROUPS: dict[str, str] = {
+    "CC": "[O;R]-[C;R](=[O;!R])-[O;R]",
+    "CtC": "[O;R]-[C;R](=[O;!R])-[S;R]",
+    "CdtC": "[S;R]-[C;R](=[O;!R])-[S;R]",
+    "CtnC": "[O;R]-[C;R](=[S;!R])-[O;R]",
+    "CX": "[O;R]-[C;R](=[S;!R])-[S;R]",
+    "CtX": "[S;R]-[C;R](=[S;!R])-[S;R]",
+    "L": "[C,c;R]-[C;R](=[O;!R])-[O;R]",
+    "tL": "[C,c;R]-[C;R](=[O;!R])-[S;R]",
+    "tnL": "[C,c;R]-[C;R](=[S;!R])-[O;R]",
+    "dtL": "[C,c;R]-[C;R](=[S;!R])-[S;R]",
+    "Lm": "[C,c;R]-[C;R](=[O;!R])-[N;R]",
+    "oA": "[O;R]-[C;R](=[O;!R])-[N;R]",
+}
 
 
 def validate_solvent(solvent: str) -> str:
@@ -24,21 +39,40 @@ def validate_solvent(solvent: str) -> str:
 
 def get_mol(smiles: str) -> Mol:
     """Get an rdkit molecule object from a SMILES string."""
-    mol = MolFromSmiles(smiles)
+    mol: Mol | None = MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError("Invalid SMILES string")
+        raise ValueError("Failed to create RDKit Mol from SMILES string")
     return mol
 
 
+def get_func_group(smiles: str) -> str:
+    """Extract ROP functional group for monomer."""
+    mol: Mol = get_mol(smiles)
+    functional_groups: dict[str, Mol] = {
+        fg_name: MolFromSmarts(fg_smarts)
+        for fg_name, fg_smarts in MONOMER_GROUPS.items()
+    }
+    for fg_name, fg_mol in functional_groups.items():
+        if mol.HasSubstructMatch(fg_mol):
+            return fg_name
+    return "other"
+
+
 def get_ring_size(smiles: str) -> int | None:
-    """Get the size of the largest ring in a molecule."""
-    mol = get_mol(smiles)
-    ring_info = mol.GetRingInfo()
-    n_atoms = mol.GetNumAtoms()
-    max_ring_size = max([ring_info.MinAtomRingSize(i) for i in range(n_atoms)])
-    if max_ring_size == 0:
-        return None
-    return max_ring_size
+    """Get the size of the functional group ring in the monomer."""
+    mol: Mol = get_mol(smiles)
+    ring_info: RingInfo = mol.GetRingInfo()
+    functional_groups: list[Mol] = [
+        MolFromSmarts(fg_smarts) for fg_smarts in MONOMER_GROUPS.values()
+    ]
+    for fg_mol in functional_groups:
+        if mol.HasSubstructMatch(fg_mol):
+            substruct_atom_idx: tuple[int] = mol.GetSubstructMatch(fg_mol)
+            for atom_id in substruct_atom_idx:
+                substruct_atom: Atom = mol.GetAtomWithIdx(atom_id)
+                if (substruct_atom.GetAtomicNum() != 6) and (substruct_atom.IsInRing()):
+                    return ring_info.MinAtomRingSize(atom_id)
+    return None
 
 
 def get_xyz(smiles: str) -> str:
@@ -56,11 +90,6 @@ def get_inchi(smiles: str) -> str:
 def get_molecular_weight(smiles: str) -> float:
     """Calculate the molecular weight of a molecule."""
     return CalcExactMolWt(get_mol(smiles))
-
-
-def get_func_groups(smiles: str) -> list[str]:
-    """Extract functional groups from a molecule."""
-    return get_dec_fgs(get_mol(smiles))[2]
 
 
 Smiles = Annotated[str, AfterValidator(StandardizeSmiles)]
