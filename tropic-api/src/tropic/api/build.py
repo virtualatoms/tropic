@@ -42,6 +42,7 @@ def get_reaction_document(
             iupac_name=iupac_name,
             pubchem_cid=cid,
             monomer_id=f"monomer-{len(monomers) + 1}",
+            svg=smiles_to_image(monomer_smiles),
         )
     return ReactionDocument(
         reaction_id=f"reaction-{reaction_id}",
@@ -120,13 +121,31 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     return properties.get("IUPACName"), properties.get("CID")
 
 
+def smiles_to_image(smiles : str, size: tuple[int, int] = (150, 100)) -> str :
+    """Convert a SMILES string to a base64-encoded SVG image."""
+    import base64
+
+    from rdkit import Chem
+    from rdkit.Chem import Draw
+
+    drawer = Draw.MolDraw2DSVG(*size)
+    dopts = drawer.drawOptions()
+    dopts.bondLineWidth = 1.0  # default is 2.
+    dopts.clearBackground = False  # default is True
+    mol = Chem.MolFromSmiles(smiles)
+    drawer.DrawMolecule(mol)
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    return base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+
+
 async def create_reactions_monomers(monomers: dict[str, MonomerDocument]) -> None:
     """Parse the input CSV files and create ReactionDocument instances."""
     import numpy as np
     import pandas as pd
 
-    all_files = Path("data").glob("input*.csv")
-    data = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+    all_files = Path("data").glob("input*.xlsx")
+    data = pd.concat((pd.read_excel(f) for f in all_files), ignore_index=True)
     data = data.replace({np.nan: None})
     for reaction_id, row in tqdm(data.iterrows(), total=data.shape[0]):
         reaction = get_reaction_document(row, monomers, reaction_id + 1)

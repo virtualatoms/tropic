@@ -117,6 +117,18 @@ class Parameters(BaseModel):
         None,
         description="Medium that the reaction is conducted within",
     )
+    solvent: Medium | None = Field(
+        None,
+        description="Solvent used in the reaction",
+    )
+    cosolvent: Medium | None = Field(
+        None,
+        description="Co-solvent used in the reaction",
+    )
+    solvent_cosolvent_ratio: Medium | None = Field(
+        None,
+        description="Ratio of solvent to co-solvent used in the reaction",
+    )
     method: Method | None = Field(None, description="Computational method used")
     functional: str | None = Field(None, description="DFT functional")
     basis_set: str | None = Field(None, description="Basis set")
@@ -160,6 +172,10 @@ class Metadata(BaseModel):
     formatted_reference: str | None = Field(
         None,
         description="Formatted reference string for the publication",
+    )
+    flag: str | None = Field(
+        None,
+        description="Any potential issues with the reaction data",
     )
 
 

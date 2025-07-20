@@ -9,6 +9,11 @@ from tropic.core.models import Monomer, Reaction
 class MonomerDocument(Document, Monomer):
     """Document representing a monomer."""
 
+    svg: str | None = Field(
+        None,
+        description="SVG representation of the monomer",
+    )
+
     class Settings:
         """Settings for the Monomer document."""
 

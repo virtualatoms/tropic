@@ -6,16 +6,24 @@ from fastapi import FastAPI, HTTPException
 from fastapi_filter import FilterDepends
 from fastapi_pagination import add_pagination
 from fastapi_pagination.ext.beanie import paginate
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
 from tropic.api.documents import MonomerDocument, ReactionDocument
 from tropic.api.filters import MonomerSummariesFilter, ReactionFilter
 from tropic.api.paginate import BigPage
+from tropic.core.models import Reaction
 
 app = FastAPI(title="TROPIC API")
 add_pagination(app)
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup_event() -> None:
@@ -30,7 +38,7 @@ async def startup_event() -> None:
 @app.get("/reactions")
 async def get_reactions(
     reaction_filter: ReactionFilter = FilterDepends(ReactionFilter),  # noqa: B008
-) -> list[ReactionDocument]:
+) -> list[Reaction]:
     """Retrieve a paginated list of reactions with optional filtering."""
     query = reaction_filter.filter(ReactionDocument.find({}))
     query = query.find(fetch_links=True)
@@ -43,7 +51,7 @@ async def get_reaction(reaction_id: str) -> ReactionDocument:
     document = await ReactionDocument.find_one(
         {"reaction_id": reaction_id},
         fetch_links=True,
-    )
+    ).project(Reaction)
     if not document:
         raise HTTPException(status_code=404, detail="Reaction not found")
     return document
@@ -108,6 +116,7 @@ async def get_monomer(monomer_id: str) -> dict:
                         "pubchem_cid": "$monomer.pubchem_cid",
                         "ring_size": "$monomer.ring_size",
                         "xyz": "$monomer.xyz",
+                        "svg": "$monomer.svg",
                     },
                 },
                 "data": {
