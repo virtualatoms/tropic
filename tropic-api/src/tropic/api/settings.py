@@ -19,4 +19,5 @@ class Settings(BaseSettings):
     DATABASE_NAME: str = Field("tropic", description="Name of the MongoDB database.")
     API_HOST: str = Field("127.0.0.1", description="Host for the API server.")
     API_PORT: int = Field(8000, description="Port for the API server.")
+    API_WORKERS: int = Field(1, description="Number of workers for the API server.")
     model_config = SettingsConfigDict(env_prefix="TROPIC_")

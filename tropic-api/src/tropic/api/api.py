@@ -1,5 +1,7 @@
 """Central starting point for the Tropic API."""
 
+import argparse
+
 import uvicorn
 from beanie import init_beanie
 from fastapi import FastAPI, HTTPException
@@ -144,4 +146,30 @@ async def get_monomer(monomer_id: str) -> dict:
 
 def main() -> None:
     """Run the FastAPI application."""
-    uvicorn.run(app, host=SETTINGS.API_HOST, port=SETTINGS.API_PORT)
+    parser = argparse.ArgumentParser(description="Run the Tropic API.")
+    parser.add_argument(
+        "--host",
+        type=str,
+        default=SETTINGS.API_HOST,
+        help="Host for the API server.",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=SETTINGS.API_PORT,
+        help="Port for the API server.",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=SETTINGS.API_WORKERS,
+        help="Number of workers for the API server.",
+    )
+    args = parser.parse_args()
+
+    uvicorn.run(
+        app,
+        host=args.host,
+        port=args.port,
+        workers=args.workers,
+    )
