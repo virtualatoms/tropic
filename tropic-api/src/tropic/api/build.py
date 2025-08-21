@@ -61,6 +61,8 @@ def get_reaction_document(
             "temperature": data["temperature"],
             "pressure": data["pressure"],
             "solvent": data["solvent"],
+            "cosolvent": data["cosolvent"],
+            "cosolvent": data["cosolvent"],
             "initiator": data["initiator_smiles"],
             "initial_monomer_conc": data["initial_monomer_conc"],
             "bulk_monomer_conc": data["bulk_monomer_conc"],
