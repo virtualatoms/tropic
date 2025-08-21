@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     Settings for the tropic website.
 
     The default way to modify these is to set environment variables with the
-    "TROPIC_" prefix. E.g. TROPIC_DATABASE_URL="http://localhost:8000"
+    "TROPIC_" prefix. E.g. TROPIC_DATABASE_URL="mongodb://localhost:27017"
     """
 
     DATABASE_URL: str = Field(
