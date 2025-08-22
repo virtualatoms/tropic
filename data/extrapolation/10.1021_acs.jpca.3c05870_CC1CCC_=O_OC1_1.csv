@@ -1,0 +1,3 @@
+monomer_smiles,polymerisation_type,doi,medium,solvent,initiator_smiles,polymer_smiles,temperature,repeating_units,delta_h
+CC1CCC(=O)OC1,RER,10.1021/acs.jpca.3c05870,gas,,,[*]OCC(C)CCC([*])=O,298.15,3.0,11.01435646
+CC1CCC(=O)OC1,RER,10.1021/acs.jpca.3c05870,gas,,,[*]OCC(C)CCC([*])=O,298.15,5.0,4.474823968

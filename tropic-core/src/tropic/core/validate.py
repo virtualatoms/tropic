@@ -64,35 +64,43 @@ def get_func_groups(smiles: str) -> list[str]:
 
 
 Smiles = Annotated[str, AfterValidator(StandardizeSmiles)]
-Medium = Annotated[str, AfterValidator(validate_solvent)]
+Solvent = Annotated[str, AfterValidator(validate_solvent)]
+
+Medium = Literal["bulk", "solvent", "gas"]
 
 # ROP: Ring-Opening Reaction (monomer -> polymer, no end groups)
 # ROR: Ring-Opening Reaction (monomer -> polymer, with end groups)
 # RER: Ring-Expansion Reaction (monomer -> cyclic chain)
 # RCE: Ring-Chain Equilibrium (all rings -> polymer)
-ReactionType = Literal["ROR", "RER", "ROP", "RCE"]
+ReactionType = Literal["ROR", "RER", "ROP", "RCE", "MIR", "unspecified"]
 
 # g: gaseous state
 # l: liquid state
 # s: in solution
 # c: crystalline or partially crystalline state
 # a: condensed, glassy (amorphous) state
-State: TypeAlias = Literal["g", "l", "s", "c", "a"]
+State: TypeAlias = Literal["g", "l", "s", "c", "a", "c'"]
 
 # vant_hoff: Van't Hoff Curve
 # DSC: Differential Scanning Calorimetry
 Method: TypeAlias = Literal[
     "dft",
+    "adv_dft",
     "ffmd",
     "aimd",
     "mlmd",
     "xtb",
     "ml",
     "vant_hoff",
-    "DSC",
-    "NMR",
+    "dsc",
+    "nmr",
     "calorimetry",
+    "other",
+    "unspecified",
 ]
+MethodCalc: TypeAlias = Literal["ie_avg", "ie_extrap", "ie_l", "ie_n", "rped"]
+
+Topology: TypeAlias = Literal["linear", "cyclic"]
 
 # TODO: choose accepted values for computational fields
 # SOLVENT_MODELS = []

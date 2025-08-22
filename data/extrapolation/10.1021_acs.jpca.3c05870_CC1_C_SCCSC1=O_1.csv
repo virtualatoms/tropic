@@ -1,0 +1,4 @@
+monomer_smiles,polymerisation_type,doi,medium,solvent,initiator_smiles,polymer_smiles,temperature,repeating_units,delta_h
+CC1(C)SCCSC1=O,RER,10.1021/acs.jpca.3c05870,gas,,,[*]CCSC(C)(C)C(=O)S[*],298.15,3.0,-14.43999878
+CC1(C)SCCSC1=O,RER,10.1021/acs.jpca.3c05870,gas,,,[*]CCSC(C)(C)C(=O)S[*],298.15,4.0,-9.907043821
+CC1(C)SCCSC1=O,RER,10.1021/acs.jpca.3c05870,gas,,,[*]CCSC(C)(C)C(=O)S[*],298.15,5.0,-9.370968395

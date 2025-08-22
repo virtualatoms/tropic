@@ -78,6 +78,10 @@ class ParametersFilter(Filter):
     bulk_monomer_conc__gte: float | None = None
     medium: str | None = None
     medium__in: list[str] | None = None
+    solvent: str | None = None
+    solvent__in: list[str] | None = None
+    cosolvent: str | None = None
+    cosolvent__in: list[str] | None = None
     method: str | None = None
     method__in: list[str] | None = None
     functional: str | None = None
@@ -90,6 +94,8 @@ class ParametersFilter(Filter):
     forcefield__in: list[str] | None = None
     solvent_model: str | None = None
     solvent_model__in: list[str] | None = None
+    topology: str | None = None
+    topology__in: list[str] | None = None
 
     class Constants(Filter.Constants):
         """Settings for the Parameters filter."""
