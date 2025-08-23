@@ -38,19 +38,19 @@ const reactionTypeOptions = [
 ];
 
 const methodOptions = [
-    { value: "dft", label: "DFT" },
-    { value: "adv_dft", label: "Advanced DFT" },
-    { value: "ffmd", label: "FF MD" },
-    { value: "aimd", label: "AI MD" },
-    { value: "mlmd", label: "ML MD" },
-    { value: "xtb", label: "xTB" },
-    { value: "ml", label: "ML" },
-    { value: "vant_hoff", label: "Van't Hoff" },
-    { value: "dsc", label: "DSC" },
-    { value: "nmr", label: "NMR" },
-    { value: "calorimetry", label: "Calorimetry" },
-    { value: "other", label: "Other" },
-    { value: "unspecified", label: "Unspecified" },
+  { value: "dft", label: "DFT" },
+  { value: "adv_dft", label: "Advanced DFT" },
+  { value: "ffmd", label: "FF MD" },
+  { value: "aimd", label: "AI MD" },
+  { value: "mlmd", label: "ML MD" },
+  { value: "xtb", label: "xTB" },
+  { value: "ml", label: "ML" },
+  { value: "vant_hoff", label: "Van't Hoff" },
+  { value: "dsc", label: "DSC" },
+  { value: "nmr", label: "NMR" },
+  { value: "calorimetry", label: "Calorimetry" },
+  { value: "other", label: "Other" },
+  { value: "unspecified", label: "Unspecified" },
 ];
 
 export default function ReactionSearchSidebar({
@@ -128,7 +128,9 @@ export default function ReactionSearchSidebar({
         label="Is Experimental"
         size="sm"
         value={filters.isExperimental}
-        onChange={(value) => setFilters({ ...filters, isExperimental: value as any })}
+        onChange={(value) =>
+          setFilters({ ...filters, isExperimental: value as any })
+        }
       >
         <Group my="xs">
           {experimentalRadioData.map((r) => (

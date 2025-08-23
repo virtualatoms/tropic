@@ -8,8 +8,10 @@ import { MonomerSummaryState } from "@/lib/types";
 import { monomerSummaryToCSV } from "@/lib/export";
 import { ExportControls } from "./ExportControls";
 
-
-export default function MonomerTabsView({ data, isLoading }: MonomerSummaryState) {
+export default function MonomerTabsView({
+  data,
+  isLoading,
+}: MonomerSummaryState) {
   return (
     <Tabs defaultValue="table">
       <Tabs.List>
@@ -25,28 +27,28 @@ export default function MonomerTabsView({ data, isLoading }: MonomerSummaryState
       </Tabs.List>
 
       <Tabs.Panel value="table" pt={10}>
-		<ExportControls
-			data={data}
-			fileName="monomer_summary"
-			onConvertToCSV={monomerSummaryToCSV}
-		/>
+        <ExportControls
+          data={data}
+          fileName="monomer_summary"
+          onConvertToCSV={monomerSummaryToCSV}
+        />
         <MonomerSearchTable data={data} />
       </Tabs.Panel>
 
       <Tabs.Panel value="analysis" pt={10}>
-		<AnalysisChart
-		data={data}
-		isLoading={isLoading}
-		onProcessData={processChartMonomerSummary}
-		/>
+        <AnalysisChart
+          data={data}
+          isLoading={isLoading}
+          onProcessData={processChartMonomerSummary}
+        />
       </Tabs.Panel>
 
       <Tabs.Panel value="references" pt={10}>
-		<References
-		data={data}
-		isLoading={isLoading}
-		onProcessData={processRefMonomerSummary}
-		/>
+        <References
+          data={data}
+          isLoading={isLoading}
+          onProcessData={processRefMonomerSummary}
+        />
       </Tabs.Panel>
     </Tabs>
   );

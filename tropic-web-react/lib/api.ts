@@ -1,4 +1,9 @@
-import { MonomerFilters, MonomerSummary, Reaction, ReactionFilters } from "./types";
+import {
+  MonomerFilters,
+  MonomerSummary,
+  Reaction,
+  ReactionFilters,
+} from "./types";
 import { API_ENDPOINT } from "./constants";
 
 const buildMonomerQuery = (filters: MonomerFilters): string => {
@@ -36,7 +41,7 @@ const buildMonomerQuery = (filters: MonomerFilters): string => {
 
 export const buildReactionQuery = (filters: ReactionFilters): string => {
   const params = new URLSearchParams();
-  
+
   if (filters.smiles) {
     params.append("search", filters.smiles);
   }
@@ -48,7 +53,7 @@ export const buildReactionQuery = (filters: ReactionFilters): string => {
   if (filters.isExperimental !== "both") {
     params.append(
       "parameters__is_experimental",
-      (filters.isExperimental === "yes").toString()
+      (filters.isExperimental === "yes").toString(),
     );
   }
 
@@ -72,11 +77,11 @@ export const buildReactionQuery = (filters: ReactionFilters): string => {
 
   params.append(
     "monomer__molecular_weight__gte",
-    filters.molecularWeight[0].toString()
+    filters.molecularWeight[0].toString(),
   );
   params.append(
     "monomer__molecular_weight__lte",
-    filters.molecularWeight[1].toString()
+    filters.molecularWeight[1].toString(),
   );
 
   params.append("include_svg", "true");

@@ -11,7 +11,7 @@ export interface ReactionFilters {
   smiles: string;
   ringSize: [number, number];
   molecularWeight: [number, number];
-  isExperimental: 'yes' | 'no' | 'both';
+  isExperimental: "yes" | "no" | "both";
   initiator: string;
   medium: string[];
   reactionType: string[];
@@ -42,7 +42,7 @@ export interface MonomerSummary {
 
 export interface Monomer {
   monomer_id: string;
-  smiles: string; 
+  smiles: string;
   inchi: string | null;
   molecular_weight: number | null;
   functional_groups: string[] | null;
@@ -66,7 +66,7 @@ export interface Parameters {
   is_experimental: boolean;
   temperature: number | null;
   pressure: number | null;
-  monomer_state: string | null; 
+  monomer_state: string | null;
   polymer_state: string | null;
   initiator_smiles: string | null;
   initial_monomer_conc: number | null;

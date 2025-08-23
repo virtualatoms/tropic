@@ -1,5 +1,4 @@
-import { Card, CardSection, Text, Center , Box} from "@mantine/core";
-import { ScatterChart } from "@mantine/charts";
+import { Card, CardSection, Text, Center, Box } from "@mantine/core";
 import { Vanthoff, ComputationalExtrapolation } from "@/lib/types";
 import { useMemo } from "react";
 
@@ -20,7 +19,7 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
-  annotationPlugin
+  annotationPlugin,
 );
 
 export function ExtrapolationPlotCard({
@@ -29,7 +28,6 @@ export function ExtrapolationPlotCard({
   data: ComputationalExtrapolation | null;
 }) {
   const chartJSData = useMemo(() => {
-    // ... (This data preparation logic remains the same)
     if (!data?.inverse_repeating_units || !data?.delta_h) {
       return { datasets: [] };
     }
@@ -44,7 +42,7 @@ export function ExtrapolationPlotCard({
     const trendlineDataset = {
       label: "Trendline",
       data: [] as { x: number; y: number }[],
-      type: 'line' as const,
+      type: "line" as const,
       borderColor: "rgba(255, 99, 132, 1)",
       borderWidth: 2,
       pointRadius: 0,
@@ -60,21 +58,27 @@ export function ExtrapolationPlotCard({
     return { datasets: [scatterDataset, trendlineDataset] };
   }, [data]);
 
-const options = {
+  const options = {
     responsive: true,
     scales: {
       x: {
-        type: 'linear' as const,
-        position: 'bottom' as const,
-        title: { display: true, text: "1 / Repeating Units" },
+        type: "linear" as const,
+        position: "bottom" as const,
+        title: { display: true, text: "1 / Repeating Units", font: { size: 14 }},
+        ticks: {
+          font: { size: 14 },
+        },
       },
       y: {
-        title: { display: true, text: "ΔH (kJ/mol)" },
+        title: { display: true, text: "ΔH (kJ/mol)", font: { size: 14 },},
+        ticks: {
+          font: { size: 14 },
+        },
       },
     },
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: "top" as const, labels: { font: { size: 14 } } 
       },
       tooltip: {
         callbacks: {
@@ -94,7 +98,7 @@ const options = {
       annotation: {
         annotations: {
           interceptLine: {
-            type: 'line' as const,
+            type: "line" as const,
             yMin: data?.intercept,
             yMax: data?.intercept,
             borderColor: "rgb(75, 192, 192)",
@@ -102,19 +106,19 @@ const options = {
             borderDash: [6, 6],
           },
           summaryLabel: {
-            type: 'label' as const,
+            type: "label" as const,
             content: [
-              `Intercept (at x=0): ${data?.intercept?.toFixed(2) ?? 'N/A'}`,
-              `Std. Error: ${data?.std_err?.toFixed(2) ?? 'N/A'}`,
+              `Intercept (at x=0): ${data?.intercept?.toFixed(2) ?? "N/A"}`,
+              `Std. Error: ${data?.std_err?.toFixed(2) ?? "N/A"}`,
             ],
             xValue: (context: any) => context.chart.scales.x.max,
             yValue: (context: any) => context.chart.scales.y.max,
             xAdjust: -100,
             yAdjust: 50,
-            textAlign: 'left', 
-            backgroundColor: 'rgba(245, 245, 245, 0.8)',
-            color: 'black',
-            font: {size: 12},
+            textAlign: "left",
+            backgroundColor: "rgba(245, 245, 245, 0.8)",
+            color: "black",
+            font: { size: 14 },
             padding: 6,
             borderRadius: 6,
           },
@@ -152,17 +156,14 @@ export function VanthoffPlotCard({ data }: { data: Vanthoff | null }) {
       return { datasets: [] };
     }
 
-    // Create a single dataset for the scatter points
     const scatterDataset = {
       label: "Data Points",
-      // Map the data into the {x, y} format Chart.js expects
-      // Also include the original temperature for the tooltip
       data: data.inverse_temperature.map((inv_t, i) => ({
         x: inv_t,
         y: data.r_ln_equilibrium_concentration![i],
         temp: data.temperature![i], // Store original temp for tooltip
       })),
-      backgroundColor: "rgba(54, 162, 235, 0.6)", // Blue
+      backgroundColor: "rgba(54, 162, 235, 0.6)", 
     };
 
     return {
@@ -174,23 +175,28 @@ export function VanthoffPlotCard({ data }: { data: Vanthoff | null }) {
     responsive: true,
     scales: {
       x: {
-        type: 'linear' as const,
-        position: 'bottom' as const,
+        type: "linear" as const,
+        position: "bottom" as const,
         title: {
           display: true,
           text: "1/T (K⁻¹)",
+          font: { size: 14 },
         },
+        ticks: { font: { size: 14 } },
       },
       y: {
         title: {
           display: true,
           text: "R·ln([M]e)",
+          font: { size: 14 },
         },
+        ticks: { font: { size: 14 } },
       },
     },
     plugins: {
       legend: {
-        position: 'top' as const,
+        position: "top" as const,
+        labels: { font: { size: 14 } },
       },
       // Custom tooltip configuration
       tooltip: {
@@ -230,4 +236,3 @@ export function VanthoffPlotCard({ data }: { data: Vanthoff | null }) {
     </Card>
   );
 }
-

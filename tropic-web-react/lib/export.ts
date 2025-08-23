@@ -45,7 +45,6 @@ export const monomerSummaryToCSV = (data: MonomerSummary[]): string => {
   return [header.join(","), ...rows].join("\n");
 };
 
-
 export const reactionToCSV = (data: Reaction[]): string => {
   const header = [
     "Reaction ID",
@@ -102,8 +101,7 @@ export const reactionToCSV = (data: Reaction[]): string => {
 
     return rowData
       .map((value) => {
-        const str =
-          value === null || value === undefined ? "" : String(value);
+        const str = value === null || value === undefined ? "" : String(value);
         // Enclose in quotes and escape existing quotes
         return `"${str.replace(/"/g, '""')}"`;
       })

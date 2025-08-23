@@ -13,7 +13,9 @@ type ReferencesProps<T> = {
   onProcessData: (data: T[]) => Reference[];
 };
 
-export const processRefMonomerSummary = (data: MonomerSummary[]): Reference[] => {
+export const processRefMonomerSummary = (
+  data: MonomerSummary[],
+): Reference[] => {
   const uniqueRefs = new Map<string, string>();
   for (const summary of data) {
     for (const result of summary.data || []) {
@@ -36,8 +38,6 @@ export const processRefReaction = (data: Reaction[]): Reference[] => {
   }
   return Array.from(uniqueRefs, ([doi, formatted]) => ({ doi, formatted }));
 };
-
-
 
 export function References<T>({
   data,

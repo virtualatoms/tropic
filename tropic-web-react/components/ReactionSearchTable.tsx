@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from "react";
-import { Reaction } from "@/lib/types"; 
+import { Reaction } from "@/lib/types";
 
 import { AgGridReact } from "ag-grid-react";
 import {
@@ -9,8 +9,15 @@ import {
   themeAlpine,
 } from "ag-grid-community";
 
-import { ReactionIdCell, HtmlHeader, ImageRenderer, boolFormatter, decimalFormatter, idComparator, RefCell } from "./TableFormats";
-
+import {
+  ReactionIdCell,
+  HtmlHeader,
+  ImageRenderer,
+  boolFormatter,
+  decimalFormatter,
+  idComparator,
+  RefCell,
+} from "./TableFormats";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -19,7 +26,6 @@ const theme = themeAlpine.withParams({
   borderColor: "var(--mantine-color-gray-3)",
   cellHorizontalPadding: "12px",
 });
-
 
 type GridRowData = {
   structure: string;
@@ -30,9 +36,8 @@ type GridRowData = {
   medium: string | null;
   method: string | null;
   year: number | null;
-  ref: string | null; 
+  ref: string | null;
 };
-
 
 export default function ReactionSearchTable({ data }: { data: Reaction[] }) {
   const gridRef = useRef<AgGridReact>(null);
@@ -72,7 +77,7 @@ export default function ReactionSearchTable({ data }: { data: Reaction[] }) {
         headerName: "ΔH<sub>p</sub> (kJ/mol)",
         field: "delta_h",
         headerComponent: HtmlHeader,
-        valueFormatter: params => decimalFormatter(params.data.delta_h),
+        valueFormatter: (params) => decimalFormatter(params.data.delta_h),
         width: 140,
       },
       {
@@ -100,7 +105,7 @@ export default function ReactionSearchTable({ data }: { data: Reaction[] }) {
         resizable: false,
       },
     ],
-    []
+    [],
   );
 
   const defaultColDef = useMemo<ColDef>(
@@ -110,7 +115,7 @@ export default function ReactionSearchTable({ data }: { data: Reaction[] }) {
       filter: false,
       cellStyle: { display: "flex", alignItems: "center" },
     }),
-    []
+    [],
   );
 
   return (

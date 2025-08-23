@@ -9,7 +9,12 @@ import {
   themeAlpine,
 } from "ag-grid-community";
 
-import { MonomerIdCell, ImageRenderer, boolFormatter,  idComparator } from "./TableFormats";
+import {
+  MonomerIdCell,
+  ImageRenderer,
+  boolFormatter,
+  idComparator,
+} from "./TableFormats";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 

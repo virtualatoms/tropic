@@ -12,7 +12,11 @@ type ExportControlsProps<T> = {
   onConvertToCSV: (data: T[]) => string; // The specific CSV conversion function
 };
 
-export function ExportControls<T>({ data, fileName, onConvertToCSV }: ExportControlsProps<T>) {
+export function ExportControls<T>({
+  data,
+  fileName,
+  onConvertToCSV,
+}: ExportControlsProps<T>) {
   const [format, setFormat] = useState<ExportFormat>("csv");
   const [loading, setLoading] = useState(false);
 
@@ -26,9 +30,9 @@ export function ExportControls<T>({ data, fileName, onConvertToCSV }: ExportCont
         fileContent = onConvertToCSV(data);
         mimeType = "text/csv";
       } else {
-         // Create a deep copy and remove the svg property before stringifying
+        // Create a deep copy and remove the svg property before stringifying
         const dataWithoutSVG = data.map((item: any) => {
-          if (item.monomer && 'svg' in item.monomer) {
+          if (item.monomer && "svg" in item.monomer) {
             const { svg, ...restOfMonomer } = item.monomer;
             return { ...item, monomer: restOfMonomer };
           }

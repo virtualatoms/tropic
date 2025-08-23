@@ -14,7 +14,6 @@ import {
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-
 export const processChartMonomerSummary = (data: MonomerSummary[]) => {
   const expData: ChartDatum[] = [];
   const compData: ChartDatum[] = [];
@@ -29,7 +28,7 @@ export const processChartMonomerSummary = (data: MonomerSummary[]) => {
         ceiling_temperature: d.ceiling_temperature,
         svg: monomerSummary.monomer.svg,
         id: monomerSummary.monomer.monomer_id,
-        pageType: 'monomer',
+        pageType: "monomer",
       };
       if (d.is_experimental) {
         expData.push(datum);
@@ -46,15 +45,16 @@ export const processChartReaction = (data: Reaction[]) => {
   const compData: ChartDatum[] = [];
 
   for (const reaction of data) {
-    if (reaction.thermo.delta_h === null || reaction.thermo.delta_s === null) continue;
+    if (reaction.thermo.delta_h === null || reaction.thermo.delta_s === null)
+      continue;
     const datum = {
-        ring_size: reaction.monomer.ring_size,
-        delta_h: reaction.thermo.delta_h,
-        delta_s: reaction.thermo.delta_s,
-        ceiling_temperature: reaction.thermo.ceiling_temperature,
-        svg: reaction.monomer.svg,
-        id: reaction.reaction_id,
-        pageType: 'reaction',
+      ring_size: reaction.monomer.ring_size,
+      delta_h: reaction.thermo.delta_h,
+      delta_s: reaction.thermo.delta_s,
+      ceiling_temperature: reaction.thermo.ceiling_temperature,
+      svg: reaction.monomer.svg,
+      id: reaction.reaction_id,
+      pageType: "reaction",
     };
     if (reaction.parameters.is_experimental) {
       expData.push(datum);
@@ -71,8 +71,8 @@ type ChartDatum = {
   delta_s: number | null;
   ceiling_temperature: number | null;
   svg: string;
-  id: string; 
-  pageType: 'monomer' | 'reaction';
+  id: string;
+  pageType: "monomer" | "reaction";
 };
 
 const yOptions = [
@@ -140,7 +140,10 @@ const externalTooltipHandler = (context) => {
       innerHTML += `<div>ΔS: ${original.delta_s.toFixed(2)} J/mol·K</div>`;
     }
 
-    if (original.ceiling_temperature !== null && original.ceiling_temperature !== undefined) {
+    if (
+      original.ceiling_temperature !== null &&
+      original.ceiling_temperature !== undefined
+    ) {
       innerHTML += `<div>Tc: ${original.ceiling_temperature.toFixed(2)} °C</div>`;
     }
     tooltipEl.innerHTML = innerHTML;
@@ -158,7 +161,7 @@ export function AnalysisChart<T>({
   onProcessData,
 }: AnalysisChartProps<T>) {
   const [yField, setYField] = useState<keyof ChartDatum>("delta_h");
-  const router = useRouter(); 
+  const router = useRouter();
 
   const chartData = useMemo(() => {
     return onProcessData(data);
@@ -172,7 +175,7 @@ export function AnalysisChart<T>({
           data: chartData.experimental.map((d) => ({
             x: d.ring_size,
             y: d[yField],
-            originalData: d, 
+            originalData: d,
           })),
           pointRadius: 4,
           backgroundColor: "rgba(54, 162, 235, 0.6)",
@@ -195,7 +198,7 @@ export function AnalysisChart<T>({
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-       x: {
+      x: {
         title: {
           display: true,
           text: "Ring Size",
@@ -212,23 +215,25 @@ export function AnalysisChart<T>({
         },
         ticks: {
           font: { size: 14 },
-          },
         },
       },
+    },
     onClick: (event: any, elements: any[]) => {
-      if (elements.length === 0) return; 
+      if (elements.length === 0) return;
 
       const element = elements[0];
-      const dataPoint = chartJSData.datasets[element.datasetIndex].data[element.index];
+      const dataPoint =
+        chartJSData.datasets[element.datasetIndex].data[element.index];
       const { id, pageType } = dataPoint.originalData;
 
       if (id && pageType) {
-        const url = pageType === 'monomer' ? `/monomers/${id}` : `/reactions/${id}`;
+        const url =
+          pageType === "monomer" ? `/monomers/${id}` : `/reactions/${id}`;
         router.push(url);
       }
     },
     plugins: {
-      legend: { position: "top" as const, labels: {font: {size: 14}}},
+      legend: { position: "top" as const},
       tooltip: {
         enabled: false, // Disable the default canvas tooltip
         external: externalTooltipHandler, // Enable our custom HTML tooltip

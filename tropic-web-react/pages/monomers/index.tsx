@@ -55,7 +55,9 @@ export default function MonomerSearchPage() {
             <TextInput
               placeholder="Enter SMILES"
               value={filters.smiles}
-              onChange={(e) => setFilters({ ...filters, smiles: e.currentTarget.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, smiles: e.currentTarget.value })
+              }
               w={500}
             />
             <Button onClick={() => setModalOpen(true)}>Draw Molecule</Button>

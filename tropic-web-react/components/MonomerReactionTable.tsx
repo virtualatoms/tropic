@@ -7,7 +7,12 @@ import {
   AllCommunityModule,
   themeAlpine,
 } from "ag-grid-community";
-import { ReactionIdCell, HtmlHeader, RefCell, decimalFormatter } from "./TableFormats";
+import {
+  ReactionIdCell,
+  HtmlHeader,
+  RefCell,
+  decimalFormatter,
+} from "./TableFormats";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -26,7 +31,7 @@ type GridRowData = {
   state: string | null;
   method: string | null;
   year: number | null;
-  ref: string | null; 
+  ref: string | null;
   repeating_units: number | null;
 };
 
@@ -48,19 +53,20 @@ const MonomerReactionTable = ({ data }: { data: any }) => {
         headerName: "ΔH<sub>p</sub> (kJ/mol)",
         field: "delta_h",
         headerComponent: HtmlHeader,
-        valueFormatter: params => decimalFormatter(params.data.delta_h),
+        valueFormatter: (params) => decimalFormatter(params.data.delta_h),
       },
       {
         headerName: "ΔS<sub>p</sub> (J/K/mol)",
         field: "delta_s",
         headerComponent: HtmlHeader,
-        valueFormatter: params => decimalFormatter(params.data.delta_s),
+        valueFormatter: (params) => decimalFormatter(params.data.delta_s),
       },
       {
         headerName: "T<sub>c</sub> (K)",
         field: "ceiling_temperature",
         headerComponent: HtmlHeader,
-        valueFormatter: params => decimalFormatter(params.data.ceiling_temperature),
+        valueFormatter: (params) =>
+          decimalFormatter(params.data.ceiling_temperature),
       },
       {
         headerName: "Year",

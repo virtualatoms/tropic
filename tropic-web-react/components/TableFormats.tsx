@@ -1,14 +1,11 @@
-
 import Link from "next/link";
 import { Text, Table, Anchor } from "@mantine/core";
-
 
 export const ReactionIdCell = ({ value }: { value: string }) => (
   <Anchor href={`/reactions/${value}`} size="sm" component={Link}>
     {value}
   </Anchor>
 );
-
 
 export const MonomerIdCell = ({ value }: { value: string }) => (
   <Anchor href={`/monomers/${value}`} size="sm" component={Link}>
@@ -63,7 +60,7 @@ export function boolFormatter(params: { value: boolean }): string {
   return params.value ? "Yes" : "No";
 }
 
-export function decimalFormatter(value : number | null): string {
+export function decimalFormatter(value: number | null): string {
   return value !== null ? value.toFixed(2) : "";
 }
 

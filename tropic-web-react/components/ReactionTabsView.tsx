@@ -8,7 +8,6 @@ import { reactionToCSV } from "@/lib/export";
 import { ExportControls } from "./ExportControls";
 import ReactionSearchTable from "./ReactionSearchTable";
 
-
 export default function ReactionTabsView({ data, isLoading }: ReactionState) {
   return (
     <Tabs defaultValue="table">
@@ -25,28 +24,28 @@ export default function ReactionTabsView({ data, isLoading }: ReactionState) {
       </Tabs.List>
 
       <Tabs.Panel value="table" pt={10}>
-		<ExportControls
-			data={data}
-			fileName="reactions"
-			onConvertToCSV={reactionToCSV}
-		/>
+        <ExportControls
+          data={data}
+          fileName="reactions"
+          onConvertToCSV={reactionToCSV}
+        />
         <ReactionSearchTable data={data} />
       </Tabs.Panel>
 
       <Tabs.Panel value="analysis" pt={10}>
-		<AnalysisChart
-		data={data}
-		isLoading={isLoading}
-		onProcessData={processChartReaction}
-		/>
+        <AnalysisChart
+          data={data}
+          isLoading={isLoading}
+          onProcessData={processChartReaction}
+        />
       </Tabs.Panel>
 
       <Tabs.Panel value="references" pt={10}>
-		<References
-		data={data}
-		isLoading={isLoading}
-		onProcessData={processRefReaction}
-		/>
+        <References
+          data={data}
+          isLoading={isLoading}
+          onProcessData={processRefReaction}
+        />
       </Tabs.Panel>
     </Tabs>
   );
