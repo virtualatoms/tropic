@@ -1,10 +1,13 @@
-import React, { useCallback, useMemo, useRef } from "react";
-import { AgGridReactProps } from "ag-grid-react";
-import { Select, Button, Anchor } from "@mantine/core";
+import React, { useMemo, useRef } from "react";
+import Link from 'next/link';
+import { Anchor } from "@mantine/core";
+import { MonomerSummary } from "@/lib/types";
+
 import { AgGridReact } from "ag-grid-react";
 import {
 	ModuleRegistry,
-	AllCommunityModule,
+	ColDef,
+  AllCommunityModule,
 	themeAlpine,
 } from "ag-grid-community";
 
@@ -13,130 +16,137 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 const theme = themeAlpine.withParams({
 	headerBackgroundColor: "var(--mantine-color-gray-0)",
 	borderColor: "var(--mantine-color-gray-3)",
-  	cellHorizontalPadding: "12px",
+  cellHorizontalPadding: "12px",
 });
 
-const CustomHeader = ({ displayName }: { displayName: string }) => (
-	<span dangerouslySetInnerHTML={{ __html: displayName }} />
-);
+
+type GridRowData = {
+	structure: string;
+	monomer_id: string;
+	smiles: string;
+	ring_size: number;
+	has_exp: boolean;
+	has_comp: boolean;
+};
 
 const MonomerIdCell = ({ value }: { value: string }) => (
-	<Anchor href={`/monomers/${value}`} size="sm">
+	<Anchor href={`/monomers/${value}`} size="sm" component={Link}>
 		{value}
 	</Anchor>
 );
 
-type Molecule = {
-  structure: string;
-  monomer_id: string;
-  smiles: string;
-  ring_size: number;
-  has_exp: boolean;
-  has_comp: boolean;
+const ImageRenderer = ({ value }: { value: string }) => (
+  <div
+		style={{
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+			width: "100%",
+			height: "100%",
+		}}
+	>
+		<img
+			src={`data:image/svg+xml;base64,${value}`}
+			alt="Monomer structure"
+			style={{maxHeight: "100%", maxWidth: "100%", objectFit: "contain"}}
+		/>
+	</div>
+);
+
+const monomerIdComparator = (valueA: string, valueB: string) => {
+  const numA = parseInt(valueA.split('-')[1], 10);
+  const numB = parseInt(valueB.split('-')[1], 10);
+  return numA - numB;
 };
 
-type Props = {
-  getRows: (params: {
-    startRow: number;
-    endRow: number;
-  }) => Promise<{ rows: Molecule[]; totalCount: number }>;
-};
-
-const SEARCH_NUM_ROWS = 5;
-
-export default function MonomerSearchTable({ getRows }: Props) {
-  const gridRef = useRef<AgGridReact>(null);
-
-  const columnDefs = useMemo<AgGridReactProps["columnDefs"]>(
-    () => [
-      {
-        headerName: "Molecule",
-        field: "structure",
-        cellRenderer: MarkdownRenderer,
-        minWidth: 200,
-      },
-      {
-        headerName: "Monomer ID",
-        field: "monomer_id",
-        cellRenderer: CustomHeader,
-      },
-      { headerName: "SMILES", field: "smiles", minWidth: 250 },
-      { headerName: "Ring Size", field: "ring_size" },
-      { headerName: "Has Exp", field: "has_exp", valueFormatter: boolFormatter },
-      { headerName: "Has Comp", field: "has_comp", valueFormatter: boolFormatter },
-    ],
-    []
-  );
-
-  const datasource = useMemo(() => {
-    return {
-      getRows: async (params: any) => {
-        const { startRow, endRow } = params.request;
-        const res = await getRows({ startRow, endRow });
-
-        params.successCallback(res.rows, res.totalCount);
-      },
-    };
-  }, [getRows]);
-
-  const onGridReady = useCallback((params: any) => {
-    params.api.setDatasource(datasource);
-  }, [datasource]);
-
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-end gap-2 items-center">
-        <span className="text-sm text-muted-foreground">Export as:</span>
-        {/* <Select>
-          <Select.Trigger className="w-[120px]" />
-          <Select.Content>
-            <Select.Item value="csv">CSV</Select.Item>
-            <Select.Item value="json">JSON</Select.Item>
-          </Select.Content>
-        </Select>
-        <Button variant="outline" size="sm">Export</Button> */}
-      </div>
-
-      <div className="ag-theme-alpine" style={{ height: "500px", width: "100%" }}>
-        <AgGridReact
-          ref={gridRef}
-          columnDefs={columnDefs}
-          defaultColDef={{
-            resizable: true,
-            cellStyle: {
-              display: "flex",
-              alignItems: "center",
-              height: "100%",
-            },
-          }}
-          domLayout="autoHeight"
-          rowModelType="infinite"
-          cacheBlockSize={SEARCH_NUM_ROWS}
-          pagination={true}
-          paginationPageSize={SEARCH_NUM_ROWS}
-          animateRows={false}
-          onGridReady={onGridReady}
-          theme={theme}
-        />
-      </div>
-    </div>
-  );
+function boolFormatter(params: { value: boolean }): string {
+	return params.value ? "Yes" : "No";
 }
 
-function MarkdownRenderer(params: any) {
-  // Basic Markdown support (replace this with a markdown lib if needed)
-  return (
-    <div
-      className="prose text-sm"
-      dangerouslySetInnerHTML={{ __html: markdownToHtml(params.value) }}
-    />
+export default function MonomerSearchTable({ data  }: { data: MonomerSummary[] } ) {
+	const gridRef = useRef<AgGridReact>(null);
+
+	// Remove the useEffect for fetching.
+	// Use useMemo to transform the data prop into rowData.
+	// This is efficient because it only recalculates when the 'data' prop changes.
+	const rowData = useMemo<GridRowData[]>(() => {
+		return data.map((summary) => ({
+			structure: summary.monomer.svg,
+			monomer_id: summary.monomer.monomer_id,
+			smiles: summary.monomer.smiles,
+			ring_size: summary.monomer.ring_size,
+			has_exp: summary.has_exp,
+			has_comp: summary.has_comp,
+		}));
+	}, [data]);
+
+	const columnDefs = useMemo<ColDef[]>(
+		() => [
+			{
+				headerName: "Molecule",
+				field: "structure",
+				cellRenderer: ImageRenderer,
+				width: 200,
+				autoHeight: true,
+			},
+			{
+				headerName: "Monomer ID",
+				field: "monomer_id",
+				cellRenderer: MonomerIdCell,
+        comparator: monomerIdComparator,
+				width: 120,
+			},
+			{ headerName: "SMILES", field: "smiles", minWidth: 250 },
+			{ headerName: "Ring Size", field: "ring_size", width: 90 },
+			{
+				headerName: "Has Exp",
+				field: "has_exp",
+				valueFormatter: boolFormatter,
+				width: 90,
+			},
+			{
+				headerName: "Has Comp",
+				field: "has_comp",
+				valueFormatter: boolFormatter,
+				width: 90,
+				resizable: false,
+			},
+		],
+		[]
+	);
+
+	const defaultColDef = useMemo<ColDef>(
+		() => ({
+			resizable: true,
+			sortable: true,
+			filter: false,
+			cellStyle: {
+				display: "flex",
+				alignItems: "center",
+			},
+		}),
+		[]
+	);
+
+	return (
+		<>
+			<AgGridReact
+				ref={gridRef}
+				theme={theme}
+				rowData={rowData}
+				columnDefs={columnDefs}
+				defaultColDef={defaultColDef}
+				domLayout="autoHeight"
+				pagination={true}
+				paginationPageSize={8}
+        paginationPageSizeSelector={[8, 20, 50, 100]}
+				animateRows={true}
+        gridOptions={{suppressCellFocus: true}}
+				rowHeight={100}
+				autoSizeStrategy={{type: 'fitGridWidth', defaultMinWidth: 10}}
+				onGridSizeChanged={(params) => (params.api.sizeColumnsToFit())}
+        initialState={{sort: {sortModel: [{ colId: 'monomer_id', sort: 'asc' }]}}}
+			/>
+  </>
   );
-}
-
-function markdownToHtml(md: string): string {
-  return md.replace(/\[(.*?)\]\((.*?)\)/g, `<a href="$2" target="_blank">$1</a>`);
-}
-
-function boolFormatter(params: any) {
-  return params.value ? "Yes" : "No";
 }

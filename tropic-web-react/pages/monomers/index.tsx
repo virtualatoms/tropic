@@ -8,11 +8,12 @@ import {
   Grid,
   GridCol,
 } from "@mantine/core";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SidebarFilters from "@/components/MonomerSearchSidebar";
 import TabsView from "@/components/TabsView";
 import DrawModal from "@/components/DrawModal";
-import { MonomerFilters } from "@/lib/types";
+import { MonomerFilters, MonomerSummary } from "@/lib/types";
+import {fetchMonomerSummaries} from "@/lib/api";
 
 export default function MonomerSearchPage() {
   const [smiles, setSmiles] = useState("");
@@ -26,9 +27,29 @@ export default function MonomerSearchPage() {
     functionalGroups: [],
   });
 
+	const [monomerData, setMonomerData] = useState<MonomerSummary[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+		const fetchData = async () => {
+			setIsLoading(true);
+			try {
+				const data = await fetchMonomerSummaries(filters);
+				setMonomerData(data || []); // Ensure data is always an array
+			} catch (error) {
+				console.error("Failed to fetch monomer summaries:", error);
+				setMonomerData([]);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchData();
+	}, [filters]); 
+
   return (
     <>
-      <Breadcrumbs pages={["Home", "API"]} />
+      <Breadcrumbs pages={["Home", "Monomer Search"]} />
       <Container fluid>
         <Center my="md">
           <Group>
@@ -49,7 +70,7 @@ export default function MonomerSearchPage() {
             <SidebarFilters filters={filters} setFilters={setFilters} />
           </GridCol>
           <GridCol span={9}>
-            <TabsView filters={filters} />
+            <TabsView data={monomerData} isLoading={isLoading} />
           </GridCol>
         </Grid>
       </Container>

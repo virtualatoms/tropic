@@ -75,6 +75,7 @@ async def get_monomers(
                         "monomer_id": "$monomer.monomer_id",
                         "smiles": "$monomer.smiles",
                         "ring_size": "$monomer.ring_size",
+                        "svg": "$monomer.svg",
                     },
                 },
                 "data": {

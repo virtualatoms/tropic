@@ -29,14 +29,12 @@ export default function MonomerPage() {
         return res.json();
       })
       .then((json) => {
-        if (json.detail === "Monomer not found") {
-          setError("Monomer not found");
-          setData(null);
-        } else {
           setData(json);
-        }
       })
-      .catch(() => setError("Failed to load data"))
+      .catch(() => {
+        setError("Monomer not found");
+        setData(null);
+      })
       .finally(() => setLoading(false));
   }, [monomerId]);
 

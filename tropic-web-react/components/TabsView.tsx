@@ -1,13 +1,15 @@
 import React from 'react';
 import { Tabs } from '@mantine/core';
 import { IconTable, IconChartDots, IconBook } from '@tabler/icons-react';
-import { References } from './References';
-import { AnalysisChart } from './AnalysisChart';
-import { MonomerFilters } from '@/lib/types';
+import References from './References';
+import AnalysisChart from './AnalysisChart';
+import MonomerSearchTable from './MonomerSearchTable';
+import { MonomerSummaryState } from '@/lib/types';
+import { ExportControls } from './ExportControls';
 
-export default function TabsView({filters}: {filters: MonomerFilters}) {
+export default function TabsView({data, isLoading}: MonomerSummaryState ) {
 	return (
-		<Tabs defaultValue="analysis" >
+		<Tabs defaultValue="table" >
 			<Tabs.List>
 				<Tabs.Tab value="table" leftSection={<IconTable size={16} />}>
 					Table
@@ -21,15 +23,16 @@ export default function TabsView({filters}: {filters: MonomerFilters}) {
 			</Tabs.List>
 
 			<Tabs.Panel value="table" pt={10}>
-				<h1>Table</h1>
+				<ExportControls data={data} />
+				<MonomerSearchTable data={data} />
 			</Tabs.Panel>
 
 			<Tabs.Panel value="analysis" pt={10}>
-				<AnalysisChart filters={filters} />
+				<AnalysisChart data={data} isLoading={isLoading} />
 			</Tabs.Panel>
 
 			<Tabs.Panel value="references" pt={10}>
-				<References filters={filters} />
+				<References data={data} isLoading={isLoading} />
 			</Tabs.Panel>
 		</Tabs>
 	);

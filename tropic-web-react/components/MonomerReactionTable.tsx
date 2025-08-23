@@ -6,8 +6,10 @@ import {
 	AllCommunityModule,
 	themeAlpine,
 } from "ag-grid-community";
+import Link from 'next/link';
 
 ModuleRegistry.registerModules([AllCommunityModule]);
+// ModuleRegistry.registerModules([ClientSideRowModelModule]);
 
 const theme = themeAlpine.withParams({
 	headerBackgroundColor: "var(--mantine-color-gray-0)",
@@ -20,7 +22,7 @@ const CustomHeader = ({ displayName }: { displayName: string }) => (
 );
 
 const ReactionIdCell = ({ value }: { value: string }) => (
-	<Anchor href={`/reactions/${value}`} size="sm">
+	<Anchor href={`/reactions/${value}`} size="sm" component={Link}>
 		{value}
 	</Anchor>
 );
@@ -200,3 +202,5 @@ const MonomerReactionTable = ({ data }: { data: any }) => {
 };
 
 export default MonomerReactionTable;
+
+

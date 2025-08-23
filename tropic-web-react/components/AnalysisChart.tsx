@@ -1,8 +1,7 @@
 import { ScatterChart } from "@mantine/charts";
 import { Select, Group, Text, LoadingOverlay, Box } from "@mantine/core";
-import { useMemo, useState, useEffect } from "react";
-import { MonomerFilters } from "@/lib/types";
-import { fetchMonomerSummaries } from "@/lib/api";
+import { useMemo, useState } from "react";
+import { MonomerSummaryState } from "@/lib/types";
 
 type ChartDatum = {
 	ring_size: number;
@@ -30,52 +29,34 @@ function yAxisLabel(key: keyof ChartDatum) {
 	}
 }
 
-export function AnalysisChart({ filters }: {filters: MonomerFilters}) {
+
+export default function AnalysisChart({ data, isLoading }: MonomerSummaryState) {
 	const [yField, setYField] = useState<keyof ChartDatum>("delta_h");
-	const [loading, setLoading] = useState(false);
-	const [chartData, setChartData] = useState<{
-		experimental: ChartDatum[];
-		computational: ChartDatum[];
-	}>({ experimental: [], computational: [] });
 
-	useEffect(() => {
-		const fetchDataForChart = async () => {
-			setLoading(true);
-			try {
-				const monomerSummaries = await fetchMonomerSummaries(filters);
+	const chartData = useMemo(() => {
+		const expData: ChartDatum[] = [];
+		const compData: ChartDatum[] = [];
 
-				const expData: ChartDatum[] = [];
-				const compData: ChartDatum[] = [];
+		for (const monomerSummary of data) {
+			for (const d of monomerSummary.data) {
+				if (d.delta_h === null || d.delta_s === null) continue;
 
-				for (const monomerSummary of monomerSummaries) {
-					for (const d of monomerSummary.data) {
-						if (d.delta_h === null || d.delta_s === null) continue;
+				const datum: ChartDatum = {
+					ring_size: monomerSummary.monomer.ring_size,
+					delta_h: d.delta_h,
+					delta_s: d.delta_s,
+					ceiling_temperature: d.ceiling_temperature,
+				};
 
-						const datum: ChartDatum = {
-							ring_size: monomerSummary.monomer.ring_size,
-							delta_h: d.delta_h,
-							delta_s: d.delta_s,
-							ceiling_temperature: d.ceiling_temperature,
-						};
-
-						if (d.is_experimental) {
-							expData.push(datum);
-						} else {
-							compData.push(datum);
-						}
-					}
+				if (d.is_experimental) {
+					expData.push(datum);
+				} else {
+					compData.push(datum);
 				}
-				setChartData({ experimental: expData, computational: compData });
-			} catch (error) {
-				console.error("Failed to fetch chart data:", error);
-				setChartData({ experimental: [], computational: [] });
-			} finally {
-				setLoading(false);
 			}
-		};
-
-		fetchDataForChart();
-	}, [filters]);
+		}
+		return { experimental: expData, computational: compData };
+	}, [data]);
 
 	const formattedData = useMemo(() => {
 		return [
@@ -100,7 +81,7 @@ export function AnalysisChart({ filters }: {filters: MonomerFilters}) {
 
 	return (
 		<Box pos="relative">
-			<LoadingOverlay visible={loading} />
+			<LoadingOverlay visible={isLoading} />
 			<Group justify="flex-end" mb="md">
 				<Text size="sm">Y axis property:</Text>
 				<Select
@@ -117,10 +98,10 @@ export function AnalysisChart({ filters }: {filters: MonomerFilters}) {
 				dataKey={{ x: "x", y: "y" }}
 				xAxisLabel="Ring Size"
 				yAxisLabel={yAxisLabel(yField)}
-        // pointLabels={undefined}
-				// tickLine="xy"
 				withLegend
-        // mt={20}
+        		// pointLabels={undefined}
+				// tickLine="xy"
+        		// mt={20}
 			/>
 		</Box>
 	);

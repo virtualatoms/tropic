@@ -1,4 +1,4 @@
-import { MonomerFilters, MonomerSummary } from "./types";
+import { MonomerFilters, MonomerSummary, Reaction } from "./types";
 import { API_ENDPOINT } from "./constants";
 
 
@@ -41,4 +41,13 @@ export async function fetchMonomerSummaries(filters: MonomerFilters): Promise<Mo
 	}
 	const data = await response.json();
 	return data.items as MonomerSummary[];
+};
+
+export const fetchReactions = async (filters: MonomerFilters): Promise<Reaction[]> => {
+	const query = buildMonomerQuery(filters);
+	const response = await fetch(`${API_ENDPOINT}/reactions?${query}`);
+	if (!response.ok) {
+		throw new Error('Failed to fetch data for export');
+	}
+	return await response.json() as Reaction[];
 };
