@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 import SidebarFilters from "@/components/MonomerSearchSidebar";
-// import TabsView from "@/components/TabsView";
+import TabsView from "@/components/TabsView";
 import DrawModal from "@/components/DrawModal";
 
 export default function MonomerSearchPage() {
@@ -55,7 +55,7 @@ export default function MonomerSearchPage() {
             <SidebarFilters filters={filters} setFilters={setFilters} />
           </GridCol>
           <GridCol span={9}>
-            {/* <TabsView filters={filters} /> */}
+            <TabsView filters={filters} />
           </GridCol>
         </Grid>
       </Container>
