@@ -15,10 +15,14 @@
     "@mantine/core": "^8.2.7",
     "@mantine/hooks": "^8.2.7",
     "@tabler/icons-react": "^3.34.1",
+    "@types/chart.js": "^2.9.41",
     "3dmol": "^2.5.2",
     "ag-grid-react": "^34.1.2",
+    "chart.js": "^4.5.0",
+    "chartjs-plugin-annotation": "^3.1.0",
     "next": "15.5.0",
     "react": "19.1.1",
+    "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.1.1"
   },
   "devDependencies": {

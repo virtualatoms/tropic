@@ -1,13 +1,15 @@
 import React from "react";
 import { Tabs } from "@mantine/core";
 import { IconTable, IconChartDots, IconBook } from "@tabler/icons-react";
-import References from "./References";
-import AnalysisChart from "./AnalysisChart";
+import { processRefMonomerSummary, References } from "./References";
+import { AnalysisChart, processChartMonomerSummary } from "./AnalysisChart";
 import MonomerSearchTable from "./MonomerSearchTable";
 import { MonomerSummaryState } from "@/lib/types";
+import { monomerSummaryToCSV } from "@/lib/export";
 import { ExportControls } from "./ExportControls";
 
-export default function TabsView({ data, isLoading }: MonomerSummaryState) {
+
+export default function MonomerTabsView({ data, isLoading }: MonomerSummaryState) {
   return (
     <Tabs defaultValue="table">
       <Tabs.List>
@@ -23,16 +25,28 @@ export default function TabsView({ data, isLoading }: MonomerSummaryState) {
       </Tabs.List>
 
       <Tabs.Panel value="table" pt={10}>
-        <ExportControls data={data} />
+		<ExportControls
+			data={data}
+			fileName="monomer_summary"
+			onConvertToCSV={monomerSummaryToCSV}
+		/>
         <MonomerSearchTable data={data} />
       </Tabs.Panel>
 
       <Tabs.Panel value="analysis" pt={10}>
-        <AnalysisChart data={data} isLoading={isLoading} />
+		<AnalysisChart
+		data={data}
+		isLoading={isLoading}
+		onProcessData={processChartMonomerSummary}
+		/>
       </Tabs.Panel>
 
       <Tabs.Panel value="references" pt={10}>
-        <References data={data} isLoading={isLoading} />
+		<References
+		data={data}
+		isLoading={isLoading}
+		onProcessData={processRefMonomerSummary}
+		/>
       </Tabs.Panel>
     </Tabs>
   );

@@ -1,27 +1,52 @@
 import React, { useMemo } from "react";
 import { Table, Anchor, Text, LoadingOverlay } from "@mantine/core";
-import { MonomerSummaryState } from "@/lib/types";
+import { MonomerSummary, Reaction } from "@/lib/types";
 
 interface Reference {
   doi: string;
   formatted: string;
 }
 
-export default function References({ data, isLoading }: MonomerSummaryState) {
-  const references = useMemo<Reference[]>(() => {
-    const uniqueRefs = new Map<string, string>();
+type ReferencesProps<T> = {
+  data: T[];
+  isLoading: boolean;
+  onProcessData: (data: T[]) => Reference[];
+};
 
-    for (const summary of data) {
-      for (const result of summary.data || []) {
-        const doi = result.doi;
-        const formattedRef = result.formatted_reference;
-        if (doi && formattedRef && !uniqueRefs.has(doi)) {
-          uniqueRefs.set(doi, formattedRef);
-        }
+export const processRefMonomerSummary = (data: MonomerSummary[]): Reference[] => {
+  const uniqueRefs = new Map<string, string>();
+  for (const summary of data) {
+    for (const result of summary.data || []) {
+      const { doi, formatted_reference: formattedRef } = result;
+      if (doi && formattedRef && !uniqueRefs.has(doi)) {
+        uniqueRefs.set(doi, formattedRef);
       }
     }
-    return Array.from(uniqueRefs, ([doi, formatted]) => ({ doi, formatted }));
-  }, [data]);
+  }
+  return Array.from(uniqueRefs, ([doi, formatted]) => ({ doi, formatted }));
+};
+
+export const processRefReaction = (data: Reaction[]): Reference[] => {
+  const uniqueRefs = new Map<string, string>();
+  for (const reaction of data) {
+    const { doi, formatted_reference: formattedRef } = reaction.metadata;
+    if (doi && formattedRef && !uniqueRefs.has(doi)) {
+      uniqueRefs.set(doi, formattedRef);
+    }
+  }
+  return Array.from(uniqueRefs, ([doi, formatted]) => ({ doi, formatted }));
+};
+
+
+
+export function References<T>({
+  data,
+  isLoading,
+  onProcessData,
+}: ReferencesProps<T>) {
+  const references = useMemo<Reference[]>(() => {
+    return onProcessData(data);
+  }, [data, onProcessData]);
 
   const rows = references.map((ref) => (
     <Table.Tr key={ref.doi}>

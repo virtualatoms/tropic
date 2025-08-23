@@ -57,6 +57,10 @@ class Monomer(BaseModel):
         description="XYZ coordinates for the molecule",
         default_factory=lambda data: get_xyz(data["smiles"]),
     )
+    svg: str | None = Field(
+        None,
+        description="SVG representation of the monomer",
+    )
 
 
 class Product(BaseModel):

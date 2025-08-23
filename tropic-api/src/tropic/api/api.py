@@ -34,20 +34,28 @@ async def startup_event() -> None:
 @app.get("/reactions")
 async def get_reactions(
     reaction_filter: ReactionFilter = FilterDepends(ReactionFilter),  # noqa: B008
+    include_svg: bool = False,
 ) -> list[Reaction]:
     """Retrieve a list of reactions with optional filtering."""
     query = reaction_filter.filter(ReactionDocument.find({}))
     query = query.find(fetch_links=True)
+    if not include_svg:
+        query = query.project({"monomer.svg": 0})
     return await query.to_list()
 
 
 @app.get("/reactions/{reaction_id}")
-async def get_reaction(reaction_id: str) -> ReactionDocument:
+async def get_reaction(
+    reaction_id: str, include_svg: bool = False
+) -> Reaction:
     """Retrieve a specific reaction by its ID."""
     document = await ReactionDocument.find_one(
         {"reaction_id": reaction_id},
         fetch_links=True,
-    ).project(ReactionDocument)
+    )
+    if not include_svg:
+        document = document.project({"monomer.svg": 0})
+
     if not document:
         raise HTTPException(status_code=404, detail="Reaction not found")
     return document

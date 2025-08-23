@@ -5,7 +5,14 @@ import { monomerSummaryToCSV, triggerDownload } from "@/lib/export";
 
 type ExportFormat = "csv" | "json";
 
-export function ExportControls({ data }: { data: MonomerSummary[] }) {
+// Define the props for the new generic component
+type ExportControlsProps<T> = {
+  data: T[];
+  fileName: string; // e.g., "monomer_summary" or "reactions"
+  onConvertToCSV: (data: T[]) => string; // The specific CSV conversion function
+};
+
+export function ExportControls<T>({ data, fileName, onConvertToCSV }: ExportControlsProps<T>) {
   const [format, setFormat] = useState<ExportFormat>("csv");
   const [loading, setLoading] = useState(false);
 
@@ -16,17 +23,24 @@ export function ExportControls({ data }: { data: MonomerSummary[] }) {
       let mimeType: string;
 
       if (format === "csv") {
-        fileContent = monomerSummaryToCSV(data);
+        fileContent = onConvertToCSV(data);
         mimeType = "text/csv";
       } else {
-        fileContent = JSON.stringify(data, null, 2);
+         // Create a deep copy and remove the svg property before stringifying
+        const dataWithoutSVG = data.map((item: any) => {
+          if (item.monomer && 'svg' in item.monomer) {
+            const { svg, ...restOfMonomer } = item.monomer;
+            return { ...item, monomer: restOfMonomer };
+          }
+          return item;
+        });
+        fileContent = JSON.stringify(dataWithoutSVG, null, 2);
         mimeType = "application/json";
       }
 
-      triggerDownload(fileContent, `monomer_summary.${format}`, mimeType);
+      triggerDownload(fileContent, `${fileName}.${format}`, mimeType);
     } catch (error) {
       console.error("Export failed:", error);
-      // TODO: Show a notification
     } finally {
       setLoading(false);
     }
@@ -48,7 +62,7 @@ export function ExportControls({ data }: { data: MonomerSummary[] }) {
         variant="outline"
         onClick={handleExport}
         loading={loading}
-        disabled={data.length === 0} // Disable button if there's no data
+        disabled={data.length === 0}
       >
         Export
       </Button>

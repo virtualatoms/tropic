@@ -1,4 +1,4 @@
-import { MonomerFilters, MonomerSummary, Reaction } from "./types";
+import { MonomerFilters, MonomerSummary, Reaction, ReactionFilters } from "./types";
 import { API_ENDPOINT } from "./constants";
 
 const buildMonomerQuery = (filters: MonomerFilters): string => {
@@ -29,12 +29,58 @@ const buildMonomerQuery = (filters: MonomerFilters): string => {
     params.append("has_exp", (filters.hasExp === "yes").toString());
   }
 
-  // This assumes your API can handle multiple functional_groups params
-  filters.functionalGroups.forEach((group) => {
-    params.append("functional_groups", group);
-  });
+  params.append("functional_groups__in", filters.functionalGroups.join(","));
 
-  params.append("size", "1000");
+  return params.toString();
+};
+
+export const buildReactionQuery = (filters: ReactionFilters): string => {
+  const params = new URLSearchParams();
+  
+  if (filters.smiles) {
+    params.append("search", filters.smiles);
+  }
+
+  if (filters.initiator) {
+    params.append("parameters__initiator_smiles", filters.initiator);
+  }
+
+  if (filters.isExperimental !== "both") {
+    params.append(
+      "parameters__is_experimental",
+      (filters.isExperimental === "yes").toString()
+    );
+  }
+
+  params.append("metadata__year__gte", filters.year[0].toString());
+  params.append("metadata__year__lte", filters.year[1].toString());
+
+  if (filters.medium.length > 0) {
+    params.append("parameters__medium__in", filters.medium.join(","));
+  }
+  if (filters.reactionType.length > 0) {
+    params.append("type__in", filters.reactionType.join(","));
+  }
+  if (filters.method.length > 0) {
+    params.append("parameters__method__in", filters.method.join(","));
+  }
+
+  params.append("monomer__ring_size__gte", filters.ringSize[0].toString());
+  if (filters.ringSize[1] < 15) {
+    params.append("monomer__ring_size__lte", filters.ringSize[1].toString());
+  }
+
+  params.append(
+    "monomer__molecular_weight__gte",
+    filters.molecularWeight[0].toString()
+  );
+  params.append(
+    "monomer__molecular_weight__lte",
+    filters.molecularWeight[1].toString()
+  );
+
+  params.append("include_svg", "true");
+
   return params.toString();
 };
 
@@ -50,9 +96,9 @@ export async function fetchMonomerSummaries(
 }
 
 export const fetchReactions = async (
-  filters: MonomerFilters,
+  filters: ReactionFilters,
 ): Promise<Reaction[]> => {
-  const query = buildMonomerQuery(filters);
+  const query = buildReactionQuery(filters);
   const response = await fetch(`${API_ENDPOINT}/reactions?${query}`);
   if (!response.ok) {
     throw new Error("Failed to fetch data for export");

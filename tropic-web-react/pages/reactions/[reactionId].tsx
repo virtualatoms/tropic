@@ -3,28 +3,27 @@ import { useEffect, useState } from "react";
 import { Grid, GridCol, Loader, Center, Alert } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { MonomerSummaryHeader } from "@/components/MonomerSummaryHeader";
 import { MonomerLogo } from "@/components/MonomerLogo";
 import { TableOfContents } from "@/components/TableOfContents/TableOfContents";
-import MonomerReactionTable from "@/components/MonomerReactionTable";
 import { API_ENDPOINT } from "@/lib/constants";
-import { MonomerSummary } from "@/lib/types";
+import { Reaction } from "@/lib/types";
+import ReactionSummary from "@/components/ReactionSummary";
 
 export default function MonomerPage() {
   const router = useRouter();
-  const { monomerId } = router.query;
+  const { reactionId } = router.query;
 
-  const [data, setData] = useState<MonomerSummary | null>(null);
+  const [data, setData] = useState<Reaction | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!monomerId) return;
+    if (!reactionId) return;
 
     setLoading(true);
     setError(null);
 
-    fetch(`${API_ENDPOINT}/monomer-summaries/${monomerId}`)
+    fetch(`${API_ENDPOINT}/reactions/${reactionId}?include_svg=true`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch data");
         return res.json();
@@ -33,11 +32,11 @@ export default function MonomerPage() {
         setData(json);
       })
       .catch(() => {
-        setError("Monomer not found");
+        setError("Reaction not found");
         setData(null);
       })
       .finally(() => setLoading(false));
-  }, [monomerId]);
+  }, [reactionId]);
 
   return (
     <>
@@ -46,7 +45,7 @@ export default function MonomerPage() {
         rel="stylesheet"
       />
       <Breadcrumbs
-        pages={["Home", "Monomer Search", String(monomerId || "")]}
+        pages={["Home", "Reaction Search", String(reactionId || "")]}
       />
 
       {loading ? (
@@ -75,8 +74,7 @@ export default function MonomerPage() {
             </div>
           </Grid.Col>
           <GridCol span={9}>
-            <MonomerSummaryHeader data={data} />
-            <MonomerReactionTable data={data} />
+            <ReactionSummary data={data} />
           </GridCol>
         </Grid>
       )}

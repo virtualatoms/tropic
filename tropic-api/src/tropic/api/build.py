@@ -98,6 +98,7 @@ def get_reaction_document(
             "initiator": data["initiator_smiles"],
             "initial_monomer_conc": data["initial_monomer_conc"],
             "bulk_monomer_conc": data["bulk_monomer_conc"],
+            "medium": data["medium"],
             "monomer_state": data["monomer_state"],
             "polymer_state": data["polymer_state"],
             "solvent_model": data["solvent_model"],

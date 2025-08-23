@@ -1,6 +1,4 @@
 import React, { useMemo, useRef } from "react";
-import Link from "next/link";
-import { Anchor } from "@mantine/core";
 import { MonomerSummary } from "@/lib/types";
 
 import { AgGridReact } from "ag-grid-react";
@@ -10,6 +8,8 @@ import {
   AllCommunityModule,
   themeAlpine,
 } from "ag-grid-community";
+
+import { MonomerIdCell, ImageRenderer, boolFormatter,  idComparator } from "./TableFormats";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -27,40 +27,6 @@ type GridRowData = {
   has_exp: boolean;
   has_comp: boolean;
 };
-
-const MonomerIdCell = ({ value }: { value: string }) => (
-  <Anchor href={`/monomers/${value}`} size="sm" component={Link}>
-    {value}
-  </Anchor>
-);
-
-const ImageRenderer = ({ value }: { value: string }) => (
-  <div
-    style={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      width: "100%",
-      height: "100%",
-    }}
-  >
-    <img
-      src={`data:image/svg+xml;base64,${value}`}
-      alt="Monomer structure"
-      style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
-    />
-  </div>
-);
-
-const monomerIdComparator = (valueA: string, valueB: string) => {
-  const numA = parseInt(valueA.split("-")[1], 10);
-  const numB = parseInt(valueB.split("-")[1], 10);
-  return numA - numB;
-};
-
-function boolFormatter(params: { value: boolean }): string {
-  return params.value ? "Yes" : "No";
-}
 
 export default function MonomerSearchTable({
   data,
@@ -93,7 +59,7 @@ export default function MonomerSearchTable({
         headerName: "Monomer ID",
         field: "monomer_id",
         cellRenderer: MonomerIdCell,
-        comparator: monomerIdComparator,
+        comparator: idComparator,
         width: 120,
       },
       { headerName: "SMILES", field: "smiles", minWidth: 250 },

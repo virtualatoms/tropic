@@ -1,9 +1,9 @@
 import { Grid, GridCol, Title } from "@mantine/core";
-import { MonomerInfoCard } from "./MonomerInfoCard";
+import { MonomerInfoCard } from "./InfoCards";
 import { MoleculeViewerCard } from "./MoleculeViewerCard";
 import classes from "./TableOfContents/TableOfContents.module.css";
 
-export function MonomerSummary({ data }: { data: any }) {
+export function MonomerSummaryHeader({ data }: { data: any }) {
   return (
     <Grid gutter="xl" pb={10}>
       <Title order={1} id="summary" className={classes.visuallyHidden}>
@@ -13,7 +13,7 @@ export function MonomerSummary({ data }: { data: any }) {
         <MoleculeViewerCard xyz={data.monomer.xyz} />
       </GridCol>
       <GridCol span={6}>
-        <MonomerInfoCard data={data} />
+        <MonomerInfoCard data={data.monomer} />
       </GridCol>
     </Grid>
   );

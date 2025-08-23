@@ -9,35 +9,40 @@ import {
   GridCol,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
-import MonomerSearchSidebar from "@/components/MonomerSearchSidebar";
-import MonomerTabsView from "@/components/MonomerTabsView";
+import ReactionSearchSidebar from "@/components/ReactionSearchSidebar";
+import ReactionTabsView from "@/components/ReactionTabsView";
 import DrawModal from "@/components/DrawModal";
-import { MonomerFilters, MonomerSummary } from "@/lib/types";
-import { fetchMonomerSummaries } from "@/lib/api";
+import { ReactionFilters, Reaction } from "@/lib/types";
+import { fetchReactions } from "@/lib/api";
 
-export default function MonomerSearchPage() {
+export default function ReactionSearchPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [filters, setFilters] = useState<MonomerFilters>({
+  const currentYear = new Date().getFullYear();
+
+  const [filters, setFilters] = useState<ReactionFilters>({
     smiles: "",
     ringSize: [1, 15],
-    molWeight: [10, 500],
-    hasExp: "both",
-    hasComp: "both",
-    functionalGroups: [],
+    molecularWeight: [10, 500],
+    isExperimental: "both",
+    initiator: "",
+    medium: [],
+    reactionType: [],
+    method: [],
+    year: [1950, currentYear],
   });
 
-  const [monomerData, setMonomerData] = useState<MonomerSummary[]>([]);
+  const [monomerData, setReactionData] = useState<Reaction[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const data = await fetchMonomerSummaries(filters);
-        setMonomerData(data || []); // Ensure data is always an array
+        const data = await fetchReactions(filters);
+        setReactionData(data || []); // Ensure data is always an array
       } catch (error) {
-        console.error("Failed to fetch monomer summaries:", error);
-        setMonomerData([]);
+        console.error("Failed to fetch reaction summaries:", error);
+        setReactionData([]);
       } finally {
         setIsLoading(false);
       }
@@ -48,7 +53,7 @@ export default function MonomerSearchPage() {
 
   return (
     <>
-      <Breadcrumbs pages={["Home", "Monomer Search"]} />
+      <Breadcrumbs pages={["Home", "Reaction Search"]} />
       <Container fluid>
         <Center my="md">
           <Group>
@@ -70,10 +75,10 @@ export default function MonomerSearchPage() {
 
         <Grid gutter="xl" pt="xl">
           <GridCol span={3}>
-            <MonomerSearchSidebar filters={filters} setFilters={setFilters} />
+            <ReactionSearchSidebar filters={filters} setFilters={setFilters} />
           </GridCol>
           <GridCol span={9}>
-            <MonomerTabsView data={monomerData} isLoading={isLoading} />
+            <ReactionTabsView data={monomerData} isLoading={isLoading} />
           </GridCol>
         </Grid>
       </Container>
