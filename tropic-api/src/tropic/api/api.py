@@ -4,19 +4,15 @@ import uvicorn
 from beanie import init_beanie
 from fastapi import FastAPI, HTTPException
 from fastapi_filter import FilterDepends
-from fastapi_pagination import add_pagination
-from fastapi_pagination.ext.beanie import paginate
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
 from tropic.api.documents import MonomerDocument, ReactionDocument
 from tropic.api.filters import MonomerSummariesFilter, ReactionFilter
-from tropic.api.paginate import BigPage
 from tropic.core.models import Reaction
 
 app = FastAPI(title="TROPIC API")
-add_pagination(app)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost", "http://localhost:3000"],
@@ -57,7 +53,7 @@ async def get_reaction(reaction_id: str) -> ReactionDocument:
     return document
 
 
-@app.get("/monomer-summaries", response_model=BigPage, include_in_schema=False)
+@app.get("/monomer-summaries", include_in_schema=False)
 async def get_monomers(
     reaction_filter: MonomerSummariesFilter = FilterDepends(  # noqa: B008
         MonomerSummariesFilter,
@@ -104,7 +100,7 @@ async def get_monomers(
         pipeline += [{"$match": {"$and": match}}]
 
     query = reaction_filter.filter(ReactionDocument.find({}))
-    return await paginate(query.aggregate(pipeline))
+    return await query.aggregate(pipeline).to_list()
 
 
 @app.get("/monomer-summaries/{monomer_id}", include_in_schema=False)

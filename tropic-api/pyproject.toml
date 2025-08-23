@@ -28,7 +28,6 @@ dependencies = [
     "pydantic>=2.0.1",
     "beanie",
     "fastapi",
-    "fastapi-pagination",
     "fastapi-filter",
     "uvicorn",
     "requests-cache",

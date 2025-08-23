@@ -46,8 +46,7 @@ export async function fetchMonomerSummaries(
   if (!response.ok) {
     throw new Error("Network response was not ok");
   }
-  const data = await response.json();
-  return data.items as MonomerSummary[];
+  return (await response.json()) as MonomerSummary[];
 }
 
 export const fetchReactions = async (
