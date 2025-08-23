@@ -1,13 +1,13 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Grid, GridCol, Loader, Center, Alert} from "@mantine/core";
+import { Grid, GridCol, Loader, Center, Alert } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { MonomerSummary } from "@/components/MonomerSummary";
 import { MonomerLogo } from "@/components/MonomerLogo";
 import { TableOfContents } from "@/components/TableOfContents/TableOfContents";
-import  MonomerReactionTable  from "@/components/MonomerReactionTable";
-import { API_ENDPOINT } from '@/lib/constants';
+import MonomerReactionTable from "@/components/MonomerReactionTable";
+import { API_ENDPOINT } from "@/lib/constants";
 
 export default function MonomerPage() {
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function MonomerPage() {
         return res.json();
       })
       .then((json) => {
-          setData(json);
+        setData(json);
       })
       .catch(() => {
         setError("Monomer not found");
@@ -40,8 +40,13 @@ export default function MonomerPage() {
 
   return (
     <>
-     <link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet" />
-      <Breadcrumbs pages={["Home", "Monomer Search", String(monomerId || "")]} />
+      <link
+        href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700"
+        rel="stylesheet"
+      />
+      <Breadcrumbs
+        pages={["Home", "Monomer Search", String(monomerId || "")]}
+      />
 
       {loading ? (
         <Center mt="xl">
@@ -59,12 +64,15 @@ export default function MonomerPage() {
         </Center>
       ) : (
         <Grid pt={30} gutter="xl" mb={50}>
-            <Grid.Col span={3}>
-                <div style={{ position: "sticky", top: "1rem" }}>
-                <MonomerLogo svg={data.monomer.svg} monomerId={data.monomer.monomer_id} />
-                <TableOfContents />
-                </div>
-            </Grid.Col>
+          <Grid.Col span={3}>
+            <div style={{ position: "sticky", top: "1rem" }}>
+              <MonomerLogo
+                svg={data.monomer.svg}
+                monomerId={data.monomer.monomer_id}
+              />
+              <TableOfContents />
+            </div>
+          </Grid.Col>
           <GridCol span={9}>
             <MonomerSummary data={data} />
             <MonomerReactionTable data={data} />

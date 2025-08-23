@@ -1,152 +1,157 @@
 import React, { useMemo, useRef } from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import { Anchor } from "@mantine/core";
 import { MonomerSummary } from "@/lib/types";
 
 import { AgGridReact } from "ag-grid-react";
 import {
-	ModuleRegistry,
-	ColDef,
+  ModuleRegistry,
+  ColDef,
   AllCommunityModule,
-	themeAlpine,
+  themeAlpine,
 } from "ag-grid-community";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
 const theme = themeAlpine.withParams({
-	headerBackgroundColor: "var(--mantine-color-gray-0)",
-	borderColor: "var(--mantine-color-gray-3)",
+  headerBackgroundColor: "var(--mantine-color-gray-0)",
+  borderColor: "var(--mantine-color-gray-3)",
   cellHorizontalPadding: "12px",
 });
 
-
 type GridRowData = {
-	structure: string;
-	monomer_id: string;
-	smiles: string;
-	ring_size: number;
-	has_exp: boolean;
-	has_comp: boolean;
+  structure: string;
+  monomer_id: string;
+  smiles: string;
+  ring_size: number;
+  has_exp: boolean;
+  has_comp: boolean;
 };
 
 const MonomerIdCell = ({ value }: { value: string }) => (
-	<Anchor href={`/monomers/${value}`} size="sm" component={Link}>
-		{value}
-	</Anchor>
+  <Anchor href={`/monomers/${value}`} size="sm" component={Link}>
+    {value}
+  </Anchor>
 );
 
 const ImageRenderer = ({ value }: { value: string }) => (
   <div
-		style={{
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center",
-			width: "100%",
-			height: "100%",
-		}}
-	>
-		<img
-			src={`data:image/svg+xml;base64,${value}`}
-			alt="Monomer structure"
-			style={{maxHeight: "100%", maxWidth: "100%", objectFit: "contain"}}
-		/>
-	</div>
+    style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "100%",
+      height: "100%",
+    }}
+  >
+    <img
+      src={`data:image/svg+xml;base64,${value}`}
+      alt="Monomer structure"
+      style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
+    />
+  </div>
 );
 
 const monomerIdComparator = (valueA: string, valueB: string) => {
-  const numA = parseInt(valueA.split('-')[1], 10);
-  const numB = parseInt(valueB.split('-')[1], 10);
+  const numA = parseInt(valueA.split("-")[1], 10);
+  const numB = parseInt(valueB.split("-")[1], 10);
   return numA - numB;
 };
 
 function boolFormatter(params: { value: boolean }): string {
-	return params.value ? "Yes" : "No";
+  return params.value ? "Yes" : "No";
 }
 
-export default function MonomerSearchTable({ data  }: { data: MonomerSummary[] } ) {
-	const gridRef = useRef<AgGridReact>(null);
+export default function MonomerSearchTable({
+  data,
+}: {
+  data: MonomerSummary[];
+}) {
+  const gridRef = useRef<AgGridReact>(null);
 
-	// Remove the useEffect for fetching.
-	// Use useMemo to transform the data prop into rowData.
-	// This is efficient because it only recalculates when the 'data' prop changes.
-	const rowData = useMemo<GridRowData[]>(() => {
-		return data.map((summary) => ({
-			structure: summary.monomer.svg,
-			monomer_id: summary.monomer.monomer_id,
-			smiles: summary.monomer.smiles,
-			ring_size: summary.monomer.ring_size,
-			has_exp: summary.has_exp,
-			has_comp: summary.has_comp,
-		}));
-	}, [data]);
+  // Remove the useEffect for fetching.
+  // Use useMemo to transform the data prop into rowData.
+  // This is efficient because it only recalculates when the 'data' prop changes.
+  const rowData = useMemo<GridRowData[]>(() => {
+    return data.map((summary) => ({
+      structure: summary.monomer.svg,
+      monomer_id: summary.monomer.monomer_id,
+      smiles: summary.monomer.smiles,
+      ring_size: summary.monomer.ring_size,
+      has_exp: summary.has_exp,
+      has_comp: summary.has_comp,
+    }));
+  }, [data]);
 
-	const columnDefs = useMemo<ColDef[]>(
-		() => [
-			{
-				headerName: "Molecule",
-				field: "structure",
-				cellRenderer: ImageRenderer,
-				width: 200,
-				autoHeight: true,
-			},
-			{
-				headerName: "Monomer ID",
-				field: "monomer_id",
-				cellRenderer: MonomerIdCell,
+  const columnDefs = useMemo<ColDef[]>(
+    () => [
+      {
+        headerName: "Molecule",
+        field: "structure",
+        cellRenderer: ImageRenderer,
+        width: 200,
+        autoHeight: true,
+      },
+      {
+        headerName: "Monomer ID",
+        field: "monomer_id",
+        cellRenderer: MonomerIdCell,
         comparator: monomerIdComparator,
-				width: 120,
-			},
-			{ headerName: "SMILES", field: "smiles", minWidth: 250 },
-			{ headerName: "Ring Size", field: "ring_size", width: 90 },
-			{
-				headerName: "Has Exp",
-				field: "has_exp",
-				valueFormatter: boolFormatter,
-				width: 90,
-			},
-			{
-				headerName: "Has Comp",
-				field: "has_comp",
-				valueFormatter: boolFormatter,
-				width: 90,
-				resizable: false,
-			},
-		],
-		[]
-	);
+        width: 120,
+      },
+      { headerName: "SMILES", field: "smiles", minWidth: 250 },
+      { headerName: "Ring Size", field: "ring_size", width: 90 },
+      {
+        headerName: "Has Exp",
+        field: "has_exp",
+        valueFormatter: boolFormatter,
+        width: 90,
+      },
+      {
+        headerName: "Has Comp",
+        field: "has_comp",
+        valueFormatter: boolFormatter,
+        width: 90,
+        resizable: false,
+      },
+    ],
+    [],
+  );
 
-	const defaultColDef = useMemo<ColDef>(
-		() => ({
-			resizable: true,
-			sortable: true,
-			filter: false,
-			cellStyle: {
-				display: "flex",
-				alignItems: "center",
-			},
-		}),
-		[]
-	);
+  const defaultColDef = useMemo<ColDef>(
+    () => ({
+      resizable: true,
+      sortable: true,
+      filter: false,
+      cellStyle: {
+        display: "flex",
+        alignItems: "center",
+      },
+    }),
+    [],
+  );
 
-	return (
-		<>
-			<AgGridReact
-				ref={gridRef}
-				theme={theme}
-				rowData={rowData}
-				columnDefs={columnDefs}
-				defaultColDef={defaultColDef}
-				domLayout="autoHeight"
-				pagination={true}
-				paginationPageSize={8}
+  return (
+    <>
+      <AgGridReact
+        ref={gridRef}
+        theme={theme}
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        domLayout="autoHeight"
+        pagination={true}
+        paginationPageSize={8}
         paginationPageSizeSelector={[8, 20, 50, 100]}
-				animateRows={true}
-        gridOptions={{suppressCellFocus: true}}
-				rowHeight={100}
-				autoSizeStrategy={{type: 'fitGridWidth', defaultMinWidth: 10}}
-				onGridSizeChanged={(params) => (params.api.sizeColumnsToFit())}
-        initialState={{sort: {sortModel: [{ colId: 'monomer_id', sort: 'asc' }]}}}
-			/>
-  </>
+        animateRows={true}
+        gridOptions={{ suppressCellFocus: true }}
+        rowHeight={100}
+        autoSizeStrategy={{ type: "fitGridWidth", defaultMinWidth: 10 }}
+        onGridSizeChanged={(params) => params.api.sizeColumnsToFit()}
+        initialState={{
+          sort: { sortModel: [{ colId: "monomer_id", sort: "asc" }] },
+        }}
+      />
+    </>
   );
 }

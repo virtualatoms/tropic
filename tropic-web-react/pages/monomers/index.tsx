@@ -13,7 +13,7 @@ import SidebarFilters from "@/components/MonomerSearchSidebar";
 import TabsView from "@/components/TabsView";
 import DrawModal from "@/components/DrawModal";
 import { MonomerFilters, MonomerSummary } from "@/lib/types";
-import {fetchMonomerSummaries} from "@/lib/api";
+import { fetchMonomerSummaries } from "@/lib/api";
 
 export default function MonomerSearchPage() {
   const [smiles, setSmiles] = useState("");
@@ -27,25 +27,25 @@ export default function MonomerSearchPage() {
     functionalGroups: [],
   });
 
-	const [monomerData, setMonomerData] = useState<MonomerSummary[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
+  const [monomerData, setMonomerData] = useState<MonomerSummary[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-		const fetchData = async () => {
-			setIsLoading(true);
-			try {
-				const data = await fetchMonomerSummaries(filters);
-				setMonomerData(data || []); // Ensure data is always an array
-			} catch (error) {
-				console.error("Failed to fetch monomer summaries:", error);
-				setMonomerData([]);
-			} finally {
-				setIsLoading(false);
-			}
-		};
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const data = await fetchMonomerSummaries(filters);
+        setMonomerData(data || []); // Ensure data is always an array
+      } catch (error) {
+        console.error("Failed to fetch monomer summaries:", error);
+        setMonomerData([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-		fetchData();
-	}, [filters]); 
+    fetchData();
+  }, [filters]);
 
   return (
     <>
@@ -63,7 +63,11 @@ export default function MonomerSearchPage() {
           </Group>
         </Center>
 
-        <DrawModal opened={modalOpen} onApply={() => {}} onClose={() => setModalOpen(false)} />
+        <DrawModal
+          opened={modalOpen}
+          onApply={() => {}}
+          onClose={() => setModalOpen(false)}
+        />
 
         <Grid gutter="xl" pt="xl">
           <GridCol span={3}>

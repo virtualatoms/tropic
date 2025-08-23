@@ -28,8 +28,7 @@ export default function DrawModal({ opened, onClose, onApply }: Props) {
           fontStyle: "italic",
           color: "#666",
         }}
-      >
-      </div>
+      ></div>
 
       <Space h={20} />
       <Group justify="flex-end">
