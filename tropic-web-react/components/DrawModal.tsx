@@ -1,5 +1,4 @@
 import { Modal, Button, Group, Space } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 
 type Props = {
   opened: boolean;

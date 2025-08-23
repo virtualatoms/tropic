@@ -1,5 +1,4 @@
 import { Card, Badge, Stack, Box, Center, Image } from "@mantine/core";
-import MoleculeImage from "./MoleculeImage/MoleculeImage";
 
 export function MonomerLogo({
 	svg,
@@ -20,7 +19,6 @@ export function MonomerLogo({
 					}}
 				>
 					<Image src={`data:image/svg+xml;base64,${svg}`} alt={monomerId} />
-					{/* <MoleculeImage smiles={smiles} /> */}
 				</Card>
 				<Center style={{ marginTop: -35, zIndex: 1 }}>
 					<Badge size="lg" radius="lg">

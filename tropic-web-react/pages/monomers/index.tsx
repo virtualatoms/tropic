@@ -9,9 +9,9 @@ import {
   GridCol,
 } from "@mantine/core";
 import { useState } from "react";
-import SidebarFilters from "../../components/MonomerSearchSidebar";
-// import TabsView from "../../components/TabsView";
-import DrawModal from "../../components/DrawModal";
+import SidebarFilters from "@/components/MonomerSearchSidebar";
+// import TabsView from "@/components/TabsView";
+import DrawModal from "@/components/DrawModal";
 
 export default function MonomerSearchPage() {
   const [smiles, setSmiles] = useState("");

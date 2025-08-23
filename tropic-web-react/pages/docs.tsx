@@ -1,4 +1,4 @@
-import { Breadcrumbs } from "../components/Breadcrumbs";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Title } from "@mantine/core";
 
 export default function ApiPage() {
