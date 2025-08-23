@@ -1,3 +1,4 @@
+import { Breadcrumbs } from "../../components/Breadcrumbs";
 import {
   Container,
   TextInput,
@@ -8,7 +9,6 @@ import {
   GridCol,
 } from "@mantine/core";
 import { useState } from "react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import SidebarFilters from "@/components/MonomerSearchSidebar";
 import TabsView from "@/components/TabsView";
 import DrawModal from "@/components/DrawModal";

@@ -1,44 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Anchor, Text, LoadingOverlay } from '@mantine/core';
-import { API_ENDPOINT } from '@/lib/constants';
 import { MonomerFilters } from '@/lib/types';
+import { fetchMonomerSummaries } from '@/lib/api';
 
 interface Reference {
 	doi: string;
 	formatted: string;
 }
-
-
-const buildQuery = (filters: MonomerFilters): string => {
-	const params = new URLSearchParams();
-
-	if (filters.smiles) {
-		params.append('search', filters.smiles);
-	}
-
-	params.append('monomer__ring_size__gte', filters.ringSize[0].toString());
-	if (filters.ringSize[1] < 15) {
-		params.append('monomer__ring_size__lte', filters.ringSize[1].toString());
-	}
-
-	params.append('monomer__molecular_weight__gte', filters.molWeight[0].toString());
-	params.append('monomer__molecular_weight__lte', filters.molWeight[1].toString());
-
-	if (filters.hasComp !== 'both') {
-		params.append('has_comp', (filters.hasComp === 'yes').toString());
-	}
-	if (filters.hasExp !== 'both') {
-		params.append('has_exp', (filters.hasExp === 'yes').toString());
-	}
-
-    // This assumes your API can handle multiple functional_groups params
-	filters.functionalGroups.forEach(group => {
-		params.append('functional_groups', group);
-	});
-
-	params.append('size', '1000');
-	return params.toString();
-};
 
 export function References({ filters }: { filters: MonomerFilters }) {
 	const [references, setReferences] = useState<Reference[]>([]);
@@ -46,21 +14,17 @@ export function References({ filters }: { filters: MonomerFilters }) {
 
 	useEffect(() => {
 		const fetchReferences = async () => {
-			setLoading(true);
 			try {
-				const query = buildQuery(filters);
-				const response = await fetch(`${API_ENDPOINT}/reactions?${query}`);
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-				const results = await response.json();
+                const monomerSummaries = await fetchMonomerSummaries(filters);
 
 				const uniqueRefs = new Map<string, string>();
-				for (const result of results) {
-					const doi = result.metadata?.doi;
-					const formattedRef = result.metadata?.formatted_reference;
-					if (doi && formattedRef && !uniqueRefs.has(doi)) {
-						uniqueRefs.set(doi, formattedRef);
+				for (const monomerSummary of monomerSummaries) {
+                    for (const result of monomerSummary.data || []) {
+                        const doi = result.doi;
+						const formattedRef = result.formatted_reference;
+						if (doi && formattedRef && !uniqueRefs.has(doi)) {
+							uniqueRefs.set(doi, formattedRef);
+						}
 					}
 				}
 

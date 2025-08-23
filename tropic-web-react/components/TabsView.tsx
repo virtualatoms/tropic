@@ -2,11 +2,12 @@ import React from 'react';
 import { Tabs } from '@mantine/core';
 import { IconTable, IconChartDots, IconBook } from '@tabler/icons-react';
 import { References } from './References';
+import { AnalysisChart } from './AnalysisChart';
 import { MonomerFilters } from '@/lib/types';
 
-export default function TabsView({filters}: {filters: MonomerFilters;}) {
+export default function TabsView({filters}: {filters: MonomerFilters}) {
 	return (
-		<Tabs defaultValue="table" color="blue">
+		<Tabs defaultValue="analysis" >
 			<Tabs.List>
 				<Tabs.Tab value="table" leftSection={<IconTable size={16} />}>
 					Table
@@ -24,7 +25,7 @@ export default function TabsView({filters}: {filters: MonomerFilters;}) {
 			</Tabs.Panel>
 
 			<Tabs.Panel value="analysis" pt={10}>
-				<h1>Analysis</h1>
+				<AnalysisChart filters={filters} />
 			</Tabs.Panel>
 
 			<Tabs.Panel value="references" pt={10}>

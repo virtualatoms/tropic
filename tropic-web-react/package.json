@@ -14,19 +14,15 @@
     "@mantine/charts": "^8.2.7",
     "@mantine/core": "^8.2.7",
     "@mantine/hooks": "^8.2.7",
-    "@rdkit/rdkit": "^2025.3.4-1.0.0",
     "@tabler/icons-react": "^3.34.1",
     "3dmol": "^2.5.2",
     "ag-grid-react": "^34.1.2",
-    "lodash": "^4.17.21",
     "next": "15.5.0",
-    "prop-types": "^15.8.1",
     "react": "19.1.1",
-    "react-dom": "^19.1.1",
-    "smiles-drawer": "^2.1.7"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
+    "@biomejs/biome": "2.2.2",
     "@types/node": "24.3.0",
     "@types/react": "19.1.11",
     "@types/react-dom": "19.1.7",

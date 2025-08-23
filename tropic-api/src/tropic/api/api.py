@@ -77,6 +77,16 @@ async def get_monomers(
                         "ring_size": "$monomer.ring_size",
                     },
                 },
+                "data": {
+                    "$push": {
+                        "is_experimental": "$parameters.is_experimental",
+                        "delta_h": "$thermo.delta_h",
+                        "delta_s": "$thermo.delta_s",
+                        "ceiling_temperature": "$thermo.ceiling_temperature",
+                        "doi": "$metadata.doi",
+                        "formatted_reference": "$metadata.formatted_reference",
+                    },
+                },
                 "has_exp": {"$max": "$parameters.is_experimental"},
                 "has_comp": {"$max": {"$not": "$parameters.is_experimental"}},
             },
