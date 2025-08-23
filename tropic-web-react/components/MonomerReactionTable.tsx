@@ -176,6 +176,8 @@ const MonomerReactionTable = ({ data }: { data: any }) => {
 						rowData={expTableData}
 						domLayout="autoHeight"
 						suppressCellFocus
+						autoSizeStrategy={autoSizeStrategy}
+						onGridSizeChanged={(params) => (params.api.sizeColumnsToFit())}
 					/>
 				</Stack>
 			)}

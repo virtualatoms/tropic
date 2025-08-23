@@ -3,12 +3,21 @@
 import argparse
 import asyncio
 import logging
-from pathlib import Path
-
+import base64
 import requests
+
+import numpy as np
+import pandas as pd
+
+from pathlib import Path
+from scipy.constants import physical_constants
+from scipy.stats import linregress
+
 from beanie import WriteRules, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from rdkit import RDLogger
+from rdkit import RDLogger, Chem
+from rdkit.Chem import Draw
+
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 from tqdm import tqdm
@@ -40,8 +49,7 @@ def get_reaction_document(
     """Format the reaction data into a structured dictionary."""
     monomer_smiles = StandardizeSmiles(data["monomer_smiles"])
     if monomer_smiles not in monomers:
-        # iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
-        iupac_name, cid = "1", 1
+        iupac_name, cid = get_iupac_name_cid(data["monomer_smiles"])
         monomers[monomer_smiles] = MonomerDocument(
             smiles=monomer_smiles,
             iupac_name=iupac_name,
@@ -52,21 +60,21 @@ def get_reaction_document(
 
     vanthoff_data = None
     if data["vanthoff_file"]:
-        if not Path(f"data/vanthoff/{data['vanthoff_file']}").exists():
+        vanthoff_file = f"data/vanthoff/{data['vanthoff_file']}"
+        if not Path(vanthoff_file).exists():
             msg = f"Van't Hoff file not found: {data['vanthoff_file']}"
             logging.warning(msg)
         else:
-            vanthoff_data = load_vanthoff(f"data/vanthoff/{data['vanthoff_file']}")
+            vanthoff_data = load_vanthoff(vanthoff_file)
 
     extrapolation_data = None
     if data["extrapolation_file"]:
-        if not Path(f"data/extrapolation/{data['extrapolation_file']}").exists():
+        extrap_file = f"data/extrapolation/{data['extrapolation_file']}"
+        if not Path(extrap_file).exists():
             msg = f"Extrapolation file not found: {data['extrapolation_file']}"
             logging.warning(msg)
         else:
-            extrapolation_data = load_extrapolation(
-                f"data/extrapolation/{data['extrapolation_file']}",
-            )
+            extrapolation_data = load_extrapolation(extrap_file)
 
     return ReactionDocument(
         reaction_id=f"reaction-{reaction_id}",
@@ -154,11 +162,6 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
 
 def smiles_to_image(smiles: str, size: tuple[int, int] = (150, 100)) -> str:
     """Convert a SMILES string to a base64-encoded SVG image."""
-    import base64
-
-    from rdkit import Chem
-    from rdkit.Chem import Draw
-
     drawer = Draw.MolDraw2DSVG(*size)
     dopts = drawer.drawOptions()
     dopts.bondLineWidth = 1.0  # default is 2.
@@ -172,10 +175,6 @@ def smiles_to_image(smiles: str, size: tuple[int, int] = (150, 100)) -> str:
 
 def load_vanthoff(filename: str) -> dict[str, list[float]]:
     """Load Vanthoff plot data."""
-    import numpy as np
-    import pandas as pd
-    from scipy.constants import physical_constants
-
     gas_constant = physical_constants["molar gas constant"][0]
 
     df_vanthoff = pd.read_excel(filename)
@@ -195,10 +194,6 @@ def load_vanthoff(filename: str) -> dict[str, list[float]]:
 
 def load_extrapolation(filename: str) -> dict[str, list[float]]:
     """Load a computational extrapolation file."""
-    import numpy as np
-    import pandas as pd
-    from scipy.stats import linregress
-
     df_extrap = pd.read_csv(filename)
 
     x = 1 / df_extrap["repeating_units"]
@@ -216,9 +211,6 @@ def load_extrapolation(filename: str) -> dict[str, list[float]]:
 
 async def create_reactions_monomers(monomers: dict[str, MonomerDocument]) -> None:
     """Parse the input CSV files and create ReactionDocument instances."""
-    import numpy as np
-    import pandas as pd
-
     all_files = Path("data").glob("input*.xlsx")
     data = pd.concat((pd.read_excel(f) for f in all_files), ignore_index=True)
     data = data.replace({np.nan: None})

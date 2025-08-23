@@ -1,14 +1,13 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { Grid, GridCol, Loader, Center, Alert, Text } from "@mantine/core";
+import { Grid, GridCol, Loader, Center, Alert} from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
-import { Breadcrumbs } from "../../components/Breadcrumbs";
-import { MonomerSummary } from "../../components/MonomerSummary";
-import { MonomerLogo } from "../../components/MonomerLogo";
-import { TableOfContents } from "../../components/TableOfContents/TableOfContents";
-import  MonomerReactionTable  from "../../components/MonomerReactionTable";
-
-const API_ENDPOINT = "http://127.0.0.1:8000";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { MonomerSummary } from "@/components/MonomerSummary";
+import { MonomerLogo } from "@/components/MonomerLogo";
+import { TableOfContents } from "@/components/TableOfContents/TableOfContents";
+import  MonomerReactionTable  from "@/components/MonomerReactionTable";
+import { API_ENDPOINT } from '@/lib/constants';
 
 export default function MonomerPage() {
   const router = useRouter();
@@ -24,7 +23,7 @@ export default function MonomerPage() {
     setLoading(true);
     setError(null);
 
-    fetch(`${API_ENDPOINT}/monomer-summaries/${monomerId}/`)
+    fetch(`${API_ENDPOINT}/monomer-summaries/${monomerId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch data");
         return res.json();
