@@ -1,3 +1,4 @@
+import { MonomerFilters } from "@/lib/types";
 import {
   Card,
   CardSection,
@@ -10,18 +11,10 @@ import {
   Group,
 } from "@mantine/core";
 
-interface SearchFilters {
-    smiles: string;
-    ringSize: [number, number];
-    molWeight: [number, number];
-    functionalGroups: string[];
-    hasExp: string;
-    hasComp: string;
-}
 
-interface SearchSidebarProps {
-    filters: SearchFilters;
-    setFilters: (filters: SearchFilters) => void;
+interface MonomerSearchSidebarProps {
+    filters: MonomerFilters;
+    setFilters: (filters: MonomerFilters) => void;
 }
 
 const radioData = [
@@ -30,7 +23,7 @@ const radioData = [
     { value: "both", label: "Both" },
 ];
 
-export default function MonomerSearchSidebar({ filters, setFilters }: SearchSidebarProps) {
+export default function MonomerSearchSidebar({ filters, setFilters }: MonomerSearchSidebarProps) {
     return (
         <Card withBorder shadow="sm" radius="md">
             <CardSection withBorder py="xs" inheritPadding>

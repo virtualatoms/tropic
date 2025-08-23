@@ -1,4 +1,3 @@
-import { Breadcrumbs } from "../../components/Breadcrumbs";
 import {
   Container,
   TextInput,
@@ -9,21 +8,16 @@ import {
   GridCol,
 } from "@mantine/core";
 import { useState } from "react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import SidebarFilters from "@/components/MonomerSearchSidebar";
 import TabsView from "@/components/TabsView";
 import DrawModal from "@/components/DrawModal";
+import { MonomerFilters } from "@/lib/types";
 
 export default function MonomerSearchPage() {
   const [smiles, setSmiles] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [filters, setFilters] = useState<{
-    smiles: string;
-    ringSize: [number, number];
-    molWeight: [number, number];
-    hasExp: string;
-    hasComp: string;
-    functionalGroups: string[];
-  }>({
+  const [filters, setFilters] = useState<MonomerFilters>({
     smiles: "",
     ringSize: [1, 15],
     molWeight: [10, 500],

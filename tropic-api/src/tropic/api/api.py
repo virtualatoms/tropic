@@ -51,7 +51,7 @@ async def get_reaction(reaction_id: str) -> ReactionDocument:
     document = await ReactionDocument.find_one(
         {"reaction_id": reaction_id},
         fetch_links=True,
-    ).project(Reaction)
+    ).project(ReactionDocument)
     if not document:
         raise HTTPException(status_code=404, detail="Reaction not found")
     return document
