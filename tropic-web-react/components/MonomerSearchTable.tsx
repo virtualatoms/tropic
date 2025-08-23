@@ -69,9 +69,6 @@ export default function MonomerSearchTable({
 }) {
   const gridRef = useRef<AgGridReact>(null);
 
-  // Remove the useEffect for fetching.
-  // Use useMemo to transform the data prop into rowData.
-  // This is efficient because it only recalculates when the 'data' prop changes.
   const rowData = useMemo<GridRowData[]>(() => {
     return data.map((summary) => ({
       structure: summary.monomer.svg,
@@ -144,7 +141,7 @@ export default function MonomerSearchTable({
         paginationPageSize={8}
         paginationPageSizeSelector={[8, 20, 50, 100]}
         animateRows={true}
-        gridOptions={{ suppressCellFocus: true }}
+        gridOptions={{ suppressCellFocus: true, suppressNoRowsOverlay: true }}
         rowHeight={100}
         autoSizeStrategy={{ type: "fitGridWidth", defaultMinWidth: 10 }}
         onGridSizeChanged={(params) => params.api.sizeColumnsToFit()}

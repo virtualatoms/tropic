@@ -39,7 +39,7 @@ async def startup_event() -> None:
 async def get_reactions(
     reaction_filter: ReactionFilter = FilterDepends(ReactionFilter),  # noqa: B008
 ) -> list[Reaction]:
-    """Retrieve a paginated list of reactions with optional filtering."""
+    """Retrieve a list of reactions with optional filtering."""
     query = reaction_filter.filter(ReactionDocument.find({}))
     query = query.find(fetch_links=True)
     return await query.to_list()

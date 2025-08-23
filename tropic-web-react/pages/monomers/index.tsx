@@ -16,7 +16,6 @@ import { MonomerFilters, MonomerSummary } from "@/lib/types";
 import { fetchMonomerSummaries } from "@/lib/api";
 
 export default function MonomerSearchPage() {
-  const [smiles, setSmiles] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [filters, setFilters] = useState<MonomerFilters>({
     smiles: "",
@@ -55,8 +54,8 @@ export default function MonomerSearchPage() {
           <Group>
             <TextInput
               placeholder="Enter SMILES"
-              value={smiles}
-              onChange={(e) => setSmiles(e.currentTarget.value)}
+              value={filters.smiles}
+              onChange={(e) => setFilters({ ...filters, smiles: e.currentTarget.value })}
               w={500}
             />
             <Button onClick={() => setModalOpen(true)}>Draw Molecule</Button>

@@ -152,19 +152,23 @@ class ReactionFilter(Filter):
         with_prefix("metadata", MetadataFilter),
     )
     order_by: ClassVar[list[str]] = ["reaction_id"]
+    search: str | None = None
 
     class Constants(Filter.Constants):
         """Settings for the Reaction filter."""
 
         model = Reaction
+        search_model_fields = ["monomer.smiles"]
 
 
 class MonomerSummariesFilter(Filter):
     """Filter for monomer summaries based on various criteria."""
 
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
+    search: str | None = None
 
     class Constants(Filter.Constants):
         """Settings for the MonomerSummaries filter."""
 
         model = Reaction
+        search_model_fields = ["monomer.smiles"]
