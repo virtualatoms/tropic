@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Text, Table, Anchor } from "@mantine/core";
+import { Text, Table, Anchor, Image } from "@mantine/core";
 
 export const ReactionIdCell = ({ value }: { value: string }) => (
   <Anchor href={`/reactions/${value}`} size="sm" component={Link}>
@@ -27,11 +27,7 @@ export const ImageRenderer = ({ value }: { value: string }) => (
       height: "100%",
     }}
   >
-    <img
-      src={`data:image/svg+xml;base64,${value}`}
-      alt="Monomer structure"
-      style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
-    />
+    <Image src={`data:image/svg+xml;base64,${value}`} alt="Monomer structure" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
   </div>
 );
 

@@ -14,7 +14,13 @@ import { CodeHighlight } from "@mantine/code-highlight";
 import { IconApi, IconBook, IconBrandPython } from "@tabler/icons-react";
 import { API_ENDPOINT } from "@/lib/constants";
 
-const ModelFieldTable = ({ fields }) => {
+type ModelField = {
+  name: string;
+  type: string;
+  description: string;
+};
+
+const ModelFieldTable = ({ fields }: { fields: ModelField[] }) => {
   const rows = fields.map((field) => (
     <Table.Tr key={field.name}>
       <Table.Td>

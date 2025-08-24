@@ -33,6 +33,7 @@ export function ExtrapolationPlotCard({
     }
     const scatterDataset = {
       label: "Data Points",
+      type: "scatter" as const,
       data: data.inverse_repeating_units.map((inv_n, i) => ({
         x: inv_n,
         y: data.delta_h![i],
@@ -41,12 +42,13 @@ export function ExtrapolationPlotCard({
     };
     const trendlineDataset = {
       label: "Trendline",
+      type: "scatter" as const,
       data: [] as { x: number; y: number }[],
-      type: "line" as const,
       borderColor: "rgba(255, 99, 132, 1)",
       borderWidth: 2,
       pointRadius: 0,
       fill: false,
+      showLine: true,
     };
     if (typeof data.slope === "number" && typeof data.intercept === "number") {
       const xMax = Math.max(...data.inverse_repeating_units);
@@ -88,7 +90,7 @@ export function ExtrapolationPlotCard({
       tooltip: {
         callbacks: {
           label: function (context: any) {
-            if (context.dataset.label !== "Data Points") return null;
+            if (context.dataset.label !== "Data Points") return "";
             const xVal = context.raw.x;
             const yVal = context.raw.y;
             const repeatingUnits = 1 / xVal;
@@ -104,8 +106,8 @@ export function ExtrapolationPlotCard({
         annotations: {
           interceptLine: {
             type: "line" as const,
-            yMin: data?.intercept,
-            yMax: data?.intercept,
+            yMin: typeof data?.intercept === "number" ? data.intercept : 0,
+            yMax: typeof data?.intercept === "number" ? data.intercept : 0,
             borderColor: "rgb(75, 192, 192)",
             borderWidth: 2,
             borderDash: [6, 6],
@@ -120,7 +122,7 @@ export function ExtrapolationPlotCard({
             yValue: (context: any) => context.chart.scales.y.max,
             xAdjust: -100,
             yAdjust: 50,
-            textAlign: "left",
+            textAlign: "left" as const,
             backgroundColor: "rgba(245, 245, 245, 0.8)",
             color: "black",
             font: { size: 14 },
@@ -139,13 +141,7 @@ export function ExtrapolationPlotCard({
         </Center>
       </CardSection>
       <Box p="md" style={{ minHeight: 350 }}>
-        {chartJSData.datasets.length > 0 ? (
-          <Scatter data={chartJSData} options={options} />
-        ) : (
-          <Center h={300}>
-            <Text c="dimmed">No extrapolation data available.</Text>
-          </Center>
-        )}
+      <Scatter data={chartJSData} options={options} />
       </Box>
     </Card>
   );
@@ -226,17 +222,11 @@ export function VanthoffPlotCard({ data }: { data: Vanthoff | null }) {
     <Card withBorder shadow="sm" radius="md">
       <CardSection withBorder inheritPadding py="xs">
         <Center>
-          <Text fw={700}>Van't Hoff Analysis</Text>
+          <Text fw={700}>Van&apos;t Hoff Analysis</Text>
         </Center>
       </CardSection>
       <Box p="md" style={{ minHeight: 350 }}>
-        {chartJSData.datasets.length > 0 ? (
-          <Scatter data={chartJSData} options={options} />
-        ) : (
-          <Center h={300}>
-            <Text c="dimmed">No Van't Hoff data available.</Text>
-          </Center>
-        )}
+        <Scatter data={chartJSData} options={options} />
       </Box>
     </Card>
   );

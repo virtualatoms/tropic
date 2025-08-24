@@ -9,6 +9,7 @@ import {
   PointElement,
   LineElement,
   Tooltip,
+  ScriptableTooltipContext,
   Legend,
 } from "chart.js";
 
@@ -21,7 +22,7 @@ export const processChartMonomerSummary = (data: MonomerSummary[]) => {
   for (const monomerSummary of data) {
     for (const d of monomerSummary.data) {
       if (d.delta_h === null || d.delta_s === null) continue;
-      const datum = {
+      const datum: ChartDatum = {
         ring_size: monomerSummary.monomer.ring_size,
         delta_h: d.delta_h,
         delta_s: d.delta_s,
@@ -47,7 +48,7 @@ export const processChartReaction = (data: Reaction[]) => {
   for (const reaction of data) {
     if (reaction.thermo.delta_h === null || reaction.thermo.delta_s === null)
       continue;
-    const datum = {
+    const datum: ChartDatum = {
       ring_size: reaction.monomer.ring_size,
       delta_h: reaction.thermo.delta_h,
       delta_s: reaction.thermo.delta_s,
@@ -66,7 +67,7 @@ export const processChartReaction = (data: Reaction[]) => {
 };
 
 type ChartDatum = {
-  ring_size: number;
+  ring_size: number | null;
   delta_h: number | null;
   delta_s: number | null;
   ceiling_temperature: number | null;
@@ -103,33 +104,41 @@ type AnalysisChartProps<T> = {
   };
 };
 
-const externalTooltipHandler = (context) => {
+const externalTooltipHandler = (context: ScriptableTooltipContext<'scatter'>) => {
   const { chart, tooltip } = context;
-  let tooltipEl = chart.canvas.parentNode.querySelector("div#chartjs-tooltip");
+  let tooltipEl: HTMLElement | null = null;
+  const parentNode = chart.canvas.parentNode as HTMLElement | null;
+
+  if (parentNode) {
+    tooltipEl = parentNode.querySelector("div#chartjs-tooltip");
+    if (!tooltipEl) {
+      tooltipEl = document.createElement("div");
+      tooltipEl.id = "chartjs-tooltip";
+      tooltipEl.style.background = "rgba(0, 0, 0, 0.7)";
+      tooltipEl.style.borderRadius = "3px";
+      tooltipEl.style.color = "white";
+      tooltipEl.style.opacity = "1";
+      tooltipEl.style.pointerEvents = "none";
+      tooltipEl.style.position = "absolute";
+      tooltipEl.style.transform = "translate(-50%, 0)";
+      tooltipEl.style.transition = "all .1s ease";
+      tooltipEl.style.padding = "6px";
+      tooltipEl.style.width = "150px";
+      parentNode.appendChild(tooltipEl);
+    }
+  }
 
   if (!tooltipEl) {
-    tooltipEl = document.createElement("div");
-    tooltipEl.id = "chartjs-tooltip";
-    tooltipEl.style.background = "rgba(0, 0, 0, 0.7)";
-    tooltipEl.style.borderRadius = "3px";
-    tooltipEl.style.color = "white";
-    tooltipEl.style.opacity = 1;
-    tooltipEl.style.pointerEvents = "none";
-    tooltipEl.style.position = "absolute";
-    tooltipEl.style.transform = "translate(-50%, 0)";
-    tooltipEl.style.transition = "all .1s ease";
-    tooltipEl.style.padding = "6px";
-    tooltipEl.style.width = "150px";
-    chart.canvas.parentNode.appendChild(tooltipEl);
+    return;
   }
 
   if (tooltip.opacity === 0) {
-    tooltipEl.style.opacity = 0;
+    tooltipEl.style.opacity = "0";
     return;
   }
 
   if (tooltip.body) {
-    const dataPoint = tooltip.dataPoints[0].raw;
+    const dataPoint = tooltip.dataPoints[0].raw as { originalData: ChartDatum };
     const original = dataPoint.originalData;
 
     let innerHTML = `<img src="data:image/svg+xml;base64,${original.svg}" alt="Monomer" style="width: 100%; height: auto; background: white; border-radius: 2px; margin-bottom: 5px;" />`;
@@ -150,7 +159,7 @@ const externalTooltipHandler = (context) => {
   }
 
   const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas;
-  tooltipEl.style.opacity = 1;
+  tooltipEl.style.opacity = "1";
   tooltipEl.style.left = positionX + tooltip.caretX + "px";
   tooltipEl.style.top = positionY + tooltip.caretY + "px";
 };

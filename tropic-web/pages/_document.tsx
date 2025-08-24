@@ -6,6 +6,10 @@ export default function Document() {
     <Html lang="en" {...mantineHtmlProps}>
       <Head>
         <ColorSchemeScript />
+        <link
+          href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700&display=optional"
+          rel="stylesheet"
+        />
       </Head>
       <body>
         <Main />

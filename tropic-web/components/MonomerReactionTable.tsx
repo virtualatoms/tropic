@@ -13,6 +13,7 @@ import {
   RefCell,
   decimalFormatter,
 } from "./TableFormats";
+import { MonomerSummary } from "@/lib/types";
 
 ModuleRegistry.registerModules([AllCommunityModule]);
 
@@ -35,7 +36,7 @@ type GridRowData = {
   repeating_units: number | null;
 };
 
-const MonomerReactionTable = ({ data }: { data: any }) => {
+const MonomerReactionTable = ({ data }: { data: MonomerSummary }) => {
   const COMMON_COLUMNS = useMemo<ColDef[]>(
     () => [
       {
@@ -86,7 +87,7 @@ const MonomerReactionTable = ({ data }: { data: any }) => {
 
   const autoSizeStrategy = useMemo(() => {
     return {
-      type: "fitGridWidth",
+      type: "fitGridWidth" as const,
       defaultMinWidth: 10,
     };
   }, []);

@@ -41,10 +41,6 @@ export default function MonomerPage() {
 
   return (
     <>
-      <link
-        href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700"
-        rel="stylesheet"
-      />
       <Breadcrumbs
         pages={["Home", "Monomer Search", String(monomerId || "")]}
       />
@@ -63,22 +59,26 @@ export default function MonomerPage() {
             {error}
           </Alert>
         </Center>
-      ) : (
+      ) : data ? (
         <Grid pt={30} gutter="xl" mb={50}>
           <Grid.Col span={3}>
             <div style={{ position: "sticky", top: "1rem" }}>
               <MonomerLogo
-                svg={data?.monomer.svg || ""}
-                monomerId={data?.monomer.monomer_id || ""}
+                svg={data.monomer.svg}
+                monomerId={data.monomer.monomer_id}
               />
               <TableOfContents />
             </div>
           </Grid.Col>
           <GridCol span={9}>
-            <MonomerSummaryHeader data={data} />
-            <MonomerReactionTable data={data} />
+              <>
+                <MonomerSummaryHeader data={data} />
+                <MonomerReactionTable data={data} />
+              </>
           </GridCol>
         </Grid>
+      ) : (
+        <></>
       )}
     </>
   );
