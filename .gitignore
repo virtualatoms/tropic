@@ -293,6 +293,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-!tropic-web-react/lib/
+!tropic-web/lib/
 
 .DS_Store
