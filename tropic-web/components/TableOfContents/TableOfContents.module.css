@@ -1,0 +1,39 @@
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tocItem {
+  display: block;
+  text-decoration: none;
+  color: var(--mantine-color-text);
+  line-height: 1.2;
+  font-size: var(--mantine-font-size-sm);
+  padding: var(--mantine-spacing-xs);
+  border-top-right-radius: var(--mantine-radius-sm);
+  border-bottom-right-radius: var(--mantine-radius-sm);
+  border-left: 1px solid var(--mantine-color-gray-3);
+
+  &:hover {
+    text-decoration: none;
+    background-color: var(--mantine-color-gray-0);
+  }
+}
+
+.active {
+  font-weight: 500;
+  border-left-color: var(--mantine-color-blue-6);
+  color: var(--mantine-color-blue-6);
+
+  &,
+  &:hover {
+    background-color: var(--mantine-color-blue-light) !important;
+  }
+}

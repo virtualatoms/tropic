@@ -78,6 +78,10 @@ class ParametersFilter(Filter):
     bulk_monomer_conc__gte: float | None = None
     medium: str | None = None
     medium__in: list[str] | None = None
+    solvent: str | None = None
+    solvent__in: list[str] | None = None
+    cosolvent: str | None = None
+    cosolvent__in: list[str] | None = None
     method: str | None = None
     method__in: list[str] | None = None
     functional: str | None = None
@@ -90,6 +94,8 @@ class ParametersFilter(Filter):
     forcefield__in: list[str] | None = None
     solvent_model: str | None = None
     solvent_model__in: list[str] | None = None
+    topology: str | None = None
+    topology__in: list[str] | None = None
 
     class Constants(Filter.Constants):
         """Settings for the Parameters filter."""
@@ -146,19 +152,23 @@ class ReactionFilter(Filter):
         with_prefix("metadata", MetadataFilter),
     )
     order_by: ClassVar[list[str]] = ["reaction_id"]
+    search: str | None = None
 
     class Constants(Filter.Constants):
         """Settings for the Reaction filter."""
 
         model = Reaction
+        search_model_fields = ["monomer.smiles"]
 
 
 class MonomerSummariesFilter(Filter):
     """Filter for monomer summaries based on various criteria."""
 
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
+    search: str | None = None
 
     class Constants(Filter.Constants):
         """Settings for the MonomerSummaries filter."""
 
         model = Reaction
+        search_model_fields = ["monomer.smiles"]

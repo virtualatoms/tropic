@@ -2,18 +2,31 @@
 
 import argparse
 import asyncio
-from pathlib import Path
-
+import logging
+import base64
 import requests
+
+import numpy as np
+import pandas as pd
+
+from pathlib import Path
+from scipy.constants import physical_constants
+from scipy.stats import linregress
+
 from beanie import WriteRules, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from rdkit import RDLogger
+from rdkit import RDLogger, Chem
+from rdkit.Chem import Draw
+
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
 from tqdm import tqdm
 
 from tropic.api import SETTINGS
 from tropic.api.documents import MonomerDocument, ReactionDocument
+
+logging.basicConfig(level=logging.INFO)
+
 
 RDLogger.DisableLog("rdApp.*")
 
@@ -42,10 +55,30 @@ def get_reaction_document(
             iupac_name=iupac_name,
             pubchem_cid=cid,
             monomer_id=f"monomer-{len(monomers) + 1}",
+            svg=smiles_to_image(monomer_smiles),
         )
+
+    vanthoff_data = None
+    if data["vanthoff_file"]:
+        vanthoff_file = f"data/vanthoff/{data['vanthoff_file']}"
+        if not Path(vanthoff_file).exists():
+            msg = f"Van't Hoff file not found: {data['vanthoff_file']}"
+            logging.warning(msg)
+        else:
+            vanthoff_data = load_vanthoff(vanthoff_file)
+
+    extrapolation_data = None
+    if data["extrapolation_file"]:
+        extrap_file = f"data/extrapolation/{data['extrapolation_file']}"
+        if not Path(extrap_file).exists():
+            msg = f"Extrapolation file not found: {data['extrapolation_file']}"
+            logging.warning(msg)
+        else:
+            extrapolation_data = load_extrapolation(extrap_file)
+
     return ReactionDocument(
         reaction_id=f"reaction-{reaction_id}",
-        type=data["reaction_type"],
+        type=data["polymerisation_type"],
         monomer=monomers[monomer_smiles],
         product={
             "smiles": data["polymer_smiles"],
@@ -60,9 +93,12 @@ def get_reaction_document(
             "temperature": data["temperature"],
             "pressure": data["pressure"],
             "solvent": data["solvent"],
+            "cosolvent": data["cosolvent"],
+            "solvent_cosolvent_ratio": data["solvent/cosolvent"],
             "initiator": data["initiator_smiles"],
             "initial_monomer_conc": data["initial_monomer_conc"],
             "bulk_monomer_conc": data["bulk_monomer_conc"],
+            "medium": data["medium"],
             "monomer_state": data["monomer_state"],
             "polymer_state": data["polymer_state"],
             "solvent_model": data["solvent_model"],
@@ -74,9 +110,13 @@ def get_reaction_document(
         },
         thermo={
             "delta_h": data["delta_h"],
+            "delta_h_std": data["delta_h_std"],
             "delta_s": data["delta_s"],
+            "delta_s_std": data["delta_s_std"],
             "delta_g": data["delta_g"],
-            "ceiling_temperature": data["ceiling_temperature"],
+            "ceiling_temperature": data["reported_ceiling_temperature"],
+            "vanthoff": vanthoff_data,
+            "extrapolation": extrapolation_data,
         },
         metadata={
             "year": data["date"],
@@ -84,6 +124,7 @@ def get_reaction_document(
             "doi": data["doi"],
             "url": data["url"],
             "formatted_reference": get_formatted_reference(data["doi"]),
+            "flag": data["flag"],
         },
     )
 
@@ -120,13 +161,59 @@ def get_iupac_name_cid(smiles: str) -> tuple[str, int] | tuple[None, None]:
     return properties.get("IUPACName"), properties.get("CID")
 
 
+def smiles_to_image(smiles: str, size: tuple[int, int] = (150, 100)) -> str:
+    """Convert a SMILES string to a base64-encoded SVG image."""
+    drawer = Draw.MolDraw2DSVG(*size)
+    dopts = drawer.drawOptions()
+    dopts.bondLineWidth = 1.0  # default is 2.
+    dopts.clearBackground = False  # default is True
+    mol = Chem.MolFromSmiles(smiles)
+    drawer.DrawMolecule(mol)
+    drawer.FinishDrawing()
+    svg = drawer.GetDrawingText()
+    return base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+
+
+def load_vanthoff(filename: str) -> dict[str, list[float]]:
+    """Load Vanthoff plot data."""
+    gas_constant = physical_constants["molar gas constant"][0]
+
+    df_vanthoff = pd.read_excel(filename)
+    temperature = df_vanthoff["T (K)"]
+    equilibrium_concentration = df_vanthoff["Measured [M]eq"]
+
+    inverse_temperature = 1 / temperature
+    r_ln_equilibrium_concentration = gas_constant * np.log(equilibrium_concentration)
+
+    return {
+        "temperature": temperature.tolist(),
+        "inverse_temperature": inverse_temperature.tolist(),
+        "equilibrium_concentration": equilibrium_concentration.tolist(),
+        "r_ln_equilibrium_concentration": r_ln_equilibrium_concentration.tolist(),
+    }
+
+
+def load_extrapolation(filename: str) -> dict[str, list[float]]:
+    """Load a computational extrapolation file."""
+    df_extrap = pd.read_csv(filename)
+
+    x = 1 / df_extrap["repeating_units"]
+    y = df_extrap["delta_h"]
+    slope, intercept, _, _, std_err = linregress(x, y)
+    return {
+        "repeating_units": df_extrap["repeating_units"].tolist(),
+        "inverse_repeating_units": (1 / df_extrap["repeating_units"]).tolist(),
+        "delta_h": df_extrap["delta_h"].tolist(),
+        "slope": slope,
+        "intercept": intercept,
+        "std_err": np.sqrt(std_err),
+    }
+
+
 async def create_reactions_monomers(monomers: dict[str, MonomerDocument]) -> None:
     """Parse the input CSV files and create ReactionDocument instances."""
-    import numpy as np
-    import pandas as pd
-
-    all_files = Path("data").glob("input*.csv")
-    data = pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
+    all_files = Path("data").glob("input*.xlsx")
+    data = pd.concat((pd.read_excel(f) for f in all_files), ignore_index=True)
     data = data.replace({np.nan: None})
     for reaction_id, row in tqdm(data.iterrows(), total=data.shape[0]):
         reaction = get_reaction_document(row, monomers, reaction_id + 1)
