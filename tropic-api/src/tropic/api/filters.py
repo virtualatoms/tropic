@@ -126,6 +126,7 @@ class ThermoFilter(Filter):
 class MetadataFilter(Filter):
     """Filter for reaction metadata based on various criteria."""
 
+    year: int | None = None
     year__lte: int | None = None
     year__gte: int | None = None
     doi: str | None = None

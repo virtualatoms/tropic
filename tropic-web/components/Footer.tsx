@@ -21,7 +21,7 @@ export function Footer() {
             <Anchor href="/about" size="sm" c="dimmed" component={Link}>
               About
             </Anchor>
-            <Anchor href="/api" size="sm" c="dimmed" component={Link}>
+            <Anchor href="/docs" size="sm" c="dimmed" component={Link}>
               API
             </Anchor>
             <Anchor

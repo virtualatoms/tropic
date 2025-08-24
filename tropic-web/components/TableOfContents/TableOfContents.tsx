@@ -28,6 +28,14 @@ export function TableOfContents() {
         level: parseInt(el.tagName[1]), // h1 -> 1, h2 -> 2, etc.
       }));
 
+    if (!collectedHeadings.some((h) => h.level === 1)) {
+      collectedHeadings.forEach((h) => {
+        if (h.level === 2) {
+          h.level = 1;
+        }
+      });
+    }
+
     setHeadings(collectedHeadings);
   }, []);
 

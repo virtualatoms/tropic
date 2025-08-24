@@ -4,7 +4,7 @@ import { Title } from "@mantine/core";
 export default function AboutPage() {
   return (
     <>
-      <Breadcrumbs pages={["Home", "API"]} />
+      <Breadcrumbs pages={["Home", "About"]} />
       <Title order={1}>About</Title>
     </>
   );

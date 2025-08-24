@@ -401,6 +401,14 @@
   resolved "https://registry.npmjs.org/@mantine/charts/-/charts-8.2.7.tgz"
   integrity sha512-nXR5SLR6AqWL3s0AjMO/N5HQAokBmXjmyVFDKrFCMwzkDOlzhDPpaJwGfk/aPkHSc4W/VtxeB/5pkMOzQBtHfw==
 
+"@mantine/code-highlight@^8.2.7":
+  version "8.2.7"
+  resolved "https://registry.npmjs.org/@mantine/code-highlight/-/code-highlight-8.2.7.tgz"
+  integrity sha512-nAbf2IvjbyfjDR1gjAQnW+5OJkAQ3VoJn4ryfX+MYt4Go6mBAizLtt8e0+F1r7QMQgUq0C75+WSEFhgLXQOF0A==
+  dependencies:
+    clsx "^2.1.1"
+    highlight.js "^11.10.0"
+
 "@mantine/core@^8.2.7", "@mantine/core@8.2.7":
   version "8.2.7"
   resolved "https://registry.npmjs.org/@mantine/core/-/core-8.2.7.tgz"
@@ -1955,6 +1963,11 @@ hasown@^2.0.2:
   integrity sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==
   dependencies:
     function-bind "^1.1.2"
+
+highlight.js@^11.10.0, highlight.js@^11.11.1:
+  version "11.11.1"
+  resolved "https://registry.npmjs.org/highlight.js/-/highlight.js-11.11.1.tgz"
+  integrity sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==
 
 ignore@^5.2.0:
   version "5.3.2"
