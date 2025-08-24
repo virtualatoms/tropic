@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tropic-web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,9 +30,6 @@ jobs:
         with:
           version: 10
           run_install: false
-
-      - name: Change directory
-        run: cd ./tropic-web
 
       - name: Install Node.js
         uses: actions/setup-node@v4
