@@ -75,12 +75,19 @@ export default function MonomerSearchSidebar({
         label="Functional Groups"
         placeholder="Select functional groups"
         data={[
-          { value: "ester", label: "Ester" },
-          { value: "aldehyde", label: "Aldehyde" },
-          { value: "ketone", label: "Ketone" },
-          { value: "amide", label: "Amide" },
-          { value: "ether", label: "Ether" },
-          { value: "amine", label: "Amine" },
+          { value: "CC", label: "CC"},
+          { value: "CtC", label: "CtC"},
+          { value: "CdtC", label: "CdtC"},
+          { value: "CtnC", label: "CtnC"},
+          { value: "CX", label: "CX"},
+          { value: "CtX", label: "CtX"},
+          { value: "L", label: "L"},
+          { value: "tL", label: "tL"},
+          { value: "tnL", label: "tnL"},
+          { value: "dtL", label: "dtL"},
+          { value: "Lm", label: "Lm"},
+          { value: "oA", label: "oA"},
+          { value: "other", label: "Other"},
         ]}
         value={filters.functionalGroups}
         onChange={(value) =>

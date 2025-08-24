@@ -6,6 +6,7 @@ from fastapi_filter import FilterDepends, with_prefix
 from fastapi_filter.contrib.beanie import Filter
 
 from tropic.core.models import Metadata, Monomer, Parameters, Product, Reaction, Thermo
+from tropic.core.validate import FunctionalGroup, Medium, Method, ReactionType, Solvent
 
 
 class MonomerFilter(Filter):
@@ -19,7 +20,8 @@ class MonomerFilter(Filter):
     inchi__in: list[str] | None = None
     molecular_weight__lte: float | None = None
     molecular_weight__gte: float | None = None
-    functional_groups__in: list[str] | None = None
+    functional_group: FunctionalGroup | None = None
+    functional_group__in: list[FunctionalGroup] | None = None
     iupac_name: str | None = None
     iupac_name__in: list[str] | None = None
     pubchem_cid: str | None = None
@@ -76,14 +78,14 @@ class ParametersFilter(Filter):
     initial_monomer_conc__gte: float | None = None
     bulk_monomer_conc__lte: float | None = None
     bulk_monomer_conc__gte: float | None = None
-    medium: str | None = None
-    medium__in: list[str] | None = None
-    solvent: str | None = None
-    solvent__in: list[str] | None = None
-    cosolvent: str | None = None
-    cosolvent__in: list[str] | None = None
-    method: str | None = None
-    method__in: list[str] | None = None
+    medium: Medium | None = None
+    medium__in: list[Medium] | None = None
+    solvent: Solvent | None = None
+    solvent__in: list[Solvent] | None = None
+    cosolvent: Solvent | None = None
+    cosolvent__in: list[Solvent] | None = None
+    method: Method | None = None
+    method__in: list[Method] | None = None
     functional: str | None = None
     functional__in: list[str] | None = None
     basis_set: str | None = None
@@ -140,8 +142,8 @@ class ReactionFilter(Filter):
 
     reaction_id: str | None = None
     reaction_id__in: list[str] | None = None
-    type: str | None = None
-    type__in: list[str] | None = None
+    type: ReactionType | None = None
+    type__in: list[ReactionType] | None = None
     monomer: MonomerFilter | None = FilterDepends(with_prefix("monomer", MonomerFilter))
     product: ProductFilter | None = FilterDepends(with_prefix("product", ProductFilter))
     parameters: ParametersFilter | None = FilterDepends(
@@ -158,7 +160,7 @@ class ReactionFilter(Filter):
         """Settings for the Reaction filter."""
 
         model = Reaction
-        search_model_fields = ["monomer.smiles"]
+        search_model_fields = ["monomer.smiles"]  # noqa:RUF012
 
 
 class MonomerSummariesFilter(Filter):
@@ -171,4 +173,4 @@ class MonomerSummariesFilter(Filter):
         """Settings for the MonomerSummaries filter."""
 
         model = Reaction
-        search_model_fields = ["monomer.smiles"]
+        search_model_fields = ["monomer.smiles"]  # noqa:RUF012

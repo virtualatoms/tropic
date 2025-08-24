@@ -5,8 +5,8 @@ import argparse
 import uvicorn
 from beanie import init_beanie
 from fastapi import FastAPI, HTTPException
-from fastapi_filter import FilterDepends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_filter import FilterDepends
 from motor.motor_asyncio import AsyncIOMotorClient
 
 from tropic.api import SETTINGS
@@ -22,6 +22,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.on_event("startup")
 async def startup_event() -> None:
@@ -48,7 +49,8 @@ async def get_reactions(
 
 @app.get("/reactions/{reaction_id}")
 async def get_reaction(
-    reaction_id: str, include_svg: bool = False
+    reaction_id: str,
+    include_svg: bool = False,
 ) -> Reaction:
     """Retrieve a specific reaction by its ID."""
     document = await ReactionDocument.find_one(

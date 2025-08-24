@@ -3,6 +3,7 @@
 from pydantic import BaseModel, Field
 
 from tropic.core.validate import (
+    FunctionalGroup,
     Medium,
     Method,
     MethodCalc,
@@ -11,7 +12,7 @@ from tropic.core.validate import (
     Solvent,
     State,
     Topology,
-    get_func_groups,
+    get_func_group,
     get_inchi,
     get_molecular_weight,
     get_ring_size,
@@ -37,9 +38,9 @@ class Monomer(BaseModel):
         description="Molecular weight of the molecule in g/mol",
         default_factory=lambda data: get_molecular_weight(data["smiles"]),
     )
-    functional_groups: list[str] | None = Field(
+    functional_group: FunctionalGroup | None = Field(
         description="Primary functional group of molecule",
-        default_factory=lambda data: get_func_groups(data["smiles"]),
+        default_factory=lambda data: get_func_group(data["smiles"]),
     )
     iupac_name: str | None = Field(
         None,

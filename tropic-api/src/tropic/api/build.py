@@ -2,24 +2,21 @@
 
 import argparse
 import asyncio
-import logging
 import base64
-import requests
+import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-
-from pathlib import Path
-from scipy.constants import physical_constants
-from scipy.stats import linregress
-
+import requests
 from beanie import WriteRules, init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-from rdkit import RDLogger, Chem
+from rdkit import Chem, RDLogger
 from rdkit.Chem import Draw
-
 from rdkit.Chem.MolStandardize.rdMolStandardize import StandardizeSmiles
 from requests_cache import DO_NOT_CACHE, NEVER_EXPIRE, install_cache
+from scipy.constants import physical_constants
+from scipy.stats import linregress
 from tqdm import tqdm
 
 from tropic.api import SETTINGS
