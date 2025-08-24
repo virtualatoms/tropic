@@ -64,13 +64,17 @@ export function ExtrapolationPlotCard({
       x: {
         type: "linear" as const,
         position: "bottom" as const,
-        title: { display: true, text: "1 / Repeating Units", font: { size: 14 }},
+        title: {
+          display: true,
+          text: "1 / Repeating Units",
+          font: { size: 14 },
+        },
         ticks: {
           font: { size: 14 },
         },
       },
       y: {
-        title: { display: true, text: "ΔH (kJ/mol)", font: { size: 14 },},
+        title: { display: true, text: "ΔH (kJ/mol)", font: { size: 14 } },
         ticks: {
           font: { size: 14 },
         },
@@ -78,7 +82,8 @@ export function ExtrapolationPlotCard({
     },
     plugins: {
       legend: {
-        position: "top" as const, labels: { font: { size: 14 } } 
+        position: "top" as const,
+        labels: { font: { size: 14 } },
       },
       tooltip: {
         callbacks: {
@@ -163,7 +168,7 @@ export function VanthoffPlotCard({ data }: { data: Vanthoff | null }) {
         y: data.r_ln_equilibrium_concentration![i],
         temp: data.temperature![i], // Store original temp for tooltip
       })),
-      backgroundColor: "rgba(54, 162, 235, 0.6)", 
+      backgroundColor: "rgba(54, 162, 235, 0.6)",
     };
 
     return {

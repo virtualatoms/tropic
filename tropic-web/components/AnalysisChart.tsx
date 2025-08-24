@@ -233,7 +233,7 @@ export function AnalysisChart<T>({
       }
     },
     plugins: {
-      legend: { position: "top" as const},
+      legend: { position: "top" as const },
       tooltip: {
         enabled: false, // Disable the default canvas tooltip
         external: externalTooltipHandler, // Enable our custom HTML tooltip
