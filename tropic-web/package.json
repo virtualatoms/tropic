@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "predeploy": "npm run build && cp public/CNAME build/CNAME",
+    "predeploy": "npm run build && cp public/CNAME out/CNAME",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
