@@ -1,5 +1,7 @@
 # TROPIC: Thermodynamic Ring-Opening Polymerisation Information Collection
 
+https://polytropic.org
+
 **TROPIC** is a curated database and web platform for collecting, organising, and analysing thermodynamic data related to the ring-opening polymerisation (ROP) of polar cyclic monomers. It supports both experimental and computational data, enabling structured comparison of reaction parameters such as enthalpy and entropy of polymerisation across monomers and conditions.
 
 ## Features
