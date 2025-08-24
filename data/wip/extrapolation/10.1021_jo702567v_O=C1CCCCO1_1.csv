@@ -1,3 +1,0 @@
-monomer_smiles,polymerisation_type,doi,medium,solvent,initiator_smiles,polymer_smiles,temperature,repeating_units,delta_h
-O=C1CCCCO1,MIR,10.1021/jo702567v,gas,,CO,,298.15,3.0,-47.2792
-O=C1CCCCO1,MIR,10.1021/jo702567v,gas,,CO,,298.15,4.0,-45.6056
