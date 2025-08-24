@@ -345,7 +345,7 @@ with TropicClient() as client:
           API endpoints. The base URL for the API is <Code>{API_ENDPOINT}</Code>
           .
         </Text>
-        <Title order={4} id="querying-reactions">
+        <Title order={4} id="querying-reactions" mt={10}>
           Querying Reactions
         </Title>
         <Text>

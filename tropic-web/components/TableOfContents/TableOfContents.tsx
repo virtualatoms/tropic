@@ -84,7 +84,7 @@ export function TableOfContents() {
           style={{
             paddingLeft: `${heading.level * 20}px`,
             display: "block",
-            marginBottom: "0.25rem",
+            marginBottom: "0rem",
           }}
           onClick={(e) => {
             e.preventDefault();
