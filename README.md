@@ -8,7 +8,7 @@
 - 🔬 **Metadata-rich schema**: Includes reaction conditions, methods of determination, and provenance.
 - 🔎 **REST API**: Searchable interface for programmatic access to data (e.g. by SMILES, ring size, method).
 - 📊 **Web Interface**: Interactive tools for monomer search, visualisation, filtering, and data export.
-- ⚙️ **Built with**: Pydantic, FastAPI, MongoDB, Beanie ODM, Plotly Dash, Dash Mantine Components, Dash AG Grid.
+- ⚙️ **Built with**: Pydantic, FastAPI, MongoDB, Beanie, React, Mantine and AG Grid.
 
 ## Getting Started
 
@@ -40,7 +40,7 @@ with TropicClient() as client:
 
 ## Documentation
 
-- 📄 The full API documentation available on the [polytropic website](https://polytropic.org/api).
+- 📄 The full API documentation available on the [polytropic website](https://polytropic.org/docs).
 - 📁 See [`roppy-core/models.py`](https://github.com/virtualatoms/tropic/blob/main/tropic-core/src/tropic/core/models.py) for full schema details.
 
 ## Contributing
