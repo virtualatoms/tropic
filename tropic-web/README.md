@@ -25,6 +25,7 @@ Start the local development server. This will launch the website with hot-reload
 ```bash
 npm run dev
 ```
+
 The application will be available at http://localhost:3000.
 
 Note that the TROPIC API also needs to be running for the website to work properly.
@@ -36,4 +37,5 @@ To create an optimized production build of the website, run the following comman
 ```bash
 npm run build
 ```
+
 This will generate the static files in the .out directory, ready for deployment.
