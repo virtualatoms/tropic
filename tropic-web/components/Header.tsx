@@ -35,6 +35,7 @@ export function Header() {
       size={opened ? "lg" : "sm"}
       fw={500}
       fullWidth={opened}
+      onClick={() => opened && toggle()}
     >
       {link.label}
     </Button>
