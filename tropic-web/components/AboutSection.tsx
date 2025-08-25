@@ -25,7 +25,6 @@ import "katex/dist/katex.min.css";
 
 export default function AboutSection() {
   return (
-    <Container size="md" py="xl">
       <Stack gap="xl">
         <Stack gap="xs">
           <Title order={1}>About the TROPIC Database</Title>
@@ -136,7 +135,6 @@ export default function AboutSection() {
 
         <Divider />
 
-        {/* --- Reaction Types Section (Reworked) --- */}
         <Stack gap="xs">
           <Group>
             <ThemeIcon size="lg" variant="light">
@@ -334,6 +332,5 @@ export default function AboutSection() {
           </Grid>
         </Stack>
       </Stack>
-    </Container>
   );
 }
