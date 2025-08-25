@@ -71,10 +71,10 @@ export default function MonomerPage() {
             </div>
           </Grid.Col>
           <GridCol span={9}>
-              <>
-                <MonomerSummaryHeader data={data} />
-                <MonomerReactionTable data={data} />
-              </>
+            <>
+              <MonomerSummaryHeader data={data} />
+              <MonomerReactionTable data={data} />
+            </>
           </GridCol>
         </Grid>
       ) : (

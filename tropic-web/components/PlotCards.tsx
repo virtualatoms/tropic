@@ -141,7 +141,7 @@ export function ExtrapolationPlotCard({
         </Center>
       </CardSection>
       <Box p="md" style={{ minHeight: 350 }}>
-      <Scatter data={chartJSData} options={options} />
+        <Scatter data={chartJSData} options={options} />
       </Box>
     </Card>
   );

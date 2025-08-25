@@ -27,7 +27,11 @@ export const ImageRenderer = ({ value }: { value: string }) => (
       height: "100%",
     }}
   >
-    <Image src={`data:image/svg+xml;base64,${value}`} alt="Monomer structure" style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }} />
+    <Image
+      src={`data:image/svg+xml;base64,${value}`}
+      alt="Monomer structure"
+      style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
+    />
   </div>
 );
 

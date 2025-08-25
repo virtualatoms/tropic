@@ -104,7 +104,9 @@ type AnalysisChartProps<T> = {
   };
 };
 
-const externalTooltipHandler = (context: ScriptableTooltipContext<'scatter'>) => {
+const externalTooltipHandler = (
+  context: ScriptableTooltipContext<"scatter">,
+) => {
   const { chart, tooltip } = context;
   let tooltipEl: HTMLElement | null = null;
   const parentNode = chart.canvas.parentNode as HTMLElement | null;
