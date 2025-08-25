@@ -214,7 +214,7 @@ export default function AboutSection() {
                   <Text fw={700}>RER (Ring-Expansion Reaction)</Text>
                   <Text size="sm" mt={4}>
                     A computational model where cyclic monomers form short
-                    cyclic polymer chains or "loops."
+                    cyclic polymer chains or &quot;loops.&quot;
                   </Text>
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, sm: 4 }}>
@@ -270,7 +270,7 @@ export default function AboutSection() {
                   Experimental Methods
                 </Title>
                 <Card withBorder radius="md">
-                  <Text fw={700}>Van't Hoff Analysis</Text>
+                  <Text fw={700}>Van&apos;t Hoff Analysis</Text>
                   <Text size="sm" mt={5}>
                     Determining <InlineMath math="\Delta H_p" /> and{" "}
                     <InlineMath math="\Delta S_p" /> from the monomer
