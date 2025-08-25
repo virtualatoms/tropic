@@ -13,6 +13,7 @@ import {
   Table,
   Group,
   Code,
+  useMantineTheme,
 } from "@mantine/core";
 import {
   IconChartInfographic,
@@ -22,8 +23,12 @@ import {
 } from "@tabler/icons-react";
 import { InlineMath, BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function AboutSection() {
+  const theme = useMantineTheme();
+  const isSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+
   return (
     <Stack gap="xl">
       <Title order={1}>About the TROPIC Database</Title>
@@ -82,7 +87,7 @@ export default function AboutSection() {
           monomers (PCMs) used in ring-opening polymerizations.
         </Text>
         <Grid gutter="md" mt="md">
-          <Grid.Col span={8}>
+          <Grid.Col span={{ base: 12, sm: 8 }}>
             <Image
               radius="md"
               src="/about-classes.png"
@@ -90,7 +95,7 @@ export default function AboutSection() {
               my="md"
             />
           </Grid.Col>
-          <Grid.Col span={4}>
+          <Grid.Col span={{ base: 12, sm: 4 }}>
             <Card withBorder p={0}>
               <Table striped verticalSpacing="xs">
                 <Table.Thead>
@@ -146,15 +151,15 @@ export default function AboutSection() {
         </Text>
         <Stack gap="lg" mt="md">
           <Card withBorder radius="md" padding="md">
-            <Grid>
-              <Grid.Col span={{ base: 12, sm: 8 }}>
+            <Grid justify={isSmallScreen ? "center" : "space-between"}>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Text fw={700}>ROP (Ring-Opening Polymerization)</Text>
                 <Text size="sm" mt={4}>
                   An experimental reaction where cyclic monomers form long-chain
                   linear polymers.
                 </Text>
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 4 }}>
+              <Grid.Col span={{ base: 6, sm: 4 }}>
                 <Image
                   src="/rop.png"
                   radius="sm"
@@ -165,15 +170,15 @@ export default function AboutSection() {
           </Card>
 
           <Card withBorder radius="md" padding="md">
-            <Grid>
-              <Grid.Col span={{ base: 12, sm: 8 }}>
+            <Grid justify={isSmallScreen ? "center" : "space-between"}>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Text fw={700}>RCE (Ring-Chain Equilibrium)</Text>
                 <Text size="sm" mt={4}>
                   An experimental equilibrium between all ring sizes (including
                   monomer) and the final polymer.
                 </Text>
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 4 }}>
+              <Grid.Col span={{ base: 9, sm: 6 }}>
                 <Image
                   src="/rce.png"
                   radius="sm"
@@ -184,30 +189,30 @@ export default function AboutSection() {
           </Card>
 
           <Card withBorder radius="md" padding="md">
-            <Grid>
-              <Grid.Col span={{ base: 12, sm: 8 }}>
+            <Grid justify={isSmallScreen ? "center" : "space-between"}>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Text fw={700}>ROR (Ring-Opening Reaction)</Text>
                 <Text size="sm" mt={4}>
                   A model reaction, computational or experimental, where one or
                   a few monomers are opened to form a short linear chain.
                 </Text>
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 4 }}>
+              <Grid.Col span={{ base: 7, sm: 5 }}>
                 <Image src="/ror.png" radius="sm" alt="Ring-Opening Reaction" />
               </Grid.Col>
             </Grid>
           </Card>
 
           <Card withBorder radius="md" padding="md">
-            <Grid>
-              <Grid.Col span={{ base: 12, sm: 8 }}>
+            <Grid justify={isSmallScreen ? "center" : "space-between"}>
+              <Grid.Col span={{ base: 12, sm: 6 }}>
                 <Text fw={700}>RER (Ring-Expansion Reaction)</Text>
                 <Text size="sm" mt={4}>
                   A computational model where cyclic monomers form short cyclic
                   polymer chains or &quot;loops.&quot;
                 </Text>
               </Grid.Col>
-              <Grid.Col span={{ base: 12, sm: 4 }}>
+              <Grid.Col span={{ base: 5, sm: 3.5 }}>
                 <Image
                   src="/rer.png"
                   radius="sm"

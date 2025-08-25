@@ -50,18 +50,21 @@ export default function MonomerSearchPage() {
     <>
       <Breadcrumbs pages={["Home", "Monomer Search"]} />
       <Container fluid>
-        <Center my="md">
-          <Group>
-            <TextInput
-              placeholder="Enter SMILES"
-              value={filters.smiles}
-              onChange={(e) =>
-                setFilters({ ...filters, smiles: e.currentTarget.value })
-              }
-              w={500}
-            />
-            <Button onClick={() => setModalOpen(true)}>Draw Molecule</Button>
-          </Group>
+        <Center my="md" w="100%">
+          <Grid align="center" style={{ flex: 1, maxWidth: 650 }}>
+            <Grid.Col span="auto">
+              <TextInput
+                placeholder="Enter SMILES"
+                value={filters.smiles}
+                onChange={(e) =>
+                  setFilters({ ...filters, smiles: e.currentTarget.value })
+                }
+              />
+            </Grid.Col>
+            <Grid.Col span="content">
+              <Button onClick={() => setModalOpen(true)}>Draw Molecule</Button>
+            </Grid.Col>
+          </Grid>
         </Center>
 
         <DrawModal
@@ -70,11 +73,11 @@ export default function MonomerSearchPage() {
           onClose={() => setModalOpen(false)}
         />
 
-        <Grid gutter="xl" pt="xl">
-          <GridCol span={3}>
+        <Grid gutter="xl" pt="sm">
+          <GridCol span={{ base: 12, sm: 3 }}>
             <MonomerSearchSidebar filters={filters} setFilters={setFilters} />
           </GridCol>
-          <GridCol span={9}>
+          <GridCol span={{ base: 12, sm: 9 }}>
             <MonomerTabsView data={monomerData} isLoading={isLoading} />
           </GridCol>
         </Grid>

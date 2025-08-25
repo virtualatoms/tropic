@@ -8,12 +8,12 @@ export default function ApiPage() {
     <>
       <Breadcrumbs pages={["Home", "API"]} />
       <Grid pt={30} gutter="xl" mb={50}>
-        <Grid.Col span={3} pt={25}>
+        <Grid.Col span={3} visibleFrom="sm">
           <div style={{ position: "sticky", top: "1rem" }}>
             <TableOfContents />
           </div>
         </Grid.Col>
-        <Grid.Col span={9}>
+        <Grid.Col span={{ base: 12, sm: 9 }}>
           <ApiDocs />
         </Grid.Col>
       </Grid>

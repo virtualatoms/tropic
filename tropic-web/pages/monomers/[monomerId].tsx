@@ -61,7 +61,7 @@ export default function MonomerPage() {
         </Center>
       ) : data ? (
         <Grid pt={30} gutter="xl" mb={50}>
-          <Grid.Col span={3}>
+          <Grid.Col span={{ base: 12, sm: 3 }}>
             <div style={{ position: "sticky", top: "1rem" }}>
               <MonomerLogo
                 svg={data.monomer.svg}
@@ -70,12 +70,12 @@ export default function MonomerPage() {
               <TableOfContents />
             </div>
           </Grid.Col>
-          <GridCol span={9}>
+          <Grid.Col span={{ base: 12, sm: 9 }}>
             <>
               <MonomerSummaryHeader data={data} />
               <MonomerReactionTable data={data} />
             </>
-          </GridCol>
+          </Grid.Col>
         </Grid>
       ) : (
         <></>
