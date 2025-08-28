@@ -219,7 +219,14 @@ async def create_reactions_monomers(monomers: dict[str, MonomerDocument]) -> Non
 
 async def build_db(skip_monomers: bool = False) -> None:
     """Rebuild the TROPIC database."""
-    client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
+    logging.info(f"Connecting to database: {SETTINGS.DATABASE_URL}")  # noqa: G004
+
+    client = AsyncIOMotorClient(
+        SETTINGS.DATABASE_URL,
+        username=SETTINGS.DATABASE_USERNAME,
+        password=SETTINGS.DATABASE_PASSWORD,
+        authSource=SETTINGS.DATABASE_AUTH_SOURCE,
+    )
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
         document_models=[ReactionDocument, MonomerDocument],

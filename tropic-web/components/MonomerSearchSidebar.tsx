@@ -53,6 +53,7 @@ export default function MonomerSearchSidebar({
           <RangeSlider
             min={1}
             max={15}
+            minRange={1}
             value={filters.ringSize}
             onChange={(value) => setFilters({ ...filters, ringSize: value })}
             marks={[

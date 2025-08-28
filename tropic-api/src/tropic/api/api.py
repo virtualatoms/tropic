@@ -1,6 +1,6 @@
 """Central starting point for the Tropic API."""
 
-import argparse
+import logging
 
 import uvicorn
 from beanie import init_beanie
@@ -14,10 +14,25 @@ from tropic.api.documents import MonomerDocument, ReactionDocument
 from tropic.api.filters import MonomerSummariesFilter, ReactionFilter
 from tropic.core.models import Reaction
 
+logging.basicConfig(level=logging.INFO)
+
+ORIGINS = [
+    "http://localhost",
+    f"http://localhost:{SETTINGS.API_PORT}",
+    f"http://{SETTINGS.API_HOST}:{SETTINGS.API_PORT}",
+]
+
+if SETTINGS.API_PUBLIC_IP:
+    ORIGINS.append(f"http://{SETTINGS.API_PUBLIC_IP}:{SETTINGS.API_PORT}")
+
+logging.info("Allowed origins:")
+for origin in ORIGINS:
+    logging.info(f" - {origin}")  # noqa: G004
+
 app = FastAPI(title="TROPIC API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost", "http://localhost:3000"],
+    allow_origins=ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +42,12 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_event() -> None:
     """Initialize the Beanie ODM with the MongoDB client."""
-    client = AsyncIOMotorClient(SETTINGS.DATABASE_URL)
+    client = AsyncIOMotorClient(
+        SETTINGS.DATABASE_URL,
+        username=SETTINGS.DATABASE_USERNAME,
+        password=SETTINGS.DATABASE_PASSWORD,
+        authSource=SETTINGS.DATABASE_AUTH_SOURCE,
+    )
     await init_beanie(
         database=client[SETTINGS.DATABASE_NAME],
         document_models=[ReactionDocument, MonomerDocument],
@@ -172,30 +192,9 @@ async def get_monomer(monomer_id: str) -> dict:
 
 def main() -> None:
     """Run the FastAPI application."""
-    parser = argparse.ArgumentParser(description="Run the Tropic API.")
-    parser.add_argument(
-        "--host",
-        type=str,
-        default=SETTINGS.API_HOST,
-        help="Host for the API server.",
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=SETTINGS.API_PORT,
-        help="Port for the API server.",
-    )
-    parser.add_argument(
-        "--workers",
-        type=int,
-        default=SETTINGS.API_WORKERS,
-        help="Number of workers for the API server.",
-    )
-    args = parser.parse_args()
-
     uvicorn.run(
         app,
-        host=args.host,
-        port=args.port,
-        workers=args.workers,
+        host=SETTINGS.API_HOST,
+        port=SETTINGS.API_PORT,
+        workers=SETTINGS.API_WORKERS,
     )

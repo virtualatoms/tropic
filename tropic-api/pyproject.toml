@@ -32,6 +32,12 @@ dependencies = [
     "uvicorn",
     "requests-cache",
     "pydantic-settings",
+    "numpy",
+    "pandas",
+    "motor",
+    "rdkit",
+    "scipy",
+    "tqdm",
 ]
 
 [project.optional-dependencies]

@@ -17,7 +17,23 @@ class Settings(BaseSettings):
         description="URL for the MongoDB database.",
     )
     DATABASE_NAME: str = Field("tropic", description="Name of the MongoDB database.")
+    DATABASE_USERNAME: str = Field(
+        None,
+        description="Username for the MongoDB database.",
+    )
+    DATABASE_PASSWORD: str = Field(
+        None,
+        description="Password for the MongoDB database.",
+    )
+    DATABASE_AUTH_SOURCE: str = Field(
+        None,
+        description="Authentication source for the MongoDB database.",
+    )
     API_HOST: str = Field("127.0.0.1", description="Host for the API server.")
     API_PORT: int = Field(8000, description="Port for the API server.")
     API_WORKERS: int = Field(1, description="Number of workers for the API server.")
+    API_PUBLIC_IP: str = Field(
+        None,
+        description="Public IP address for the API server.",
+    )
     model_config = SettingsConfigDict(env_prefix="TROPIC_")
