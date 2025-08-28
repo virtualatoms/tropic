@@ -25,8 +25,8 @@ class Settings(BaseSettings):
         None,
         description="Password for the MongoDB database.",
     )
-    DATABASE_AUTH_SOURCE: str | None = Field(
-        None,
+    DATABASE_AUTH_SOURCE: str = Field(
+        "admin",
         description="Authentication source for the MongoDB database.",
     )
     API_HOST: str = Field("127.0.0.1", description="Host for the API server.")

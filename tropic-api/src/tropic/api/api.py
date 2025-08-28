@@ -18,16 +18,17 @@ logging.basicConfig(level=logging.INFO)
 
 ORIGINS = [
     "http://localhost",
-    f"http://localhost:{SETTINGS.API_PORT}",
-    f"http://{SETTINGS.API_HOST}:{SETTINGS.API_PORT}",
+    "http://localhost:3000",
+    f"http://{SETTINGS.API_HOST}:80",
 ]
 
 if SETTINGS.API_PUBLIC_IP:
-    ORIGINS.append(f"http://{SETTINGS.API_PUBLIC_IP}:{SETTINGS.API_PORT}")
+    ORIGINS.append(f"http://{SETTINGS.API_PUBLIC_IP}:80")
 
 logging.info("Allowed origins:")
 for origin in ORIGINS:
     logging.info(f" - {origin}")  # noqa: G004
+logging.info(f"Using MongoDB database: {SETTINGS.DATABASE_URL}")  # noqa: G004
 
 app = FastAPI(title="TROPIC API")
 app.add_middleware(
@@ -57,28 +58,33 @@ async def startup_event() -> None:
 @app.get("/reactions")
 async def get_reactions(
     reaction_filter: ReactionFilter = FilterDepends(ReactionFilter),  # noqa: B008
-    include_svg: bool = False,
+    include_svg: bool | None = False,
 ) -> list[Reaction]:
     """Retrieve a list of reactions with optional filtering."""
     query = reaction_filter.filter(ReactionDocument.find({}))
     query = query.find(fetch_links=True)
+    documents = await query.to_list()
+
     if not include_svg:
-        query = query.project({"monomer.svg": 0})
-    return await query.to_list()
+        for doc in documents:
+            doc.monomer.svg = None
+
+    return documents
 
 
 @app.get("/reactions/{reaction_id}")
 async def get_reaction(
     reaction_id: str,
-    include_svg: bool = False,
+    include_svg: bool | None = False,
 ) -> Reaction:
     """Retrieve a specific reaction by its ID."""
     document = await ReactionDocument.find_one(
         {"reaction_id": reaction_id},
         fetch_links=True,
     )
-    if not include_svg:
-        document = document.project({"monomer.svg": 0})
+
+    if not include_svg and document:
+        document.monomer.svg = None
 
     if not document:
         raise HTTPException(status_code=404, detail="Reaction not found")
