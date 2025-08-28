@@ -22,9 +22,6 @@ ORIGINS = [
     f"http://{SETTINGS.API_HOST}:80",
 ]
 
-if SETTINGS.API_PUBLIC_IP:
-    ORIGINS.append(f"http://{SETTINGS.API_PUBLIC_IP}:80")
-
 logging.info("Allowed origins:")
 for origin in ORIGINS:
     logging.info(f" - {origin}")  # noqa: G004

@@ -38,6 +38,7 @@ dependencies = [
     "rdkit",
     "scipy",
     "tqdm",
+    "openpyxl",
 ]
 
 [project.optional-dependencies]
