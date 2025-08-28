@@ -32,8 +32,4 @@ class Settings(BaseSettings):
     API_HOST: str = Field("127.0.0.1", description="Host for the API server.")
     API_PORT: int = Field(8000, description="Port for the API server.")
     API_WORKERS: int = Field(1, description="Number of workers for the API server.")
-    API_PUBLIC_IP: str | None = Field(
-        None,
-        description="Public IP address for the API server.",
-    )
     model_config = SettingsConfigDict(env_prefix="TROPIC_")
