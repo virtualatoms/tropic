@@ -54,6 +54,7 @@ jobs:
         env:
           PAGES_BASE_PATH: ${{ steps.setup_pages.outputs.base_path }}
           NEXT_TROPIC_API_ENDPOINT: http://91.98.23.165
+          TROPIC_API_ENDPOINT: http://91.98.23.165
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
