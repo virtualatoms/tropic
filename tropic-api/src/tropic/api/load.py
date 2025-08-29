@@ -29,6 +29,11 @@ async def load_db(filename: str) -> None:
         document_models=[ReactionDocument, MonomerDocument],
     )
 
+    logging.info("Clearing database")
+    await MonomerDocument.find_all().delete()
+    await ReactionDocument.find_all().delete()
+    logging.info("Done clearing database")
+
     with open(filename, "rb") as file:  # noqa:PTH123,ASYNC230
         reactions = pickle.load(file)  # noqa:S301
 
