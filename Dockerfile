@@ -13,7 +13,7 @@ COPY tropic-api ./tropic-api/
 # Use uv to install both local packages in editable mode.
 # The `-e` flag is important for monorepos as it correctly links the local packages.
 # This command will read the pyproject.toml from each directory and install dependencies.
-RUN uv pip install -e ./tropic-core -e ./tropic-api --system
+RUN uv pip install -e ./tropic-core -e ./tropic-api[strict] --system
 
 EXPOSE 8000
 CMD ["tropic-api"]

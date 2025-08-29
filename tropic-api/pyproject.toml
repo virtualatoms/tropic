@@ -30,14 +30,20 @@ dependencies = [
     "fastapi",
     "fastapi-filter",
     "uvicorn",
-    "requests-cache",
     "pydantic-settings",
     "motor",
 ]
 
 [project.optional-dependencies]
 strict = [
-    "pydantic==2.6.2",
+    "motor==3.7.0",
+    "pydantic==2.11.7",
+    "pydantic_core==2.33.2",
+    "pydantic_settings==2.6.1",
+    "fastapi==0.115.12",
+    "fastapi-filter==2.0.1",
+    "uvicorn==0.34.2",
+    "beanie==1.29.0",
 ]
 
 build = [
@@ -47,7 +53,8 @@ build = [
     "rdkit",
     "scipy",
     "tqdm",
-    "openpyxl"
+    "openpyxl",
+    "requests-cache",
 ]
 
 
