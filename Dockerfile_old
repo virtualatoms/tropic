@@ -14,10 +14,18 @@ RUN apt-get update && \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir .[strict]
+RUN pip install --no-cache-dir uv 
+
+COPY tropic-core ./tropic-core/
+COPY tropic-api ./tropic-api/
+
+# Install tropic core
+WORKDIR /app/tropic-core
+RUN uv pip install --no-cache-dir .
+
+# Install app
+WORKDIR /app/tropic-api
+RUN uv pip install --no-cache-dir .
 
 # Stage 2: Runtime
 FROM python:3.13-slim
@@ -34,8 +42,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy application files
-COPY main.py .
-
 EXPOSE 8000
-CMD ["tropic-api"]
+
+RUN uv pip install rdkit
+# ENV PYTHONPATH="/opt/venv/lib/python3.13/site-packages:$PYTHONPATH"
+
+CMD ["uv", "run", "-q", "tropic-api"]

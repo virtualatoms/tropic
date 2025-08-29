@@ -32,19 +32,24 @@ dependencies = [
     "uvicorn",
     "requests-cache",
     "pydantic-settings",
-    "numpy",
-    "pandas",
     "motor",
-    "rdkit",
-    "scipy",
-    "tqdm",
-    "openpyxl",
 ]
 
 [project.optional-dependencies]
 strict = [
     "pydantic==2.6.2",
 ]
+
+build = [
+    "numpy",
+    "pandas",
+    "motor",
+    "rdkit",
+    "scipy",
+    "tqdm",
+    "openpyxl"
+]
+
 
 [project.scripts]
 tropic-api = "tropic.api.api:main"
@@ -56,6 +61,9 @@ homepage = "https://virtualatoms.github.io/tropic/"
 repository = "https://github.com/virtualatoms/tropic"
 documentation = "https://virtualatoms.github.io/tropic/"
 changelog = "https://github.com/virtualatoms/tropic/blob/main/CHANGELOG.md"
+
+[tool.versioningit]
+default-version = "0.0.1"
 
 [tool.versioningit.vcs]
 method = "git"
