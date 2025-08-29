@@ -49,6 +49,7 @@ strict = [
 [project.scripts]
 tropic-api = "tropic.api.api:main"
 tropic-build = "tropic.api.build:main"
+tropic-load = "tropic.api.load:main"
 
 [project.urls]
 homepage = "https://virtualatoms.github.io/tropic/"

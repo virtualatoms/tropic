@@ -4,6 +4,7 @@ import argparse
 import asyncio
 import base64
 import logging
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -217,7 +218,14 @@ async def create_reactions_monomers(monomers: dict[str, MonomerDocument]) -> Non
         await reaction.save(link_rule=WriteRules.WRITE)
 
 
-async def build_db(skip_monomers: bool = False) -> None:
+async def dump_db() -> None:
+    """Dump the database as a pickle file."""
+    docs = await ReactionDocument.find_all(fetch_links=True).to_list()
+    with open("data/db.pkl", "wb") as file:  # noqa:PTH123,ASYNC230
+        pickle.dump(docs, file)
+
+
+async def build_db(skip_monomers: bool = False, dump: bool = False) -> None:
     """Rebuild the TROPIC database."""
     logging.info(f"Connecting to database: {SETTINGS.DATABASE_URL}")  # noqa: G004
 
@@ -232,6 +240,9 @@ async def build_db(skip_monomers: bool = False) -> None:
         document_models=[ReactionDocument, MonomerDocument],
     )
 
+    if dump:
+        return await dump_db()
+
     if not skip_monomers:
         await MonomerDocument.find_all().delete()
     await ReactionDocument.find_all().delete()
@@ -241,7 +252,7 @@ async def build_db(skip_monomers: bool = False) -> None:
         for monomer in await MonomerDocument.find_all().to_list()
     }
 
-    await create_reactions_monomers(monomers)
+    return await create_reactions_monomers(monomers)
 
 
 def main() -> None:
@@ -253,5 +264,11 @@ def main() -> None:
         action="store_true",
         help="Skip rebuilding the monomers.",
     )
+    parser.add_argument(
+        "-d",
+        "--dump",
+        action="store_true",
+        help="Dump the database to a pickle file.",
+    )
     args = parser.parse_args()
-    asyncio.run(build_db(args.skip_monomers))
+    asyncio.run(build_db(args.skip_monomers, args.dump))
