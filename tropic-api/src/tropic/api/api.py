@@ -20,6 +20,7 @@ ORIGINS = [
     "http://localhost",
     "http://localhost:3000",
     f"http://{SETTINGS.API_HOST}:80",
+    "https://polytropic.org",
 ]
 
 logging.info("Allowed origins:")
