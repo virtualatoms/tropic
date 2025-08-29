@@ -39,6 +39,9 @@ repository = "https://github.com/virtualatoms/tropic"
 documentation = "https://virtualatoms.github.io/tropic/"
 changelog = "https://github.com/virtualatoms/tropic/blob/main/CHANGELOG.md"
 
+[tool.versioningit]
+default-version = "0.0.1"
+
 [tool.versioningit.vcs]
 method = "git"
 default-tag = "0.0.1"
