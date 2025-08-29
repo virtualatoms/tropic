@@ -26,6 +26,7 @@ classifiers = [
 requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2.0.1",
+    "rdkit"
 ]
 
 [project.optional-dependencies]
